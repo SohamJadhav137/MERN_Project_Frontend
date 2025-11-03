@@ -11,13 +11,16 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Login from "./Pages/Auth/Login/Login"
 import Signup from "./Pages/Auth/Signup/Signup"
 import AppLayout from "./AppLayout"
+import { AuthProvider } from "./context/AuthContext"
 
 function App() {
 
   return (
     <>
       <BrowserRouter>
-        <AppLayout/>
+        <AuthProvider>
+          <AppLayout />
+        </AuthProvider>
       </BrowserRouter>
     </>
   )

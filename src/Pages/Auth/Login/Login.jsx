@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 
 import './login.scss';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../context/AuthContext';
 
 export default function Login() {
+
+  const { login } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -36,7 +39,9 @@ export default function Login() {
     setLoading(true);
     
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -49,13 +54,19 @@ export default function Login() {
         return;
       }
 
-      alert("User registered successfully");
+      localStorage.setItem("token", data.token);
+      const user = { email: data.email, name: data.name, role: data.role }
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log(data);
+      console.log(user);
+      login(user, data.token);
+      alert("User logged in successfully");
       navigate('/');
-    } catch (error) {
-      setError("Server error. Please try again later!")
-    }
 
-    finally {
+    } catch (error) {
+      console.error(error)
+      setError("Server error. Please try again later!")
+    } finally {
       setLoading(false);
     }
   }

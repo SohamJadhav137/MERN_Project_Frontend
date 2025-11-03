@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 import './NavBar.scss'
 import { Link, useLocation } from 'react-router-dom'
+import { AuthContext } from '../../context/AuthContext'
 
 export default function NavBar() {
+
+  const { user, logout } = useContext(AuthContext);
 
   // const [active, setActive] = useState(true)
   const [isLogin, setLogin] = useState(false)
@@ -53,16 +56,17 @@ export default function NavBar() {
           </div>
           <div className="auth">
             {
-              isLogin ?
+              user ?
                 <>
                   <div className="auth-after">
-                    <span onClick={toggleMenu} style={{ cursor: 'pointer' }} className='user-profile'>User</span>
-                    <span onClick={toggleMenu} style={{ cursor: 'pointer' }} className='user-profile'><i class="fa-solid fa-user"></i></span>
+                    <div className="user-profile" onClick={toggleMenu} style={{ cursor: 'pointer' }}>
+                      <span><i class="fa-solid fa-user"></i> {user.name}</span>
+                    </div>
                     {
                       showMenu && (
                         <div className="dropdown-menu">
                           {
-                            currectUser.isSeller && (
+                            user.role === 'seller' && (
                               <>
                                 <Link to='/my-gigs' className='dropdown-item link'>My Gigs</Link>
                                 <Link to='/new-gig' className='dropdown-item link'>New Gig</Link>
@@ -71,7 +75,7 @@ export default function NavBar() {
                           }
                           <Link to='/orders' className='dropdown-item link'>Orders</Link>
                           <Link to='/messages' className='dropdown-item link'>Messages</Link>
-                          <span className='dropdown-item link'>Logout</span>
+                          <span className='dropdown-item-button link' onClick={logout} style={{ cursor: 'pointer' }}>Logout</span>
                         </div>
                       )
                     }

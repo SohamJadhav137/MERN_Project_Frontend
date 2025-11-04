@@ -250,12 +250,12 @@
                     }
                 }
 
-                .contact-seller-btn-container{
+                .buy-gig-btn-container{
                     width: 100%;
                     display: flex;
                     justify-content: center;
                     padding: 10px 0px;
-                    .contact-seller-btn{
+                    .buy-gig-btn{
                         width: 90%;
                         min-width: 300px;
                         padding: 10px 0px;
@@ -263,11 +263,25 @@
                         color: white;
                         cursor: pointer;
                     }
-                    .contact-seller-btn:hover{
+                    .buy-gig-btn:hover{
                         background-color: rgb(36, 36, 36);
                     }
                 }
 
+                .contact-seller-container{
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    padding: 10px 10px;
+                    text-align: center;
+                    font-style: italic;
+                    cursor: default;
+
+                    .contact-seller-text{
+                        color: purple;
+                        cursor: pointer;
+                    }
+                }
             }
         }
     }

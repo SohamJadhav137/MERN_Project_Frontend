@@ -5,7 +5,7 @@ import './Message.scss'
 export default function Message(props) {
   return (
     <div className='message-box'>
-        <div className="message-profile-image-container">a</div>
+        <div className="message-profile-image-container">{props.info}</div>
         <div className="message">
             <p>{props.msg}</p>
         </div>

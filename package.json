@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.13.1",
     "framer-motion": "^12.23.12",
     "infinite-react-carousel": "^1.2.11",
     "react": "^19.1.1",

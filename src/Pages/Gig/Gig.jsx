@@ -2,8 +2,9 @@ import React from 'react'
 
 import './Gig.scss'
 import { gigs } from '../../Data/GigsData'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { Slider } from 'infinite-react-carousel'
+import axios from 'axios'
 
 export default function Gig() {
     
@@ -12,6 +13,19 @@ export default function Gig() {
 
     if (!gig)
         return <h2>Gig not found</h2>
+
+    const contactSellerHandler = async (sellerId, token) => {
+        try{
+            const res = await axios.post("http://localhost:5000/api/conversations",
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            const conversation = res.data;
+            Navigate(`/messages/${conversation._id}`);
+        } catch(error){
+            console.error("Error in initiating new conversation!",error);
+        }
+    }
 
     return (
         <div className='gig'>
@@ -189,8 +203,11 @@ export default function Gig() {
                                 </ul>
                             </div>
                         </div>
-                        <div className="contact-seller-btn-container">
-                            <button className='contact-seller-btn'>Continue</button>
+                        <div className="buy-gig-btn-container">
+                            <button className='buy-gig-btn'>Continue</button>
+                        </div>
+                        <div className="contact-seller-container">
+                            <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={contactSellerHandler}>Contact seller</span></span>
                         </div>
                     </div>
                 </div>

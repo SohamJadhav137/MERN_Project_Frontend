@@ -60,7 +60,7 @@ export default function Login() {
       console.log(data);
       console.log(user);
       login(user, data.token);
-      alert("User logged in successfully");
+      // alert("User logged in successfully");
       navigate('/');
 
     } catch (error) {

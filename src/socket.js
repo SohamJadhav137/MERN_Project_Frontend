@@ -1,19 +1,23 @@
 import { io } from "socket.io-client";
 
+const user = JSON.parse(localStorage.getItem("user"));
+
 const socket = io("http://localhost:5000", {
     transports: ["websocket"],
     withCredentials: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000
+    auth: {
+        userId: user?.email,
+        username: user?.name
+    }
 });
 window.socket = socket
 
 socket.on("connect", () => {
-    console.log("Connected to server with ID:",socket.id);
+    console.log(`Connected to server with ID: ${socket.id}`);
 });
 
 socket.on("disconnect", () => {
-    console.log("Disconnected from server");
+    console.log(`${user?.name} disconnected from server`);
 });
 
 socket.on("connect_error", (err) => {

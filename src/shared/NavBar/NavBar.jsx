@@ -14,6 +14,7 @@ export default function NavBar() {
 
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   const navBarForms = `navbar ${isHomePage ? 'navbar-sticky' : 'navbar-default'}`;
 
@@ -49,10 +50,19 @@ export default function NavBar() {
             </Link>
           </div>
           <div className="titles">
-            <span>Home</span>
-            <span>Categories</span>
-            <span>About</span>
-            <span>Contact</span>
+            {!isAuthPage &&
+              <>
+                <Link to='/orders' className='link'>Orders</Link>
+                <Link to='/messages' className='link'>Messages</Link>
+                {
+                  user?.role === 'seller' && (
+                    <Link to='/my-gigs' className='link'>My Gigs</Link>
+                  )
+                }
+                <Link to='/create-gig' className='link'>Create Gig</Link>
+                <span>Categories</span>
+              </>
+            }
           </div>
           <div className="auth">
             {
@@ -65,16 +75,7 @@ export default function NavBar() {
                     {
                       showMenu && (
                         <div className="dropdown-menu">
-                          {
-                            user.role === 'seller' && (
-                              <>
-                                <Link to='/my-gigs' className='dropdown-item link'>My Gigs</Link>
-                                <Link to='/new-gig' className='dropdown-item link'>New Gig</Link>
-                              </>
-                            )
-                          }
-                          <Link to='/orders' className='dropdown-item link'>Orders</Link>
-                          <Link to='/messages' className='dropdown-item link'>Messages</Link>
+                          <span className='dropdown-item-button link'>My profile</span>
                           <span className='dropdown-item-button link' onClick={logout} style={{ cursor: 'pointer' }}>Logout</span>
                         </div>
                       )

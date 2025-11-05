@@ -14,6 +14,7 @@ import './AppLayout.css';
 import { AuthContext } from './context/AuthContext';
 import { PrivateRoute } from './ProtectEndpoint/PrivateRoute';
 import UnAuthorizedPage from './Pages/UnAuth/UnAuthorizedPage';
+import CreateGig from './Pages/CreateGig/CreateGig';
 
 export default function AppLayout() {
 
@@ -39,6 +40,7 @@ export default function AppLayout() {
                         {/* <Route path="/messages" element={<PrivateRoute><MainContainer /></PrivateRoute>} /> */}
                         <Route path="/messages/:conversationId" element={<MainContainer />} />
                         <Route path="/unauthorized" element={<UnAuthorizedPage/>} />
+                        <Route path="/create-gig" element={<PrivateRoute allowedRoles={"seller"}><CreateGig/></PrivateRoute>} />
                     </Routes>
                 </div>
                 <Footer />

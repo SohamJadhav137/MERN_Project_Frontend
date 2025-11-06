@@ -5,7 +5,7 @@ export default function CreateGig() {
 
     const [formData, setFormData] = useState({
         title: '',
-        desc: '',
+        description: '',
         category: '',
         tags: [],
         imageURLs: [],
@@ -19,64 +19,137 @@ export default function CreateGig() {
     const [tagInput, setTagInput] = useState('');
 
     const keyDownHandlers = (e) => {
-        if(e.key === "Enter" || e.key === "Tab"){
+        if (e.key === "Enter" || e.key === "Tab") {
             e.preventDefault();
 
             const newTag = tagInput.trim().toLowerCase();
 
-            if(newTag && !formData.tags.includes(newTag)){
-                setFormData({...formData, tags: [...formData.tags, newTag]});
+            if (newTag && !formData.tags.includes(newTag)) {
+                setFormData({ ...formData, tags: [...formData.tags, newTag] });
                 setTagInput('');
             }
         }
     };
 
     const deleteTagHandler = (tagToDelete) => {
-        setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToDelete)});
+        setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToDelete) });
     };
 
     const changeHandler = (e) => {
         const { name, value } = e.target;
-        setFormData({...formData, [name]: value});
+        setFormData({ ...formData, [name]: value });
     };
 
     const fileUploadHandler = (e) => {
         const { id, files } = e.target;
-        
-        if(id === 'gig-images'){
-            setFormData({...formData, imageURLs: Array.from(files)});
+
+        if (id === 'gig-images') {
+            setFormData({ ...formData, imageURLs: Array.from(files) });
         }
-        else if(id === 'gig-video'){
-            setFormData({...formData, videoURL: files[0]});
+        else if (id === 'gig-video') {
+            setFormData({ ...formData, videoURL: files[0] });
         }
-        else if(id === 'gig-docs'){
-            setFormData({...formData, docURLs: Array.from(files)});
+        else if (id === 'gig-docs') {
+            setFormData({ ...formData, docURLs: Array.from(files) });
         }
     };
 
+    const uploadToS3 = async (file, token) => {
+        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if(!response.ok){
+            const errorData = await response.json().catch(() => ({ message: "Presigne URL request failed!"}))
+            console.error("Presign URL fetch error:",errorData.message);
+            throw new Error("Failed to get S3 upload link!");
+        }
+        
+        const { uploadURL, fileURL } = await response.json();
+
+        await fetch(uploadURL, {
+            method: 'PUT',
+            headers: { "Content-Type": file.type },
+            body: file
+        });
+
+        return fileURL;
+    }
+
     const validateForm = () => {
-        const { title, category, desc, imageURLs, price, deliveryDays, revisions} = formData
+        const { title, category, description, imageURLs, price, deliveryDays, revisions } = formData
         let errors = [];
 
-        if(!title.trim()) errors.push("Title field is empty!");
-        if(!category || category === '') errors.push("Category is required!")
-        if(!desc.trim()) errors.push("Description is empty!");
-        if(imageURLs.length === 0) errors.push("Atleast one image is required!");
-        if(!price || isNaN(price) || price < 0) errors.push("Enter valid price!");
-        if(!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
-        if(!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
+        if (!title.trim()) errors.push("Title field is empty!");
+        if (!category || category === '') errors.push("Category is required!")
+        if (!description.trim()) errors.push("Description is empty!");
+        if (imageURLs.length === 0) errors.push("Atleast one image is required!");
+        if (!price || isNaN(price) || price < 0) errors.push("Enter valid price!");
+        if (!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
+        if (!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
 
-        if(errors.length > 0)
+        console.log(errors)
+
+        if (errors.length > 0)
             return false;
 
         return true;
     }
 
-    const formSubmitHandler = () => {
+    const formSubmitHandler = async (e) => {
         e.preventDefault();
-        if(!validateForm) return;
+        if (!validateForm()) return;
 
-        console.log("Validated form:", formData);
+        const token = localStorage.getItem("token");
+
+        let uploadImageUrls = [];
+
+        for (const img of formData.imageURLs) {
+            const url = await uploadToS3(img, token);
+            uploadImageUrls.push(url);
+        }
+
+        let uploadVideoUrl = null
+        if (formData.videoURL)
+            uploadVideoUrl = await uploadToS3(formData.videoURL, token);
+
+        let uploadDocUrls = [];
+        for (const doc of formData.docURLs) {
+            const url = await uploadToS3(doc, token);
+            uploadDocUrls.push(url);
+        }
+
+        console.log(uploadImageUrls)
+
+        const finalFormData = {
+            ...formData,
+            imageURLs: uploadImageUrls,
+            videoURL: uploadVideoUrl,
+            docURLs: uploadDocUrls
+        }
+
+        const response = await fetch('http://localhost:5000/api/gigs', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(finalFormData)
+        })
+
+        const responseData = await response.json().catch(e => {
+            console.error("Failed to parse JSON response:",e);
+            return { message: "An unknown error occured (received non-JSON response)" };
+        })
+
+        if (response.ok) {
+            // const newGig = await response.json();
+            alert("Gig created successfully");
+            console.log("Created gigd:", responseData);
+        }
+        else {
+            alert(`Gig creation failed: ${responseData.message || response.statusText}`);
+        }
     }
     return (
         <div className='create-gig-container'>
@@ -91,7 +164,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-title" className='label-item'>Title</label>
                                 </td>
                                 <td>
-                                    <input type="text" id="gig-title" name='title' onChange={changeHandler} value={formData.title}/>
+                                    <input type="text" id="gig-title" name='title' onChange={changeHandler} value={formData.title} />
                                 </td>
                             </tr>
                             <tr>
@@ -114,7 +187,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-desc" className='label-item'>Description</label>
                                 </td>
                                 <td>
-                                    <textarea name="desc" id="gig-desc" className='desc' onChange={changeHandler} value={formData.desc} placeholder='Upto 1,200 characters'></textarea>
+                                    <textarea name="description" id="gig-desc" className='desc' onChange={changeHandler} value={formData.desc} placeholder='Upto 1,200 characters'></textarea>
                                 </td>
                             </tr>
                             <tr>
@@ -123,13 +196,13 @@ export default function CreateGig() {
                                 </td>
                                 <td>
                                     <div className="gig-tags">
-                                        { formData.tags.map((tag, index) => (
+                                        {formData.tags.map((tag, index) => (
                                             <div key={index} className='tag-pill' onClick={() => deleteTagHandler(tag)}>
                                                 {tag} &times;
                                             </div>
-                                        )) }
+                                        ))}
                                     </div>
-                                    <input type="text" id="gig-tags" className='label-title' onChange={(e) => setTagInput(e.target.value)} value={tagInput} onKeyDown={keyDownHandlers} placeholder='Type a tag and hit enter'/>
+                                    <input type="text" id="gig-tags" className='label-title' onChange={(e) => setTagInput(e.target.value)} value={tagInput} onKeyDown={keyDownHandlers} placeholder='Type a tag and hit enter' />
                                 </td>
                             </tr>
                         </tbody>
@@ -145,7 +218,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-images" className='label-item'>Images</label>
                                 </td>
                                 <td>
-                                    <input type="file" id='gig-images' onChange={fileUploadHandler} multiple accept='image/'/>
+                                    <input type="file" id='gig-images' onChange={fileUploadHandler} multiple accept='image/' />
                                 </td>
                             </tr>
                             <tr>
@@ -153,7 +226,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-video" className='label-item'>Video</label>
                                 </td>
                                 <td>
-                                    <input type="file" id='gig-video' onChange={fileUploadHandler} accept='video/'/>
+                                    <input type="file" id='gig-video' onChange={fileUploadHandler} accept='video/' />
                                 </td>
                             </tr>
                             <tr>
@@ -161,7 +234,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-docs" className='label-item'>Documents</label>
                                 </td>
                                 <td>
-                                    <input type="file" id="gig-docs" multiple onChange={fileUploadHandler} accept='.pdf,.doc,.docx'/>
+                                    <input type="file" id="gig-docs" multiple onChange={fileUploadHandler} accept='.pdf,.doc,.docx' />
                                 </td>
                             </tr>
                         </tbody>

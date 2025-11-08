@@ -1,9 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './MyGig.scss'
 import { gigs } from '../../Data/GigsData'
 
 export default function MyGig() {
+
+    const [userGigs, setUserGigs] = useState([]);
+
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        
+        const fetchUserGigs = async () => {
+            try{
+                const response = await fetch('http://localhost:5000/api/gigs/my-gigs', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+    
+                if(response.ok){
+                    const data = await response.json();
+                    setUserGigs(data);
+                }
+                else{
+                    throw new Error("Error in fetching gigs:", response.status);
+                }
+            } catch (error) {
+                console.error("CUSTOM ERROR in fetching user gigs:",error);
+            }
+        }
+
+        fetchUserGigs();
+
+    }, []);
     return (
         <>
             <div className='header'>
@@ -29,7 +57,7 @@ export default function MyGig() {
                             </tr>
                         </thead>
                         <tbody>
-                            {gigs.map((gig) => (
+                            {userGigs.map((gig) => (
                                 <tr key={gig.id}>
                                     <td>{gig.title}</td>
                                     <td>{gig.price}</td>
@@ -45,36 +73,6 @@ export default function MyGig() {
                                     </td>
                                 </tr>
                             ))}
-                            {/* <tr>
-                                <td>Front-end website</td>
-                                <td>1000</td>
-                                <td>0</td>
-                                <td><div className="p">Published</div></td>
-                                <td>
-                                    <button className='revoke-button'>Revoke</button>
-                                    <button className='delete-button'>Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>End to end authenticated app</td>
-                                <td>15000</td>
-                                <td>-</td>
-                                <td><div className="np">Unpublished</div></td>
-                                <td>
-                                    <button className='revoke-button'>Revoke</button>
-                                    <button className='delete-button'>Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Front-end website</td>
-                                <td>1000</td>
-                                <td>0</td>
-                                <td><div className="p">Published</div></td>
-                                <td>
-                                    <button className='revoke-button'>Revoke</button>
-                                    <button className='delete-button'>Delete</button>
-                                </td>
-                            </tr> */}
                         </tbody>
                     </table>
                 </div>

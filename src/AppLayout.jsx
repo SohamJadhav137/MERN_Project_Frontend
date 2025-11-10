@@ -41,6 +41,7 @@ export default function AppLayout() {
                         <Route path="/messages/:conversationId" element={<MainContainer />} />
                         <Route path="/unauthorized" element={<UnAuthorizedPage/>} />
                         <Route path="/create-gig" element={<PrivateRoute allowedRoles={"seller"}><CreateGig/></PrivateRoute>} />
+                        <Route path="/create-gig/:gigId" element={<PrivateRoute allowedRoles={"seller"}><CreateGig/></PrivateRoute>} />
                     </Routes>
                 </div>
                 <Footer />

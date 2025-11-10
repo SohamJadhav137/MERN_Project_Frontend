@@ -1,7 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './CreateGig.scss';
+import { useNavigate, useParams } from 'react-router-dom';
 export default function CreateGig() {
+
+    const { gigId } = useParams();
+
+    // const [ComponentMode, setComponentMode] = useState(true); // true -> createGig mode
 
     const [formData, setFormData] = useState({
         title: '',
@@ -13,10 +18,54 @@ export default function CreateGig() {
         docURLs: [],
         price: '',
         deliveryDays: '',
-        revisions: ''
+        revisions: '',
+        isPublished: false
     });
 
     const [tagInput, setTagInput] = useState('');
+
+    const [gigPublishStatus, setGigPublishStatus] = useState(false);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (gigId) {
+            const token = localStorage.getItem("token");
+            const fetchExisitingGig = async () => {
+
+                try {
+                    const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+                        headers: { Authorization: `Bearer ${token}`}
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        setFormData({
+                            title: data.title,
+                            description: data.description,
+                            category: data.category,
+                            tags: data.tags,
+                            imageURLs: data.imageURLs || [],
+                            videoURL: data.videoURL || null,
+                            docURLs: data.docURLs || [],
+                            price: data.price,
+                            deliveryDays: data.deliveryDays,
+                            revisions: data.revisions
+                        });
+                        setTagInput('');
+                    }
+                    else{
+                        console.error("Failed to fetch gig:", response.status);
+                    }
+                } catch (error) {
+                    console.error("Frontend Error:", error);
+                }
+            };
+
+            fetchExisitingGig();
+        }
+    }, [gigId]);
 
     const keyDownHandlers = (e) => {
         if (e.key === "Enter" || e.key === "Tab") {
@@ -30,6 +79,11 @@ export default function CreateGig() {
             }
         }
     };
+
+    const submitKeyHandler = (e) => {
+        if(e.key === 'Enter')
+            e.preventDefault();
+    }
 
     const deleteTagHandler = (tagToDelete) => {
         setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToDelete) });
@@ -59,12 +113,12 @@ export default function CreateGig() {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        if(!response.ok){
-            const errorData = await response.json().catch(() => ({ message: "Presigne URL request failed!"}))
-            console.error("Presign URL fetch error:",errorData.message);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: "Presigne URL request failed!" }))
+            console.error("Presign URL fetch error:", errorData.message);
             throw new Error("Failed to get S3 upload link!");
         }
-        
+
         const { uploadURL, fileURL } = await response.json();
 
         await fetch(uploadURL, {
@@ -88,13 +142,17 @@ export default function CreateGig() {
         if (!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
         if (!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
 
-        console.log("Form errors:",errors)
+        console.log("Form errors:", errors)
 
         if (errors.length > 0)
             return false;
 
         return true;
     }
+
+    const gigStateSubmissionHandler = (shouldPublish) => {
+        setGigPublishStatus(shouldPublish);
+    };
 
     const formSubmitHandler = async (e) => {
         e.preventDefault();
@@ -107,8 +165,66 @@ export default function CreateGig() {
         for (const img of formData.imageURLs) {
             const url = await uploadToS3(img, token);
             uploadImageUrls.push(url);
-            console.log("New image URL:",uploadImageUrls)
-            console.log("Image URL length:",uploadImageUrls.length)
+        }
+
+        let uploadVideoUrl = null
+        if (formData.videoURL)
+            uploadVideoUrl = await uploadToS3(formData.videoURL, token);
+
+        let uploadDocUrls = [];
+        for (const doc of formData.docURLs) {
+            const url = await uploadToS3(doc, token);
+            uploadDocUrls.push(url);
+        }
+
+        const finalFormData = {
+            ...formData,
+            imageURLs: uploadImageUrls,
+            videoURL: uploadVideoUrl,
+            docURLs: uploadDocUrls,
+            isPublished: gigPublishStatus 
+        };
+
+        // console.log("FINAL FORM DATA before sending:\n",finalFormData);
+
+        const response = await fetch('http://localhost:5000/api/gigs', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(finalFormData)
+        })
+
+        const responseData = await response.json().catch(e => {
+            console.error("Failed to parse JSON response:", e);
+            return { message: "An unknown error occured (received non-JSON response)" };
+        })
+
+        // console.log("RESPONSE DATA:\n",responseData);
+
+        if (response.ok) {
+            // const newGig = await response.json();
+            alert("Gig created successfully");
+            console.log("Created gigd:", responseData);
+        }
+        else {
+            alert(`Gig creation failed: ${responseData.message || response.statusText}`);
+        }
+    }
+
+    const formUpdateHandler = async (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        const token = localStorage.getItem("token");
+
+        let uploadImageUrls = [];
+
+        for (const img of formData.imageURLs) {
+            const url = await uploadToS3(img, token);
+            uploadImageUrls.push(url);
         }
 
         let uploadVideoUrl = null
@@ -128,10 +244,8 @@ export default function CreateGig() {
             docURLs: uploadDocUrls
         }
 
-        console.log("FINAL FORM DATA before sending:\n",finalFormData);
-
-        const response = await fetch('http://localhost:5000/api/gigs', {
-            method: "POST",
+        const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
@@ -140,25 +254,27 @@ export default function CreateGig() {
         })
 
         const responseData = await response.json().catch(e => {
-            console.error("Failed to parse JSON response:",e);
+            console.error("Failed to parse JSON response:", e);
             return { message: "An unknown error occured (received non-JSON response)" };
         })
 
-        console.log("RESPONSE DATA:\n",responseData);
+        // console.log("RESPONSE DATA:\n",responseData);
 
         if (response.ok) {
             // const newGig = await response.json();
-            alert("Gig created successfully");
-            console.log("Created gigd:", responseData);
+            alert("Gig updated successfully");
+            console.log("Updated gigd:", responseData);
+            navigate('/my-gigs');
         }
         else {
-            alert(`Gig creation failed: ${responseData.message || response.statusText}`);
+            alert(`Gig updation failed: ${responseData.message || response.statusText}`);
         }
     }
+
     return (
-        <div className='create-gig-container'>
-            <form className="create-gig" onSubmit={formSubmitHandler}>
-                <div className='main-heading'>Create your gig</div>
+        <div className='create-gig-container' onKeyDown={submitKeyHandler}>
+            <form className="create-gig" onSubmit={gigId ? formUpdateHandler : formSubmitHandler}>
+                <div className='main-heading'>{ gigId ? "Edit your gig" : "Create your gig"}</div>
                 <div className="phase-item">
                     <span className='sub-heading'>Step-1: Gig Overview</span>
                     <table>
@@ -283,10 +399,18 @@ export default function CreateGig() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <button type='submit'>Publish</button>
+                                    <span>Final actions</span>
                                 </td>
                                 <td>
-                                    <span>Want to review your gig ? Go to top</span>
+                                    {
+                                        gigId ?
+                                        <button type='submit'>Finish Edit</button>
+                                        :
+                                        <>
+                                        <button type='submit' onClick={() => gigStateSubmissionHandler(false)}>Create Gig (Draft)</button>
+                                        <button type='submit' onClick={() => gigStateSubmissionHandler(true)}>Create & Publish Gig</button>
+                                        </>
+                                    }
                                 </td>
                             </tr>
                         </tbody>

@@ -64,7 +64,7 @@
             }
 
             th:nth-child(1){
-                width: 45%;
+                width: 42%;
             }
 
             td{
@@ -85,7 +85,13 @@
             }
 
             td:nth-child(5){
+                width: 8%;
+                cursor: pointer;
+            }
+
+            td:nth-child(6){
                 vertical-align: middle;
+                width: 20%;
 
                 button{
                     padding: 10px 15px;
@@ -94,12 +100,15 @@
                     cursor: pointer;
                 }
 
-                .revoke-button{
+                .gig-state-button{
                     background-color: gray;
                     color: white;
                     margin-right: 15px;
                 }
-                .revoke-button:hover{
+                .gig-state-button .published{
+                    background-color: darkgreen;
+                }
+                .gig-state-button:hover{
                     background-color: rgb(163, 163, 163);
                 }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import './MyGig.scss'
 import { gigs } from '../../Data/GigsData'
+import { Link } from 'react-router-dom';
 
 export default function MyGig() {
 
@@ -10,28 +11,56 @@ export default function MyGig() {
     const token = localStorage.getItem("token");
 
     useEffect(() => {
-        
+
         const fetchUserGigs = async () => {
-            try{
+            try {
                 const response = await fetch('http://localhost:5000/api/gigs/my-gigs', {
                     headers: { Authorization: `Bearer ${token}` }
-                })
-    
-                if(response.ok){
+                });
+
+                if (response.ok) {
                     const data = await response.json();
                     setUserGigs(data);
                 }
-                else{
+                else {
                     throw new Error("Error in fetching gigs:", response.status);
                 }
             } catch (error) {
-                console.error("CUSTOM ERROR in fetching user gigs:",error);
+                console.error("CUSTOM ERROR in fetching user gigs:", error);
             }
         }
 
         fetchUserGigs();
 
     }, []);
+
+    const deleteGigHandler = async (gigId) => {
+        if (confirm("Do you want to delete this gig ?") === true) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: { gigId: gigId }
+                });
+
+                if (response.ok) {
+                    const msg = await response.json();
+                    setUserGigs(userGigs.filter(gig => gig._id !== gigId))
+                    alert(msg.message);
+                }
+                else {
+                    throw new Error("Failed to delete the gig! error status:", response.status);
+                }
+
+            } catch (error) {
+                console.error("CUSTOM ERROR:", error);
+            }
+        }
+    }
+
+    const gigPublishStatusHandler = (state) => {
+        
+    }
     return (
         <>
             <div className='header'>
@@ -40,7 +69,9 @@ export default function MyGig() {
                         <span>My Gigs</span>
                     </div>
                     <div>
-                        <button className="add-gig-button">Create New Gig</button>
+                        <button className="add-gig-button">
+                            <Link to='/create-gig' className='link'>Create New Gig</Link>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -53,6 +84,7 @@ export default function MyGig() {
                                 <th>Price</th>
                                 <th>Orders</th>
                                 <th>Status</th>
+                                <th>Edit</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -63,13 +95,23 @@ export default function MyGig() {
                                     <td>{gig.price}</td>
                                     <td>{gig.orders}</td>
                                     <td>
-                                        <div className={gig.status === "Published" ? "p" : "np"}>
-                                            {gig.status}
+                                        <div className={gig.isPublished ? "p" : "np"}>
+                                            {gig.isPublished ? "Published" : "Unpublished"}
                                         </div>
                                     </td>
                                     <td>
-                                        <button className='revoke-button'>Revoke</button>
-                                        <button className='delete-button'>Delete</button>
+                                        <Link to={`/create-gig/${gig._id}`} className='link'>
+                                            <i class="fa-solid fa-pen"></i>
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        {
+                                            gig.isPublished ?
+                                            <button className='gig-state-button' onClick={() => gigPublishStatusHandler(false)}>Revoke</button>
+                                            :
+                                            <button className='gigs-state-button published' onClick={() => gigPublishStatusHandler(true)}>Publish</button>
+                                        }
+                                        <button className='delete-button' onClick={() => deleteGigHandler(gig._id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}

@@ -101,15 +101,20 @@
                 }
 
                 .gig-state-button{
-                    background-color: gray;
                     color: white;
                     margin-right: 15px;
                 }
-                .gig-state-button .published{
+                .draft{
                     background-color: darkgreen;
                 }
-                .gig-state-button:hover{
-                    background-color: rgb(163, 163, 163);
+                .draft:hover{
+                    background-color: rgb(1, 143, 1);
+                }
+                .published{
+                    background-color: grey;
+                }
+                .published:hover{
+                    background-color: rgb(177, 175, 175);
                 }
 
                 .delete-button{

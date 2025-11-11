@@ -26,13 +26,7 @@ export default function Home() {
       </div>
 
     {/****************************************** CATEGORIES SECTION ********************************************/}
-      <SliderWindow autoplay={false} autoplaySpeed={3000} pauseOnHover={true} slidesToShow={5} arrowsScroll={5}>
-        {
-          cards.map(card => (
-            <CatgCard item={card} key={card.id} />
-          ))
-        }
-      </SliderWindow>
+      <SliderWindow/>
 
     {/****************************************** FEATURES SECTION ********************************************/}
       <div className="container2">

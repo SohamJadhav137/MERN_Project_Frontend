@@ -58,9 +58,32 @@ export default function MyGig() {
         }
     }
 
-    const gigPublishStatusHandler = (state) => {
-        
+    const toggleGigPublishState = async (gigId, gigPublishState) => {
+        const newState = !gigPublishState;
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/gigs/publish-state/${gigId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ isPublished: newState })
+            })
+
+            if(response.ok){
+                setUserGigs(prevGigs => prevGigs.map(gig => gig._id === gigId ? { ...gig, isPublished : newState } : gig));
+                alert(`Gig status was changed to ${newState}`);
+            }
+            else{
+                throw new Error("Failed to update gig's state:", response.status);
+            }
+        } catch (error) {
+            console.error("Some FRONTEND error occured while updating gig's state\nError:",error);
+        }
     }
+
     return (
         <>
             <div className='header'>
@@ -105,12 +128,9 @@ export default function MyGig() {
                                         </Link>
                                     </td>
                                     <td>
-                                        {
-                                            gig.isPublished ?
-                                            <button className='gig-state-button' onClick={() => gigPublishStatusHandler(false)}>Revoke</button>
-                                            :
-                                            <button className='gigs-state-button published' onClick={() => gigPublishStatusHandler(true)}>Publish</button>
-                                        }
+                                        <button className= {gig.isPublished ? "gig-state-button published" : "gig-state-button draft"} onClick={() => toggleGigPublishState(gig._id, gig.isPublished)}>
+                                            {gig.isPublished ? "Revoke" : "Publish"}
+                                        </button>
                                         <button className='delete-button' onClick={() => deleteGigHandler(gig._id)}>Delete</button>
                                     </td>
                                 </tr>

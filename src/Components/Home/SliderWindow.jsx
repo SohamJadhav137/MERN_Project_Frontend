@@ -5,6 +5,7 @@ import { gigCat } from '../../Data/GigCat.js';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './SliderWindow.scss';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function SliderWindow() {
@@ -14,15 +15,16 @@ export default function SliderWindow() {
         slidesToShow: 5,
         slidesToScroll: 1
     }
-
     
+    const navigate = useNavigate();
+
     return (
         <div className="slider-container">
             <div className="slider">
                 <Slider {...settings}>
                     {
                         gigCat.map(gig => (
-                            <div className="slider-gig-card">
+                            <div key={gig.name} className="slider-gig-card" onClick={() => navigate(`/category?category=${encodeURIComponent(gig.name)}`)}>
                                 <div className="gig-card-img">
                                     <img src={gig.image} alt="Gig" />
                                     <div className="gig-card-title">{gig.name}</div>

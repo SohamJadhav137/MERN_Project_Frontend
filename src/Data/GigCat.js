@@ -1,11 +1,7 @@
 export const gigCat = [
     {
-        name: "Programming & Tech",
+        name: "Software Development",
         image: "/prgm.avif"
-    },
-    {
-        name: "Vlogging",
-        image: "/vlog_pic2.jpg"
     },
     {
         name: "Video Editing",
@@ -20,7 +16,7 @@ export const gigCat = [
         image: "/fin.jpeg"
     },
     {
-        name: "Marketing",
+        name: "Digital Marketing",
         image: "/m.webp"
     },
     {

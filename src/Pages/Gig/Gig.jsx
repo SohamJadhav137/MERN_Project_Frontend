@@ -1,29 +1,53 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './Gig.scss'
 import { gigs } from '../../Data/GigsData'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { Slider } from 'infinite-react-carousel'
 import axios from 'axios'
+import ImageSlider from '../../Components/Gig/ImageSlider'
 
 export default function Gig() {
-    
-    const { id } = useParams()
-    const gig = gigs.find((g) => g.id === parseInt(id))
+
+    const { gigId } = useParams()
+    const [gig, setGig] = useState();
+
+    useEffect(() => {
+        const fetchSingleGig = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setGig(data);
+                }
+                else {
+                    console.error("RESPONSE ERROR FROM BACKEND:", response.status);
+                }
+            } catch (error) {
+                console.error("Some error occured while fetching single gig:", error);
+            }
+        }
+
+        fetchSingleGig();
+    }, [gigId]);
+    // const gig = gigs.find((gig) => gig._id === parseInt(gigId))
+
+    const token = localStorage.getItem("token");
 
     if (!gig)
         return <h2>Gig not found</h2>
 
     const contactSellerHandler = async (sellerId, token) => {
-        try{
+        try {
             const res = await axios.post("http://localhost:5000/api/conversations",
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            
+
             const conversation = res.data;
             Navigate(`/messages/${conversation._id}`);
-        } catch(error){
-            console.error("Error in initiating new conversation!",error);
+        } catch (error) {
+            console.error("Error in initiating new conversation!", error);
         }
     }
 
@@ -36,6 +60,7 @@ export default function Gig() {
             </div>
 
             <div className="gig-container">
+
                 <div className="gig-left">
                     <div className="gig-title">
                         <h2>{gig.title}</h2>
@@ -45,23 +70,30 @@ export default function Gig() {
                             <i class="fa-solid fa-circle-user"></i>
                         </div>
                         <div className="seller-info">
-                            <span className='seller-name'>{gig.seller}</span>
-                            <span>{gig.rating} <i class="fa-solid fa-star"></i> ({gig.reviews})</span>
+                            <span className='seller-name'>{gig.username}</span>
+                            <span>{gig.starRating} <i class="fa-solid fa-star"></i> ({gig.totalReviews})</span>
                         </div>
                     </div>
-                        {/* <Slider slidesToShow={1} arrowsScroll={1} className="gig-pic">
+                    {/* <Slider slidesToShow={1} arrowsScroll={1} className="gig-pic">
                         <img src="https://saigontechnology.com/wp-content/uploads/how-to-estimate-a-web-application-development-project.png" alt="" />
                         <img src="https://www.umwmedia.com/cdn/shop/articles/Web-Development-Services.jpg?v=1723009547" alt="" />
                         </Slider> */}
-                    <div className="gig-pic">
+                    {/* <div className="gig-pic">
                         <img src="https://tagdiv.com/wp-content/uploads/2020/09/Website-business-design.jpg" alt="" />
+                    </div> */}
+                    <div className="gig-pic">
+                        <img src="/prgm.avif" alt="" />
                     </div>
+                    {/* <ImageSlider imageURLs={gig.imageURLs} /> */}
                     <div className="about-gig">
+
                         <span className='title'>About Gig:</span>
+
                         <div className="about-gig-para">
-                        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Accusamus itaque aspernatur, qui voluptatem velit blanditiis expedita saepe ipsam porro sequi temporibus id dolores vel similique eaque odio autem assumenda, earum, vitae iste voluptas laboriosam officiis ipsa. Quisquam, necessitatibus voluptatem iusto dignissimos soluta nam voluptate perferendis vitae nesciunt, itaque, praesentium harum.</p>
+                            <p>{gig.description}</p>
                         </div>
-                        <div className="tech-stack">
+
+                        {/* <div className="tech-stack">
                             <span className='title'>Technologies:</span>
                             <br />
                             <div className="lang">
@@ -104,11 +136,13 @@ export default function Gig() {
                                     </ul>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
+                    {/* DUMMY REVIEWS */}
+
                     <div className="reviews">
-                        <span className='title'>Reviews ({gig.reviews})</span>
+                        <span className='title'>Reviews ({gig.totalReviews})</span>
                         <div className="r">
                             <div className="header">
                                 <div className="profile">
@@ -180,20 +214,20 @@ export default function Gig() {
                             <span>Price: Rs {gig.price}</span>
                         </div>
                         <hr />
-                        <div className="gig-desc">
+                        {/* <div className="gig-desc">
                             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Earum voluptate veritatis animi, corporis commodi molestiae.
-                        </div>
-                        <hr />
+                        </div> */}
+                        {/* <hr /> */}
                         <div className="main-attr">
                             <div className="d">
-                                <span>Time: 5 Days</span>
+                                <span>Time: {gig.deliveryDays} Days</span>
                             </div>
                             <div className="d">
-                                <span>Revisions: Unlimited</span>
+                                <span>Revisions: {gig.revisions}</span>
                             </div>
                         </div>
-                        <hr />
-                        <div className="gig-features">
+                        {/* <hr /> */}
+                        {/* <div className="gig-features">
                             <span className='heading'>Featuring:</span>
                             <div className="features">
                                 <ul>
@@ -202,12 +236,12 @@ export default function Gig() {
                                     <li>Testing</li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> */}
                         <div className="buy-gig-btn-container">
                             <button className='buy-gig-btn'>Continue</button>
                         </div>
                         <div className="contact-seller-container">
-                            <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={contactSellerHandler}>Contact seller</span></span>
+                            <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={() => contactSellerHandler(gig.userId, token)}>Contact seller</span></span>
                         </div>
                     </div>
                 </div>

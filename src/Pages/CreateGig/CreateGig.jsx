@@ -294,11 +294,13 @@ export default function CreateGig() {
                                 <td>
                                     <select id="gig-category" name='category' onChange={changeHandler} value={formData.category}>
                                         <option value="" disabled>Select a category</option>
-                                        <option value="software-development">Software development</option>
-                                        <option value="video-editing">Video Editing</option>
-                                        <option value="digital-marketing">Digital Marketing</option>
-                                        <option value="graphic-desgining">Graphic Designing</option>
-                                        <option value="music-and-audio">Music & Audio</option>
+                                        <option value="Software Development">Software Development</option>
+                                        <option value="Video Editing">Video Editing</option>
+                                        <option value="Writing & Translation">Writing & Translation</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Digital Marketing">Digital Marketing</option>
+                                        <option value="Data Analytics">Data Analytics</option>
+                                        <option value="Music & Audio">Music & Audio</option>
                                     </select>
                                 </td>
                             </tr>

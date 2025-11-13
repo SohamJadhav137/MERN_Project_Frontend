@@ -6,11 +6,26 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { Slider } from 'infinite-react-carousel'
 import axios from 'axios'
 import ImageSlider from '../../Components/Gig/ImageSlider'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+
+library.add(fas, far, fab)
 
 export default function Gig() {
 
     const { gigId } = useParams()
-    const [gig, setGig] = useState();
+    const [gig, setGig] = useState(null);
+    const [mediaFiles, setMediaFiles] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(mediaFiles[0]);
+    const isVideo = (url) => {
+        if(!url) return false;
+        const videoExtensions = ['.mp4', '.mov', '.avi', '.webm'];
+        return videoExtensions.some((ext) => url.toLowerCase().endsWith(ext));
+    };
 
     useEffect(() => {
         const fetchSingleGig = async () => {
@@ -19,7 +34,10 @@ export default function Gig() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setGig(data);
+                    const { gig, mediaURLs } = data;
+                    // console.log(gigData)
+                    setGig(gig);
+                    setMediaFiles(mediaURLs)
                 }
                 else {
                     console.error("RESPONSE ERROR FROM BACKEND:", response.status);
@@ -33,15 +51,26 @@ export default function Gig() {
     }, [gigId]);
     // const gig = gigs.find((gig) => gig._id === parseInt(gigId))
 
+    useEffect(() => {
+        if(mediaFiles.length > 0 && !selectedItem){
+            setSelectedItem(mediaFiles[0]);
+        }
+    }, [mediaFiles]);
+
     const token = localStorage.getItem("token");
 
     if (!gig)
         return <h2>Gig not found</h2>
 
+    const user = localStorage.getItem("token");
+    const decode = token ? jwtDecode(token) : null;
+    const userId = decode?.id;
+
     const contactSellerHandler = async (sellerId, token) => {
         try {
-            const res = await axios.post("http://localhost:5000/api/conversations",
-                { headers: { Authorization: `Bearer ${token}` } }
+            const res = await fetch("http://localhost:5000/api/conversations",
+                { headers: { Authorization: `Bearer ${token}` }, },
+                { body: { buyerId: req.user._Id, sellerId: gig.userId } }
             );
 
             const conversation = res.data;
@@ -81,9 +110,39 @@ export default function Gig() {
                     {/* <div className="gig-pic">
                         <img src="https://tagdiv.com/wp-content/uploads/2020/09/Website-business-design.jpg" alt="" />
                     </div> */}
-                    <div className="gig-pic">
-                        <img src="/prgm.avif" alt="" />
+
+                    <div className="gig-media">
+                        <div className="gig-display">
+                            {
+                                isVideo(selectedItem) ?
+                                (
+                                    <video src={`${selectedItem}?t=${Date.now()}`} controls/>
+                                )
+                                :
+                                (
+                                    <img src={selectedItem} alt="gig-img" />
+                                )
+                            }
+                        </div>
+                        <div className="gig-thumbnails-container">
+                            {
+                                mediaFiles.map((media, index) => (
+                                    <div key={index} className='gig-thumbnail' onClick={() => setSelectedItem(media)}>
+                                        {
+                                            isVideo(media) ?
+                                            <>
+                                            <video src={media} muted />
+                                            <span><FontAwesomeIcon icon="fa-solid fa-play" /></span>
+                                            </>
+                                            :
+                                            <img src={media} alt='thumbnail'/>
+                                        }
+                                    </div>
+                                ))
+                            }
+                        </div>
                     </div>
+
                     {/* <ImageSlider imageURLs={gig.imageURLs} /> */}
                     <div className="about-gig">
 

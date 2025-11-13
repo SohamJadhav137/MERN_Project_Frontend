@@ -2,6 +2,7 @@ import React from 'react'
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+// Sample url of img is below
 // https://mern-project-gig-uploads.s3.eu-north-1.amazonaws.com/upload/1762961006070-intro.webp
 export default function ImageSlider(prop) {
     const images = prop.imageURLs

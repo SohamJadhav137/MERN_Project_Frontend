@@ -6,8 +6,6 @@ export default function CreateGig() {
 
     const { gigId } = useParams();
 
-    // const [ComponentMode, setComponentMode] = useState(true); // true -> createGig mode
-
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -39,7 +37,8 @@ export default function CreateGig() {
                     });
                     
                     if (response.ok) {
-                        const data = await response.json();
+                        const { gig } = await response.json();
+                        const data = gig;
 
                         setFormData({
                             title: data.title,

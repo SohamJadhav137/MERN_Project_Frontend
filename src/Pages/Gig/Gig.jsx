@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import './Gig.scss'
 import { gigs } from '../../Data/GigsData'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Slider } from 'infinite-react-carousel'
 import axios from 'axios'
 import ImageSlider from '../../Components/Gig/ImageSlider'
@@ -12,6 +12,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
+import { getCurrentUser } from '../../utils/getCurrentUser'
 
 library.add(fas, far, fab)
 
@@ -26,6 +27,7 @@ export default function Gig() {
         const videoExtensions = ['.mp4', '.mov', '.avi', '.webm'];
         return videoExtensions.some((ext) => url.toLowerCase().endsWith(ext));
     };
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSingleGig = async () => {
@@ -62,19 +64,33 @@ export default function Gig() {
     if (!gig)
         return <h2>Gig not found</h2>
 
-    const user = localStorage.getItem("token");
-    const decode = token ? jwtDecode(token) : null;
-    const userId = decode?.id;
+    const currentUser = getCurrentUser();
+    const userId = currentUser?.id;
+    const user = localStorage.getItem("user");
+    const parsedUserData = JSON.parse(user);
+    const userName = parsedUserData.name;
 
-    const contactSellerHandler = async (sellerId, token) => {
+    // console.log(`Buyer Id: ${userId}\nBuyer Name: ${userName}\nSeller Id: ${gig.userId}\nSeller Name:${gig.sellerName}`)
+
+    const contactSellerHandler = async (token) => {
         try {
-            const res = await fetch("http://localhost:5000/api/conversations",
-                { headers: { Authorization: `Bearer ${token}` }, },
-                { body: { buyerId: req.user._Id, sellerId: gig.userId } }
-            );
-
-            const conversation = res.data;
-            Navigate(`/messages/${conversation._id}`);
+            const response = await fetch("http://localhost:5000/api/conversations", {
+                method: 'POST',
+                headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                body: JSON.stringify({ buyerId: userId, buyerName: userName, sellerId: gig.userId, sellerName: gig.sellerName })
+            });
+            
+            if(response.ok){
+                const data = await response.json();
+                console.log(data._id);
+                navigate(`/messages/${data._id}`);
+            }
+            else{
+                console.error("BACKEND RESPONSE ERROR:", response.statusText)
+            }
         } catch (error) {
             console.error("Error in initiating new conversation!", error);
         }
@@ -300,7 +316,7 @@ export default function Gig() {
                             <button className='buy-gig-btn'>Continue</button>
                         </div>
                         <div className="contact-seller-container">
-                            <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={() => contactSellerHandler(gig.userId, token)}>Contact seller</span></span>
+                            <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={() => contactSellerHandler(token)}>Contact seller</span></span>
                         </div>
                     </div>
                 </div>

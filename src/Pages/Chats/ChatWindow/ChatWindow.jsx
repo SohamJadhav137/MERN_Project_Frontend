@@ -5,19 +5,53 @@ import Message from '../../../Components/Messages/Message'
 import socket from '../../../socket';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { getCurrentUser } from '../../../utils/getCurrentUser';
 
-export default function ChatWindow() {
+export default function ChatWindow({ conversationId }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const { conversationId } = useParams();
 
-  const userString = localStorage.getItem("user");
-  const userObject = userString ? JSON.parse(userString) : {}
-  const currentUser = {
-    userId: userObject.email,
-    name: userObject.name,
-    role: userObject.role
-  };
+  // const userString = localStorage.getItem("user");
+  // const userObject = userString ? JSON.parse(userString) : {}
+  // const currentUser = {
+  //   userId: userObject.email,
+  //   name: userObject.name,
+  //   role: userObject.role
+  // };
+
+  const sender = getCurrentUser();
+  const senderId = sender?.id;
+
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+  const parsedUserData = JSON.parse(user);
+  const currentUser = parsedUserData?.name;
+
+  useEffect(() => {
+    if(!conversationId) return;
+
+    const fetchMessages = async (token) => {
+      try {
+        
+        const response = await fetch(`http://localhost:5000/api/messages/${conversationId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if(response.ok){
+          const data = await response.json();
+          setMessages(data);
+        }
+        else{
+          console.error("BACKEND RESPONSE ERROR:", response.status);
+        }
+      } catch (error) {
+        console.error("Failed to fetch messages for provided conversation ID:", error);
+      }
+    }
+
+    fetchMessages(token);
+
+  }, [conversationId]);
 
   useEffect(() => {
     if(conversationId){
@@ -26,80 +60,54 @@ export default function ChatWindow() {
     }
   }, [conversationId]);
 
-  // useEffect(() => {
-  //   const fetchMessages = async () => {
-  //     try{
-  //       const res = await axios.get(`http://localhost:5000/api/messages/${conversationId}`,
-  //         { headers: { Authorization: `Bearer ${currentUser.token}`}}
-  //       );
-  //       setMessages(res.data);
-  //     } catch(error){
-  //       console.error("Error in fetching messages!",error);
-  //     }
-  //   };
-
-  //   fetchMessages();
-  // }, [conversationId]);
-
   useEffect(() => {
     const receiveMessageHandler = (data) => {
-      console.log(`From: ${data.username} message: ${data.text}`);
+      console.log("Received Message:\n", data);
+      console.log(`From: ${data.username}\nMessage: ${data.text}`);
       setMessages((prev) => [...prev, data]);
     }
 
     socket.on("receive_message", receiveMessageHandler);
-
+    
     return () => {
       socket.off("receive_message", receiveMessageHandler);
     };
   }, []);
-
+  
   const handleSend = async () => {
     if(!message.trim()) return;
-
+    
     // Some new data to be sent from client
     const msgToSend = {
       conversationId,
-      senderId: currentUser.userId,
-      text: message
-    };
-
-    // try{
-    //   const res = await axios.post("http://localhost:5000/api/messages", msgdata,
-    //     { headers: {Authorization: `Bearer ${currentUser.token}`} }
-    //   )
-      
-    //   socket.emit("send_message", {
-    //     conversationId,
-    //     senderId: currentUser._id,
-    //     text: message
-    //   });
-      
-    //   setMessage("");
-    // } catch(error){
-    //   console.error("Error in sending the message!", error);
-    // }
-
-    socket.emit("send_message", {
-        conversationId,
-        senderId: currentUser.userId,
-        text: message
-      });
-      
-      setMessage("");
+      senderId,
+      text: message,
+      currentUser
+    };    
+    
+    socket.emit("send_message", msgToSend);
+    
+    setMessage("");
   };
+  // console.log("Messages:\n",messages);
+
+  const submitKeyHandler = (e) => {
+    if(e.key === 'Enter'){
+      handleSend();
+    }
+  }
 
   return (
     <div className='chat-window'>
       <div className='messages-list'>
         {
           messages.map((m, i) => (
-            <Message key={i} msg={m.text} info={ m.senderId === currentUser.userId ? "You" : m.username }/>
+            <Message key={i} msg={m.text} info={ m.senderId === senderId ? "You" : m.username }/>
           ))
         }
       </div>
       <div className="input-box">
-        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder='Type a message...'/>
+        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={submitKeyHandler} placeholder='Type a message...'/>
         <button onClick={handleSend}>Send</button>
       </div>
     </div>

@@ -56,10 +56,12 @@ export default function NavBar() {
                 <Link to='/messages' className='link'>Messages</Link>
                 {
                   user?.role === 'seller' && (
-                    <Link to='/my-gigs' className='link'>My Gigs</Link>
+                    <>
+                      <Link to='/my-gigs' className='link'>My Gigs</Link>
+                      <Link to='/create-gig' className='link'>Create Gig</Link>
+                    </>
                   )
                 }
-                <Link to='/create-gig' className='link'>Create Gig</Link>
                 <span>Categories</span>
               </>
             }

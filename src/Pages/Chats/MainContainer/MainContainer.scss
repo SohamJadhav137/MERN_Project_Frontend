@@ -75,11 +75,19 @@
                         }
                     }
 
-                    .chat-name{
+                    .chat-info{
                         width: 75%;
                         display: flex;
-                        justify-content: center;
-                        align-items: center;
+                        flex-direction: column;
+                        .chat-name{
+                            height: 50%;
+                            display: flex;
+                            justify-content: start;
+                            align-items: center;
+                        }
+                        .chat-last-message{
+                            height: 50%;
+                        }
                     }
                 }
             }

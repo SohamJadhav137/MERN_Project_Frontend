@@ -1,12 +1,31 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import './CreateGig.scss';
 import { useNavigate, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faS } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import { extractFileNameFromURL } from '../../utils/extractFileName';
+
+const formatBytesToSize = (bytes) => {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return '';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    if (i == 0) return bytes + ' ' + sizes[i];
+    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+};
+
 export default function CreateGig() {
 
     const { gigId } = useParams();
 
+    const sellerDetails = JSON.parse(localStorage.getItem("user"));
+    const sellerName = sellerDetails.name;
+
     const [formData, setFormData] = useState({
+        sellerName,
         title: '',
         description: '',
         category: '',
@@ -24,8 +43,11 @@ export default function CreateGig() {
 
     const [gigPublishStatus, setGigPublishStatus] = useState(false);
 
+    const videoInputRef = useRef(null);
+
     const navigate = useNavigate();
 
+    // UseEffect to fetch gigs for editing
     useEffect(() => {
         if (gigId) {
             const token = localStorage.getItem("token");
@@ -33,9 +55,9 @@ export default function CreateGig() {
 
                 try {
                     const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
-                        headers: { Authorization: `Bearer ${token}`}
+                        headers: { Authorization: `Bearer ${token}` }
                     });
-                    
+
                     if (response.ok) {
                         const { gig } = await response.json();
                         const data = gig;
@@ -53,8 +75,30 @@ export default function CreateGig() {
                             revisions: data.revisions
                         });
                         setTagInput('');
+
+                        const existingImages = (data.imageURLs || []).map(url => ({
+                            id: url,
+                            name: extractFileNameFromURL(url),
+                            type: 'image/',
+                            size: 0,
+                            dataURL: url
+                        }))
+                        setSelectedImage(existingImages);
+
+                        if (data.videoURL) {
+                            setSelectedVideo({
+                                id: data.videoURL,
+                                name: extractFileNameFromURL(data.videoURL),
+                                type: 'video/',
+                                size: 0,
+                                dataURL: data.videoURL
+                            });
+                        }
+                        else {
+                            setSelectedVideo(null);
+                        }
                     }
-                    else{
+                    else {
                         console.error("Failed to fetch gig:", response.status);
                     }
                 } catch (error) {
@@ -80,7 +124,7 @@ export default function CreateGig() {
     };
 
     const submitKeyHandler = (e) => {
-        if(e.key === 'Enter')
+        if (e.key === 'Enter')
             e.preventDefault();
     }
 
@@ -93,19 +137,142 @@ export default function CreateGig() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const fileUploadHandler = (e) => {
-        const { id, files } = e.target;
+    const [selectedImage, setSelectedImage] = useState([]);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
-        if (id === 'gig-images') {
-            setFormData({ ...formData, imageURLs: Array.from(files) });
+    const [deletedImageURLs, setDeletedImageURLs] = useState([]);
+
+    const deleteFromS3 = useCallback(async (url, token) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/s3/delete-file", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ fileUrl: url })
+            })
+
+            if (!response.ok) {
+                console.error("Failed to delete file from s3:\n", response.status);
+            }
+        } catch (error) {
+            console.error("Some error during file deletion from s3:\n", error);
         }
-        else if (id === 'gig-video') {
-            setFormData({ ...formData, videoURL: files[0] });
+    }, []);
+
+    const imageDeleteHandler = (fileId) => {
+        const fileToDelete = selectedImage.find(file => file.id === fileId);
+        if(fileToDelete && !fileToDelete.originalFile){
+            setDeletedImageURLs(prev => [...prev, fileToDelete.dataURL]);
         }
-        else if (id === 'gig-docs') {
-            setFormData({ ...formData, docURLs: Array.from(files) });
+        setSelectedImage(prev => prev.filter(file => file.id !== fileId));
+    }
+
+    const videoDeleteHandler = () => {
+        if (selectedVideo) {
+            setSelectedVideo(null)
         }
+        if (videoInputRef.current) {
+            videoInputRef.current.value = null;
+        }
+    }
+
+    const uploadImageHandler = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const newFile = {
+                id: Date.now(),
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                dataURL: e.target.result,
+                originalFile: file
+            };
+
+            setSelectedImage(prev => [...prev, newFile]);
+            setIsUploading(false);
+        };
+        console.log(selectedImage)
+
+        reader.readAsDataURL(file);
+
+        event.target.value = null;
+    }
+
+    const uploadVideoHandler = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const newFile = {
+                id: Date.now(),
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                dataURL: e.target.result,
+                originalFile: file
+            };
+
+            setSelectedVideo(newFile);
+            setIsUploading(false);
+        };
+
+        reader.readAsDataURL(file);
+
+        event.target.value = null;
+    }
+
+    const deleteImage = (id) => {
+        setSelectedImage(selectedImage.filter(file => file.id !== id));
     };
+
+    const deleteVideo = (id) => {
+        setSelectedVideo(null);
+    };
+
+    const FilePreview = ({ file }) => {
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+
+        if (isImage) {
+            return (
+                <img src={file.dataURL} alt={file.name} />
+            )
+        }
+        else if (isVideo) {
+            return (
+                <div className='video_icon'>
+                    <FontAwesomeIcon icon="fa-solid fa-video" />
+                </div>
+            )
+        }
+    }
+
+    // const fileUploadHandler = (e) => {
+    //     const { id, files } = e.target;
+
+    //     if (id === 'gig-images') {
+    //         setFormData({ ...formData, imageURLs: Array.from(files) });
+    //     }
+    //     else if (id === 'gig-video') {
+    //         setFormData({ ...formData, videoURL: files[0] });
+    //     }
+    //     // else if (id === 'gig-docs') {
+    //     //     setFormData({ ...formData, docURLs: Array.from(files) });
+    //     // }
+    // };
 
     const uploadToS3 = async (file, token) => {
         const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
@@ -136,7 +303,7 @@ export default function CreateGig() {
         if (!title.trim()) errors.push("Title field is empty!");
         if (!category || category === '') errors.push("Category is required!")
         if (!description.trim()) errors.push("Description is empty!");
-        if (imageURLs.length === 0) errors.push("Atleast one image is required!");
+        if (selectedImage.length === 0) errors.push("Atleast one image is required!");
         if (!price || isNaN(price) || price < 0) errors.push("Enter valid price!");
         if (!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
         if (!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
@@ -161,27 +328,40 @@ export default function CreateGig() {
 
         let uploadImageUrls = [];
 
-        for (const img of formData.imageURLs) {
-            const url = await uploadToS3(img, token);
-            uploadImageUrls.push(url);
+        for (const img of selectedImage) {
+            try {
+                const url = await uploadToS3(img.originalFile, token);
+                uploadImageUrls.push(url);
+            } catch (error) {
+                alert("Failed to upload image!");
+                console.error(error)
+                return;
+            }
         }
 
         let uploadVideoUrl = null
-        if (formData.videoURL)
-            uploadVideoUrl = await uploadToS3(formData.videoURL, token);
 
-        let uploadDocUrls = [];
-        for (const doc of formData.docURLs) {
-            const url = await uploadToS3(doc, token);
-            uploadDocUrls.push(url);
+        if (selectedVideo) {
+            try {
+                uploadVideoUrl = await uploadToS3(formData.videoURL, token);
+            } catch (error) {
+                alert("Failed to upload video!");
+                console.error(error);
+                return;
+            }
         }
+
+        // let uploadDocUrls = [];
+        // for (const doc of formData.docURLs) {
+        //     const url = await uploadToS3(doc, token);
+        //     uploadDocUrls.push(url);
+        // }
 
         const finalFormData = {
             ...formData,
             imageURLs: uploadImageUrls,
             videoURL: uploadVideoUrl,
-            docURLs: uploadDocUrls,
-            isPublished: gigPublishStatus 
+            isPublished: gigPublishStatus
         };
 
         // console.log("FINAL FORM DATA before sending:\n",finalFormData);
@@ -219,61 +399,88 @@ export default function CreateGig() {
 
         const token = localStorage.getItem("token");
 
-        let uploadImageUrls = [];
+        try {
+            await Promise.all(deletedImageURLs.map(url => deleteFromS3(url, token)));
 
-        for (const img of formData.imageURLs) {
-            const url = await uploadToS3(img, token);
-            uploadImageUrls.push(url);
-        }
+            let uploadImageUrls = [];
 
-        let uploadVideoUrl = null
-        if (formData.videoURL)
-            uploadVideoUrl = await uploadToS3(formData.videoURL, token);
+            for (const img of selectedImage) {
+                if (img.originalFile) {
+                    try {
+                        const url = await uploadToS3(img.originalFile, token);
+                        uploadImageUrls.push(url);
+                    } catch (error) {
+                        alert("Failed to upload images!");
+                        console.error(error);
+                        return;
+                    }
+                } else if (img.dataURL) {
+                    uploadImageUrls.push(img.dataURL);
+                }
+            }
 
-        let uploadDocUrls = [];
-        for (const doc of formData.docURLs) {
-            const url = await uploadToS3(doc, token);
-            uploadDocUrls.push(url);
-        }
+            let uploadVideoUrl = null
+            if (selectedVideo) {
+                if (selectedVideo.originalFile) {
+                    try {
+                        uploadVideoUrl = await uploadToS3(selectedVideo.originalFile, token);
+                    } catch (error) {
+                        alert("Failed to upload video!");
+                        console.error(error);
+                        return;
+                    }
+                } else if (selectedVideo.dataURL) {
+                    uploadVideoUrl = selectedVideo.dataURL;
+                }
+            }
 
-        const finalFormData = {
-            ...formData,
-            imageURLs: uploadImageUrls,
-            videoURL: uploadVideoUrl,
-            docURLs: uploadDocUrls
-        }
+            // let uploadDocUrls = [];
+            // for (const doc of formData.docURLs) {
+            //     const url = await uploadToS3(doc, token);
+            //     uploadDocUrls.push(url);
+            // }
 
-        const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(finalFormData)
-        })
+            const finalFormData = {
+                ...formData,
+                imageURLs: uploadImageUrls,
+                videoURL: uploadVideoUrl
+            }
 
-        const responseData = await response.json().catch(e => {
-            console.error("Failed to parse JSON response:", e);
-            return { message: "An unknown error occured (received non-JSON response)" };
-        })
+            const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(finalFormData)
+            })
 
-        // console.log("RESPONSE DATA:\n",responseData);
+            const responseData = await response.json().catch(e => {
+                console.error("Failed to parse JSON response:", e);
+                return { message: "An unknown error occured (received non-JSON response)" };
+            })
 
-        if (response.ok) {
-            // const newGig = await response.json();
-            alert("Gig updated successfully");
-            console.log("Updated gigd:", responseData);
-            navigate('/my-gigs');
-        }
-        else {
-            alert(`Gig updation failed: ${responseData.message || response.statusText}`);
+            // console.log("RESPONSE DATA:\n",responseData);
+
+            if (response.ok) {
+                // const newGig = await response.json();
+                alert("Gig updated successfully");
+                console.log("Updated gigd:", responseData);
+                setDeletedImageURLs([]);
+                navigate('/my-gigs');
+            }
+            else {
+                alert(`Gig updation failed: ${responseData.message || response.statusText}`);
+            }
+        } catch (error) {
+            console.error("Gig submission error:\n", error);
         }
     }
 
     return (
         <div className='create-gig-container' onKeyDown={submitKeyHandler}>
             <form className="create-gig" onSubmit={gigId ? formUpdateHandler : formSubmitHandler}>
-                <div className='main-heading'>{ gigId ? "Edit your gig" : "Create your gig"}</div>
+                <div className='main-heading'>{gigId ? "Edit your gig" : "Create your gig"}</div>
                 <div className="phase-item">
                     <span className='sub-heading'>Step-1: Gig Overview</span>
                     <table>
@@ -339,7 +546,45 @@ export default function CreateGig() {
                                     <label htmlFor="gig-images" className='label-item'>Images</label>
                                 </td>
                                 <td>
-                                    <input type="file" id='gig-images' onChange={fileUploadHandler} multiple accept='image/' />
+                                    <input type="file" id='gig-images' onChange={uploadImageHandler} accept='image/*' disabled={isUploading} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <div className='file-preview-container'>
+                                        {
+                                            isUploading && (
+                                                <span>Loading File Preview</span>
+                                            )
+                                        }
+
+                                        <div className='file-preview'>
+                                            {
+                                                selectedImage.length === 0 ?
+                                                    (
+                                                        <span>No files uploaded yet</span>
+                                                    )
+                                                    :
+                                                    (
+                                                        selectedImage.map(file => (
+                                                            <div key={file.id} className='file'>
+                                                                <FilePreview file={file} />
+                                                                <div>
+                                                                    <span title={file.name}>{file.name}</span>
+                                                                    <br />
+                                                                    <span>{formatBytesToSize(file.size)}</span>
+                                                                </div>
+
+                                                                <button onClick={() => imageDeleteHandler(file.id)}>
+                                                                    <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                                </button>
+                                                            </div>
+                                                        ))
+                                                    )
+                                            }
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -347,17 +592,53 @@ export default function CreateGig() {
                                     <label htmlFor="gig-video" className='label-item'>Video</label>
                                 </td>
                                 <td>
-                                    <input type="file" id='gig-video' onChange={fileUploadHandler} accept='video/' />
+                                    <input type="file" id='gig-video' onChange={uploadVideoHandler} accept='video/*' ref={videoInputRef} />
                                 </td>
                             </tr>
                             <tr>
+                                <td></td>
+                                <td>
+                                    <div className='file-preview-container'>
+                                        {
+                                            isUploading && (
+                                                <span>Loading File Preview</span>
+                                            )
+                                        }
+
+                                        <div className='file-preview'>
+                                            {
+                                                selectedVideo ?
+                                                    (
+                                                        <div key={selectedVideo.id} className='file'>
+                                                            <FilePreview file={selectedVideo} />
+                                                            <div>
+                                                                <span title={selectedVideo.name}>{selectedVideo.name}</span>
+                                                                <br />
+                                                                <span>{formatBytesToSize(selectedVideo.size)}</span>
+                                                            </div>
+
+                                                            <button onClick={() => videoDeleteHandler(selectedVideo.id)}>
+                                                                <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                    :
+                                                    (
+                                                        <span>No files uploaded yet</span>
+                                                    )
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {/* <tr>
                                 <td>
                                     <label htmlFor="gig-docs" className='label-item'>Documents</label>
                                 </td>
                                 <td>
                                     <input type="file" id="gig-docs" multiple onChange={fileUploadHandler} accept='.pdf,.doc,.docx' />
                                 </td>
-                            </tr>
+                            </tr> */}
                         </tbody>
                     </table>
                 </div>
@@ -405,12 +686,12 @@ export default function CreateGig() {
                                 <td>
                                     {
                                         gigId ?
-                                        <button type='submit'>Finish Edit</button>
-                                        :
-                                        <>
-                                        <button type='submit' onClick={() => gigStateSubmissionHandler(false)}>Create Gig (Draft)</button>
-                                        <button type='submit' onClick={() => gigStateSubmissionHandler(true)}>Create & Publish Gig</button>
-                                        </>
+                                            <button type='submit'>Finish Edit</button>
+                                            :
+                                            <>
+                                                <button type='submit' onClick={() => gigStateSubmissionHandler(false)}>Create Gig (Draft)</button>
+                                                <button type='submit' onClick={() => gigStateSubmissionHandler(true)}>Create & Publish Gig</button>
+                                            </>
                                     }
                                 </td>
                             </tr>

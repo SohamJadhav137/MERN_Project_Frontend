@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
+import './Orders.scss';
+import OrderCard from '../../Components/Orders/OrderCard';
+
 export default function Orders() {
 
   const [orders, setOrders] = useState([]);
@@ -15,7 +18,7 @@ export default function Orders() {
 
       try{
         const res = await fetch("http://localhost:5000/api/orders", {
-          headers: { "Content-type": "application/json", "Authorization": `Bearer ${token}`}
+          headers: { "Authorization": `Bearer ${token}`}
         });
 
         if(!res.ok)
@@ -32,6 +35,20 @@ export default function Orders() {
   }, []);
 
   return (
-    <div>Orders coming soon...</div>
+    <div className='orders-container'>
+      <div className="orders">
+        <div className="orders-page-title">
+          <span>My Orders</span>
+        </div>
+
+        <div className="order-list">
+          {
+            orders.map(order => (
+              <OrderCard key={order._id} order={order}/>
+            ))
+          }
+        </div>
+      </div>
+    </div>
   )
 }

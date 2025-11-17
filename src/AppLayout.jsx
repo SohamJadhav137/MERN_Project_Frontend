@@ -15,6 +15,7 @@ import { AuthContext } from './context/AuthContext';
 import { PrivateRoute } from './ProtectEndpoint/PrivateRoute';
 import UnAuthorizedPage from './Pages/UnAuth/UnAuthorizedPage';
 import CreateGig from './Pages/CreateGig/CreateGig';
+import Order from './Pages/Order/Order';
 
 export default function AppLayout() {
 
@@ -35,6 +36,7 @@ export default function AppLayout() {
                         <Route path="/" element={<Home />} />
                         <Route path="/category" element={<Gigs />} />
                         <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+                        <Route path="/orders/:id" element={<PrivateRoute><Order /></PrivateRoute>} />
                         <Route path="/gig/:gigId" element={<Gig />} />
                         <Route path="/my-gigs" element={<PrivateRoute allowedRoles={"seller"}><MyGig /></PrivateRoute>} />
                         <Route path="/messages" element={<MainContainer />} />

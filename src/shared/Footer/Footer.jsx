@@ -5,7 +5,13 @@ import { useLocation } from 'react-router-dom'
 export default function Footer() {
   
   const location = useLocation();
-  const noFooter = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/messages' || location.pathname === '/my-gigs' || location.pathname === '/create-gig';
+  const noFooter = location.pathname === '/login'||
+  location.pathname === '/signup' ||
+  location.pathname === '/messages' ||
+  location.pathname === '/my-gigs' ||
+  location.pathname === '/create-gig' ||
+  location.pathname === '/orders';
+  
   const footerForms = `footer-container ${noFooter && 'footer-container-none'}`
   return (
     <div className={footerForms}>

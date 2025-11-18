@@ -1,8 +1,106 @@
 .order-container{
     width: 100%;
+    margin-top: 30px;
 
     .order{
         max-width: 1300px;
         width: 100%;
+        margin: 0 auto;
+
+        .order-back-button{
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .order-title{
+            // width: 100%;
+            display: flex;
+            margin-top: 30px;
+            justify-content: space-between;
+
+            .order-title-preview{
+                width: 180px;
+                height: 120px;
+
+                img{
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+
+            .order-title-info{
+                flex: 2;
+                display: flex;
+                align-items: center;
+                font-size: 30px;
+                padding-left: 30px;
+            }
+
+            .order-title-status{
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 40px;
+                border-left: 1px solid black;
+            }
+        }
+
+        .order-desc{
+            width: 100%;
+            padding-top: 40px;
+            font-size: 20px;
+
+            .order-desc-attr{
+                // display: flex;
+                // flex-direction: column;
+                // gap: 8px;
+
+                table{
+                    td{
+                        padding-bottom: 15px;
+                    }
+                    tr{
+                        td:nth-child(2){
+                            padding-left: 30px;
+                        }
+                    }
+                }
+                
+                .order-attr{
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .order-status{
+            width: 100%;
+            padding-top: 20px;
+
+            .order-status-title{
+                font-weight: 500;
+                font-size: 30px;
+            }
+
+            .order-status-items{
+                padding: 20px;
+                font-size: 20px;
+                font-weight: 500;
+                // text-align: center;
+            }
+
+            .order-action{
+                padding-left: 30px;
+
+                button{
+                    padding: 20px 10px;
+                    // border: none;
+                }
+
+                .order-open-chat-button{
+                    padding-top: 20px;
+                }
+            }
+        }
     }
 }

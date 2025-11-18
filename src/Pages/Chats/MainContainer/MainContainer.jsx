@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import './MainContainer.scss'
 import ChatsContainer from '../ChatsContainer/ChatsContainer'
 import ChatWindow from '../ChatWindow/ChatWindow'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 export default function MainContainer() {
 
@@ -11,9 +11,16 @@ export default function MainContainer() {
   const [convList, setConvList] = useState([]);
   const [selectedConvId, setSelectedConvId] = useState(null);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const handleSelectedConv = (conv) => {
-    setSelectedConvId(conv);
+    if(conv){
+      setSelectedConvId(conv);
+      navigate(`/messages/${conv}`);
+    }
+    else{
+      navigate('/messages');
+    }
   }
 
   useEffect(() => {

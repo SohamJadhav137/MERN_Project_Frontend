@@ -88,14 +88,14 @@ export default function OrderCard(prop) {
                 </div>
                 <div className="order-card-title-info">
                     <div>
-                        <span className='order-card-title-info-gig-name'>{gigTitle}</span>
+                        <span className='order-card-title-info-gig-name'>Gig Title: {gigTitle}</span>
                         <br />
                         <span>
                             {
                                 user.role === 'seller' ?
                                     `Buyer Name: ${username}`
                                     :
-                                    `Seller Name: {username}`
+                                    `Seller Name: ${username}`
                             }
                         </span>
                     </div>

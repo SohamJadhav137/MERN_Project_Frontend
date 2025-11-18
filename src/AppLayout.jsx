@@ -40,6 +40,7 @@ export default function AppLayout() {
                         <Route path="/gig/:gigId" element={<Gig />} />
                         <Route path="/my-gigs" element={<PrivateRoute allowedRoles={"seller"}><MyGig /></PrivateRoute>} />
                         <Route path="/messages" element={<MainContainer />} />
+                        <Route path="/messages/:conversationId" element={<MainContainer />} />
                         <Route path="/unauthorized" element={<UnAuthorizedPage/>} />
                         <Route path="/create-gig" element={<PrivateRoute allowedRoles={"seller"}><CreateGig/></PrivateRoute>} />
                         <Route path="/create-gig/:gigId" element={<PrivateRoute allowedRoles={"seller"}><CreateGig/></PrivateRoute>} />

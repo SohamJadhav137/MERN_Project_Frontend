@@ -10,7 +10,8 @@ export default function Footer() {
   location.pathname === '/messages' ||
   location.pathname === '/my-gigs' ||
   location.pathname === '/create-gig' ||
-  location.pathname === '/orders';
+  location.pathname === '/orders' ||
+  location.pathname.startsWith('/messages/');
   
   const footerForms = `footer-container ${noFooter && 'footer-container-none'}`
   return (

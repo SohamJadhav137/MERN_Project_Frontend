@@ -95,6 +95,31 @@ export default function Gig() {
         }
     }
 
+    const initiateGigOrder = async (gigId) => {
+        if(!gigId) return ;
+
+        try{
+            const response = await fetch(`http://localhost:5000/api/orders/${gigId}`, {
+                method: 'POST',
+                Authorization: {
+                    "Content-Type": "application/json",
+                    headers: `Bearer ${token}`
+                }
+            });
+
+            if(response.ok){
+                const data = await response.json();
+                alert(data);
+                navigate('/orders');
+            }
+            else{
+                alert(response.message);
+                console.error("Failed to create order!", response.status);
+            }
+        } catch(error) {
+            console.error("Some error occured while creating order\n", error);
+        }
+    }
     return (
         <div className='gig'>
             <div className="breadcrump">
@@ -114,7 +139,7 @@ export default function Gig() {
                             <i class="fa-solid fa-circle-user"></i>
                         </div>
                         <div className="seller-info">
-                            <span className='seller-name'>{gig.username}</span>
+                            <span className='seller-name'>{gig.sellerName}</span>
                             <span>{gig.starRating} <i class="fa-solid fa-star"></i> ({gig.totalReviews})</span>
                         </div>
                     </div>
@@ -312,7 +337,7 @@ export default function Gig() {
                             </div>
                         </div> */}
                         <div className="buy-gig-btn-container">
-                            <button className='buy-gig-btn'>Continue</button>
+                            <button className='buy-gig-btn' onClick={() => initiateGigOrder(gig._id)}>Continue</button>
                         </div>
                         <div className="contact-seller-container">
                             <span>Want to discuss or negotiate about this gig ? <span className='contact-seller-text' onClick={() => contactSellerHandler(token)}>Contact seller</span></span>

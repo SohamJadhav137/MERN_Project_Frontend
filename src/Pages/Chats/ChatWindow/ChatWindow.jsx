@@ -3,13 +3,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import './ChatWindow.scss'
 import Message from '../../../Components/Messages/Message'
 import socket from '../../../socket';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getCurrentUser } from '../../../utils/getCurrentUser';
 
-export default function ChatWindow({ conversationId }) {
+export default function ChatWindow() {
+  const { conversationId } = useParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+
+  const navigate = useNavigate();
+  
   const bottomRef = useRef();
 
   const sender = getCurrentUser();
@@ -25,7 +29,10 @@ export default function ChatWindow({ conversationId }) {
   }, [messages]);
 
   useEffect(() => {
-    if(!conversationId) return;
+    if(!conversationId || conversationId === undefined){
+      setMessages([]);
+      return;
+    }
 
     const fetchMessages = async (token) => {
       try {
@@ -104,6 +111,9 @@ export default function ChatWindow({ conversationId }) {
 
   return (
     <div className='chat-window'>
+      <div className="conversation-header">
+        <button onClick={() => navigate('/messages')}>Close</button>
+      </div>
       <div className='messages-list'>
         {
           messages.map((m, i) => (

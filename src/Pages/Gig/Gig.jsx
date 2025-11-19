@@ -96,14 +96,19 @@ export default function Gig() {
     }
 
     const initiateGigOrder = async (gigId) => {
+
+        const isConfirmed = window.confirm("Do you want to place this gig order ?");
+
+        if(!isConfirmed) return;
+
         if(!gigId) return ;
 
         try{
             const response = await fetch(`http://localhost:5000/api/orders/${gigId}`, {
                 method: 'POST',
-                Authorization: {
+                headers: {
                     "Content-Type": "application/json",
-                    headers: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 

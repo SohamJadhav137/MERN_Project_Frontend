@@ -2,9 +2,9 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import socket from '../../socket';
 
 import './Order.scss';
-import { getCurrentUser } from '../../utils/getCurrentUser';
 
 const formatBytesToSize = (bytes) => {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -22,7 +22,7 @@ export default function Order() {
     const [order, setOrder] = useState(null);
     let gigId = order?.gigId,
         sellerId = order?.sellerId,
-        buyerId = order?.buyerId
+        buyerId = order?.buyerId;
 
     const [gigTitle, setGigTitle] = useState(null);
     const [coverImage, setCoverImage] = useState(null);
@@ -30,6 +30,17 @@ export default function Order() {
     const [userId, setUserId] = useState(null);
 
     const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+
+    const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC"
+    };
+    const finalCreatedDate = order ? new Date(order.createdAt).toLocaleDateString('en-us', options) : '';
+    const finalUpdatedDate = order ? new Date(order.updatedAt).toLocaleDateString('en-us', options) : '';
+
 
     // set userId based on role
     useEffect(() => {
@@ -42,18 +53,6 @@ export default function Order() {
             setUserId(sellerId);
         }
     }, [order, user.role]);
-
-
-    const options = {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        timeZone: "UTC"
-    };
-    const finalCreatedDate = order ? new Date(order.createdAt).toLocaleDateString('en-us', options) : '';
-    const finalUpdatedDate = order ? new Date(order.updatedAt).toLocaleDateString('en-us', options) : '';
-
-    const token = localStorage.getItem("token");
 
     // Fetch single order
     useEffect(() => {
@@ -77,6 +76,29 @@ export default function Order() {
 
         fetchOrderDetails();
     }, [id]);
+
+    // Buyer joining room to receive order in real time 
+    console.log("Buyer ID:", buyerId);
+    useEffect(() => {
+        if (socket.connected && buyerId) {
+            socket.emit('joinRoom', buyerId);
+            console.log('Buyer joined the room');
+        }
+    }, [buyerId]);
+
+    // Update order details at buyer side once the order is delivered by seller
+    useEffect(() => {
+        socket.on("orderDelivered", (payload) => {
+            console.log("Order payload:", payload.updatedOrder);
+            if (payload.updatedOrder._id === id) {
+                setOrder(payload.updatedOrder);
+            }
+        })
+
+        return () => {
+            socket.off("orderDelivered");
+        }
+    }, [id, setOrder]);
 
     // Fetch gig details
     useEffect(() => {
@@ -201,6 +223,8 @@ export default function Order() {
         event.target.value = null;
     }
 
+    // console.log("NEW RAW FILES:\n", orderFiles);
+
     const deleteFileHandler = (fileId) => {
         setOrderFiles(prev => prev.filter(file => file.id !== fileId));
     }
@@ -213,6 +237,39 @@ export default function Order() {
         if (isImage) {
             return (
                 <img src={file.dataUrl} alt={file.name} />
+            )
+        }
+        else if (isVideo) {
+            return (
+                <div className='video_icon'>
+                    <FontAwesomeIcon icon="fa-solid fa-video" />
+                </div>
+            )
+        }
+        else if (isAudio) {
+            return (
+                <div className="audio_icon">
+                    <FontAwesomeIcon icon="fa-solid fa-microphone" />
+                </div>
+            )
+        }
+        else {
+            return (
+                <div className="file_icon">
+                    <FontAwesomeIcon icon="fa-solid fa-file" />
+                </div>
+            )
+        }
+    }
+
+    const FilePreview2 = ({ file }) => {
+        const isImage = file.fileType.startsWith('image/');
+        const isVideo = file.fileType.startsWith('video/');
+        const isAudio = file.fileType.startsWith('audio/');
+
+        if (isImage) {
+            return (
+                <img src={file.url} alt={file.fileName} />
             )
         }
         else if (isVideo) {
@@ -272,32 +329,38 @@ export default function Order() {
 
         for (const file of orderFiles) {
             try {
-                const url = await uploadToS3(file, token);
-                uploadFileUrls.push(url);
+                const url = await uploadToS3(file.originalFile, token);
+                uploadFileUrls.push({
+                    url,
+                    name: file.originalFile.name,
+                    type: file.originalFile.type,
+                    size: file.originalFile.size
+                });
             } catch (error) {
                 alert("Failed to fetch s3 url for file!");
                 console.error(error)
                 return;
             }
         }
+
         try {
             const response = await fetch(`http://localhost:5000/api/orders/${id}/deliver`, {
                 method: 'PATCH',
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}` 
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    delvieryFiles: uploadFileUrls, 
+                    deliveryFiles: uploadFileUrls,
                     sellerNote: deliveryNote
                 })
             });
 
-            if(response.ok){
+            if (response.ok) {
                 const data = await response.json();
                 alert(data?.message || 'Order delivered');
             }
-            else{
+            else {
                 console.error(`Failed to deliver the order\nBackend response status: ${response.status}\nResponse Text: ${response.statusText}`);
             }
 
@@ -305,6 +368,25 @@ export default function Order() {
             console.error("Some error occured while updating order's status or sending the order.\n", error);
         }
     }
+
+    // console.log("Order detials:\n", order);
+
+    const downloadFile = async (file) => {
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        const blobURL = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobURL;
+        link.download = file.fileName;
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(blobURL);
+    };
 
     return (
         <div className='order-container'>
@@ -367,63 +449,65 @@ export default function Order() {
                             </div>
                             <div className="order-action">
                                 {
-                                    order?.status === 'active' && user.role === 'seller' ?
-                                        (
-                                            <>
-                                                <input type="file" id='order-upload-file' onChange={uploadFilesHandler} className='order-upload-file-input' multiple accept='image/*, video/*, audio/*, .pdf, .doc, .docx, .zip' disabled={isUploading} />
+                                    order?.status === 'active' && user.role === 'seller' &&
+                                    (
+                                        <>
+                                            <input type="file" id='order-upload-file' onChange={uploadFilesHandler} className='order-upload-file-input' multiple accept='image/*, video/*, audio/*, .pdf, .doc, .docx, .zip' disabled={isUploading} />
 
-                                                <label htmlFor='order-upload-file' className='order-upload-file-button'>
-                                                    Upload Files
-                                                </label>
+                                            <label htmlFor='order-upload-file' className='order-upload-file-button'>
+                                                Upload Files
+                                            </label>
 
-                                                <br />
+                                            <br />
 
 
-                                                <div className='order-file-preview-container'>
+                                            <div className='order-file-preview-container'>
+                                                {
+                                                    isUploading && (
+                                                        <span>Loading File Preview</span>
+                                                    )
+                                                }
+
+                                                <div className={`order-file-preview ${orderFiles.length > 0 && 'contains'}`}>
                                                     {
-                                                        isUploading && (
-                                                            <span>Loading File Preview</span>
-                                                        )
-                                                    }
-
-                                                    <div className={`order-file-preview ${orderFiles.length > 0 && 'contains'}`}>
-                                                        {
-                                                            orderFiles.length === 0 ?
-                                                                (
-                                                                    <span>No files uploaded yet</span>
-                                                                )
-                                                                :
-                                                                (
-                                                                    orderFiles.map(file => (
-                                                                        <div key={file.id} className='order-file'>
-                                                                            <FilePreview file={file} />
-                                                                            <div>
-                                                                                <span title={file.name}>{file.name}</span>
-                                                                                <br />
-                                                                                <span>{formatBytesToSize(file.size)}</span>
-                                                                            </div>
-
-                                                                            <button onClick={() => deleteFileHandler(file.id)} className='delete-img-button'>
-                                                                                <FontAwesomeIcon icon="fa-solid fa-trash" />
-                                                                            </button>
+                                                        orderFiles.length === 0 ?
+                                                            (
+                                                                <span>No files uploaded yet</span>
+                                                            )
+                                                            :
+                                                            (
+                                                                orderFiles.map(file => (
+                                                                    <div key={file.id} className='order-file'>
+                                                                        <FilePreview file={file} />
+                                                                        <div>
+                                                                            <span title={file.name}>{file.name}</span>
+                                                                            <br />
+                                                                            <span>{formatBytesToSize(file.size)}</span>
                                                                         </div>
-                                                                    ))
-                                                                )
-                                                        }
-                                                    </div>
+
+                                                                        <button onClick={() => deleteFileHandler(file.id)} className='delete-img-button'>
+                                                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                                        </button>
+                                                                    </div>
+                                                                ))
+                                                            )
+                                                    }
                                                 </div>
+                                            </div>
 
-                                                <label htmlFor="seller-delivery-msg-box">Delivery note:</label>
-                                                <textarea name="delivery-msg" id="seller-delivery-msg-box" value={deliveryNote} onChange={handleChange} ></textarea>
-                                                <br />
+                                            <label htmlFor="seller-delivery-msg-box">Delivery note:</label>
+                                            <textarea name="delivery-msg" id="seller-delivery-msg-box" value={deliveryNote} onChange={handleChange} ></textarea>
+                                            <br />
 
-                                                <button onClick={deliverOrder}>Deliver Work</button>
-                                            </>
-                                        )
-                                        :
-                                        <div>
-                                            <span>Seller has not delivered the order yet.</span>
-                                        </div>
+                                            <button onClick={deliverOrder}>Deliver Work</button>
+                                        </>
+                                    )
+                                }
+                                {
+                                    order?.status === 'active' && user.role === 'buyer' &&
+                                    <div>
+                                        <span>Seller has not delivered the order yet.</span>
+                                    </div>
                                 }
                                 {
                                     order?.status === 'delivered' &&
@@ -434,14 +518,42 @@ export default function Order() {
                                                     <td><span>Delivered On: </span></td>
                                                     <td><span>{finalUpdatedDate}</span></td>
                                                 </tr>
-                                                <tr>
-                                                    <td><span>Message: </span></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span>File:</span></td>
-                                                    <td></td>
-                                                </tr>
+                                                {
+                                                    user.role === 'buyer' &&
+                                                    <>
+                                                        <tr>
+                                                            <td><span>Message:</span></td>
+                                                            <td><span>{order?.sellerNote !== '' ? order?.sellerNote : 'Note is empty'}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <span>Files: </span>
+                                                            </td>
+                                                            <td>
+                                                                <div className="delivered-files">
+                                                                    {
+                                                                        order?.deliveryFiles.map((file, index) => (
+                                                                            <div key={index} className='delivered-file'>
+                                                                                <FilePreview2 file={file} />
+                                                                                <div className='delivered-file-info'>
+                                                                                    <div className='delivered-file-name'>
+                                                                                        <span>{file.fileName}</span>
+                                                                                    </div>
+                                                                                    <div className='delivered-file-size'>
+                                                                                        <span>{formatBytesToSize(file.fileSize)}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <button onClick={() => downloadFile(file)} className='deliver-file-button'>
+                                                                                    <FontAwesomeIcon icon="fa-regular fa-circle-down" />
+                                                                                </button>
+                                                                            </div>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </>
+                                                }
                                                 <tr>
                                                     <td>
                                                         {
@@ -462,8 +574,8 @@ export default function Order() {
 
                                 {/* Buyer|Seller && status = delivered */}
 
-                                <div className='order-open-chat-button' onClick={redirectToChat}>
-                                    <button>Open Chat <FontAwesomeIcon icon="fa-solid fa-comment" /></button>
+                                <div className='order-open-chat-button'>
+                                    <button onClick={redirectToChat}>Open Chat <FontAwesomeIcon icon="fa-solid fa-comment" /></button>
                                 </div>
                             </div>
                         </div>

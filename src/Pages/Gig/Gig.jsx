@@ -114,7 +114,7 @@ export default function Gig() {
 
             if(response.ok){
                 const data = await response.json();
-                alert(data);
+                alert(data.message);
                 navigate('/orders');
             }
             else{

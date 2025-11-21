@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import socket from '../../socket';
+import { getCurrentUser } from '../../utils/getCurrentUser';
 
 import './Order.scss';
 
@@ -41,6 +42,9 @@ export default function Order() {
     const finalCreatedDate = order ? new Date(order.createdAt).toLocaleDateString('en-us', options) : '';
     const finalUpdatedDate = order ? new Date(order.updatedAt).toLocaleDateString('en-us', options) : '';
 
+    let deliveredDate = order?.status === 'delivered' ? finalUpdatedDate : '';
+    let completedDate = order?.status === 'completed' ? finalUpdatedDate : '';
+
 
     // set userId based on role
     useEffect(() => {
@@ -77,28 +81,52 @@ export default function Order() {
         fetchOrderDetails();
     }, [id]);
 
+    const currentUser = getCurrentUser();
+    const currentUserId = currentUser.id;
     // Buyer joining room to receive order in real time 
-    console.log("Buyer ID:", buyerId);
+    console.log("User ID:", currentUserId);
     useEffect(() => {
-        if (socket.connected && buyerId) {
-            socket.emit('joinRoom', buyerId);
-            console.log('Buyer joined the room');
+        if (socket.connected && currentUserId) {
+            socket.emit('joinRoom', currentUserId);
+            console.log(`${user.name} joined the room`);
         }
     }, [buyerId]);
 
     // Update order details at buyer side once the order is delivered by seller
+    // useEffect(() => {
+    //     socket.on("orderDelivered", (payload) => {
+    //         console.log("Order payload:", payload.updatedOrder);
+    //         if (payload.updatedOrder._id === id) {
+    //             setOrder(payload.updatedOrder);
+    //         }
+    //     })
+
+    //     return () => {
+    //         socket.off("orderDelivered");
+    //     }
+    // }, [id, setOrder]);
+
+
     useEffect(() => {
-        socket.on("orderDelivered", (payload) => {
-            console.log("Order payload:", payload.updatedOrder);
+        const handlerOrderEvent = (payload) => {
             if (payload.updatedOrder._id === id) {
-                setOrder(payload.updatedOrder);
+                setOrder(payload.updatedOrder)
             }
-        })
+        };
+
+        const events = [
+            "orderDelivered",
+            "orderCompleted",
+            "orderRevised",
+            "orderCancelled"
+        ];
+
+        events.forEach(event => socket.on(event, handlerOrderEvent));
 
         return () => {
-            socket.off("orderDelivered");
-        }
-    }, [id, setOrder]);
+            events.forEach(event => socket.off(event, handlerOrderEvent));
+        };
+    }, [id]);
 
     // Fetch gig details
     useEffect(() => {
@@ -317,11 +345,11 @@ export default function Order() {
         return fileURL;
     }
 
-    const [deliveryNote, setDeliveryNote] = useState('');
+    const [textareaNote, setTextareaNote] = useState('');
 
     // For delivery note textarea
     const handleChange = (e) => {
-        setDeliveryNote(e.target.value);
+        setTextareaNote(e.target.value);
     }
 
     const deliverOrder = async () => {
@@ -352,7 +380,7 @@ export default function Order() {
                 },
                 body: JSON.stringify({
                     deliveryFiles: uploadFileUrls,
-                    sellerNote: deliveryNote
+                    sellerNote: textareaNote
                 })
             });
 
@@ -369,8 +397,6 @@ export default function Order() {
         }
     }
 
-    // console.log("Order detials:\n", order);
-
     const downloadFile = async (file) => {
         const response = await fetch(file.url);
         const blob = await response.blob();
@@ -386,6 +412,30 @@ export default function Order() {
         document.body.removeChild(link);
 
         window.URL.revokeObjectURL(blobURL);
+    };
+
+    const acceptOrderHandler = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/orders/${id}/complete`, {
+                method: 'PATCH',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ buyerNote: textareaNote })
+            });
+
+            if (response.ok) {
+                console.log("order status:", order?.status);
+            }
+            else {
+                console.error("Failed to update order status to complete:", response.status);
+                console.error("Response text:", response.statusText);
+            }
+
+        } catch (error) {
+            console.error("Some error occured while updating order status to complete");
+        }
     };
 
     return (
@@ -496,7 +546,7 @@ export default function Order() {
                                             </div>
 
                                             <label htmlFor="seller-delivery-msg-box">Delivery note:</label>
-                                            <textarea name="delivery-msg" id="seller-delivery-msg-box" value={deliveryNote} onChange={handleChange} ></textarea>
+                                            <textarea name="delivery-msg" id="seller-delivery-msg-box" value={textareaNote} onChange={handleChange} ></textarea>
                                             <br />
 
                                             <button onClick={deliverOrder}>Deliver Work</button>
@@ -510,72 +560,162 @@ export default function Order() {
                                     </div>
                                 }
                                 {
-                                    order?.status === 'delivered' &&
+                                    order?.status === 'delivered' && user.role === 'buyer' &&
                                     <div className="order-complete">
                                         <table>
                                             <tbody>
                                                 <tr>
                                                     <td><span>Delivered On: </span></td>
-                                                    <td><span>{finalUpdatedDate}</span></td>
+                                                    <td><span>{deliveredDate}</span></td>
                                                 </tr>
-                                                {
-                                                    user.role === 'buyer' &&
-                                                    <>
-                                                        <tr>
-                                                            <td><span>Message:</span></td>
-                                                            <td><span>{order?.sellerNote !== '' ? order?.sellerNote : 'Note is empty'}</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <span>Files: </span>
-                                                            </td>
-                                                            <td>
-                                                                <div className="delivered-files">
-                                                                    {
-                                                                        order?.deliveryFiles.map((file, index) => (
-                                                                            <div key={index} className='delivered-file'>
-                                                                                <FilePreview2 file={file} />
-                                                                                <div className='delivered-file-info'>
-                                                                                    <div className='delivered-file-name'>
-                                                                                        <span>{file.fileName}</span>
-                                                                                    </div>
-                                                                                    <div className='delivered-file-size'>
-                                                                                        <span>{formatBytesToSize(file.fileSize)}</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <button onClick={() => downloadFile(file)} className='deliver-file-button'>
-                                                                                    <FontAwesomeIcon icon="fa-regular fa-circle-down" />
-                                                                                </button>
-                                                                            </div>
-                                                                        ))
-                                                                    }
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    </>
-                                                }
+
+                                                <tr>
+                                                    <td><span>Seller Note:</span></td>
+                                                    <td><span>{order?.sellerNote !== '' ? order?.sellerNote : 'Note is empty'}</span></td>
+                                                </tr>
                                                 <tr>
                                                     <td>
-                                                        {
-                                                            user.role === 'buyer' ?
-                                                                <button>Accept Order</button>
-                                                                :
-                                                                <span>Waiting for buyer's approval...</span>
-                                                        }
+                                                        <span>Files: </span>
+                                                    </td>
+                                                    <td>
+                                                        <div className="delivered-files">
+                                                            {
+                                                                order?.deliveryFiles.map((file, index) => (
+                                                                    <div key={index} className='delivered-file'>
+                                                                        <FilePreview2 file={file} />
+                                                                        <div className='delivered-file-info'>
+                                                                            <div className='delivered-file-name'>
+                                                                                <span>{file.fileName}</span>
+                                                                            </div>
+                                                                            <div className='delivered-file-size'>
+                                                                                <span>{formatBytesToSize(file.fileSize)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button onClick={() => downloadFile(file)} className='deliver-file-button'>
+                                                                            <FontAwesomeIcon icon="fa-regular fa-circle-down" />
+                                                                        </button>
+                                                                    </div>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>
+                                                        <span>Note for seller: <br /> (Optional)</span>
+                                                    </td>
+                                                    <td>
+                                                        <textarea name="" id="" className='' onChange={handleChange}></textarea>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>
+                                                        <div className="order-action-buttons">
+                                                            <button className='order-accept-button' onClick={acceptOrderHandler}>Accept Order</button>
+                                                            <button className={`order-revise-button ${order?.revisions === 0 && 'order-revise-button-disable'}`}>Revise Order</button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 }
+
+                                {
+                                    order?.status === 'delivered' && user.role === 'seller' &&
+                                    <div className="order-complete">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span>Delivered On: </span></td>
+                                                    <td><span>{deliveredDate}</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span>Waiting for buyer's approval...</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+
+                                {
+                                    order?.status === 'completed' && user.role === 'buyer' &&
+                                    <div className="order-complete">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span>Delivered On: </span></td>
+                                                    <td><span>{deliveredDate}</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span>Completed On:</span></td>
+                                                    <td><span>{completedDate}</span></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>
+                                                        <span>Files: </span>
+                                                    </td>
+                                                    <td>
+                                                        <div className="delivered-files">
+                                                            {
+                                                                order?.deliveryFiles.map((file, index) => (
+                                                                    <div key={index} className='delivered-file'>
+                                                                        <FilePreview2 file={file} />
+                                                                        <div className='delivered-file-info'>
+                                                                            <div className='delivered-file-name'>
+                                                                                <span>{file.fileName}</span>
+                                                                            </div>
+                                                                            <div className='delivered-file-size'>
+                                                                                <span>{formatBytesToSize(file.fileSize)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button onClick={() => downloadFile(file)} className='deliver-file-button'>
+                                                                            <FontAwesomeIcon icon="fa-regular fa-circle-down" />
+                                                                        </button>
+                                                                    </div>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+
+                                {
+                                    order?.status === 'completed' && user.role === 'seller' &&
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td><span>Delivered On: </span></td>
+                                                <td><span>{deliveredDate}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Completed On: </span></td>
+                                                <td><span>{completedDate}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Buyer Note:</span></td>
+                                                <td><span>{order?.buyerNote}</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                }
+
                                 {/* Seller && status = active */}
 
                                 {/* Buyer && status = active */}
 
                                 {/* Buyer|Seller && status = delivered */}
 
-                                <div className='order-open-chat-button'>
-                                    <button onClick={redirectToChat}>Open Chat <FontAwesomeIcon icon="fa-solid fa-comment" /></button>
+                                <div>
+                                    <button className='order-open-chat-button' onClick={redirectToChat}>Open Chat <FontAwesomeIcon icon="fa-solid fa-comment" /></button>
                                 </div>
                             </div>
                         </div>

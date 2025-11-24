@@ -1,19 +1,26 @@
 import { io } from "socket.io-client";
+import { getCurrentUser } from "./utils/getCurrentUser";
 
 const user = JSON.parse(localStorage.getItem("user"));
+const userDetails = getCurrentUser();
+const userId = userDetails.id;
 
 const socket = io("http://localhost:5000", {
     transports: ["websocket"],
     withCredentials: true,
     auth: {
-        userId: user?.email,
+        userId: userId,
         username: user?.name
     }
 });
 window.socket = socket
 
 socket.on("connect", () => {
-    console.log(`Connected to server with ID: ${socket.id}`);
+    console.log(`Frontend connected to server with ID: ${socket.id}`);
+    if(userId){
+        socket.emit("joinRoom", userId);
+        console.log(`${user?.name} has joined fresh room at id:`, userId);
+    }
 });
 
 socket.on("disconnect", () => {

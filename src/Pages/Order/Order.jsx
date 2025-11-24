@@ -68,17 +68,6 @@ export default function Order() {
         fetchOrderDetails();
     }, [id]);
 
-    const currentUser = getCurrentUser();
-    const currentUserId = currentUser.id;
-    // Buyer joining room to receive order in real time 
-    console.log("User ID:", currentUserId);
-    useEffect(() => {
-        if (socket.connected && currentUserId) {
-            socket.emit('joinRoom', currentUserId);
-            console.log(`${user.name} joined the room`);
-        }
-    }, [buyerId]);
-
     // Update order details at buyer side once the order is delivered by seller
     // useEffect(() => {
     //     socket.on("orderDelivered", (payload) => {
@@ -105,6 +94,9 @@ export default function Order() {
             "orderDelivered",
             "orderCompleted",
             "orderRevision",
+            "orderCancellationRequest",
+            "orderCancelAccept",
+            "orderCancelReject",
             "orderCancelled"
         ];
 
@@ -114,6 +106,27 @@ export default function Order() {
             events.forEach(event => socket.off(event, handlerOrderEvent));
         };
     }, [id]);
+
+    // Handle order request reject event to requester 
+    useEffect(() => {
+        const handleSingleEvent = (payload) => {
+            if (user.role === 'buyer' && payload.updatedOrder.cancellationRequestedBy === 'buyer') {
+                alert("Seller has rejected order cancellation request. Order is rollbacked to previous state.");
+            }
+            else if (user.role === 'seller' && payload.updatedOrder.cancellationRequestedBy === 'seller'){
+                alert("Buyer has rejected order cancellation request. Order is restored back to previous state");
+            }
+            else{
+                alert("You rejected order cancellation request. Order is rollbackend to previous state.");
+            }
+        };
+
+        socket.on("orderCancelReject", handleSingleEvent);
+
+        return () => {
+            socket.off("orderCancelReject", handleSingleEvent);
+        };
+    }, [user.role]);
 
     // Fetch gig details
     useEffect(() => {
@@ -340,6 +353,11 @@ export default function Order() {
     }
 
     const deliverOrder = async () => {
+        if (orderFiles.length === 0) {
+            alert("No files attached!");
+            return;
+        }
+
         let uploadFileUrls = [];
 
         for (const file of orderFiles) {
@@ -427,6 +445,7 @@ export default function Order() {
 
     const [remainingDays, setRemainingDays] = useState(null);
 
+    // Initial calculation of order days
     useEffect(() => {
         if (!order) return;
 
@@ -457,7 +476,7 @@ export default function Order() {
     const deleteFromS3 = useCallback(async (url, token) => {
         try {
             const response = await fetch("http://localhost:5000/api/s3/delete-file", {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
@@ -468,15 +487,21 @@ export default function Order() {
             if (!response.ok) {
                 console.error("Failed to delete file from s3:\n", response.status);
             }
+
+            return response;
         } catch (error) {
             console.error("Some error during file deletion from s3:\n", error);
+            throw error;
         }
     }, []);
 
     const requestRevisionHandler = async () => {
-        try{
-            await Promise.all(orderFiles.map(file => deleteFromS3(file.url, token)));
-        } catch(error){
+        try {
+            for (const file of order?.deliveryFiles) {
+                await deleteFromS3(file.url, token);
+                console.log("Deleting file:", file.url);
+            }
+        } catch (error) {
             console.error("Error occured while deleting files before REVISION: ", error);
         }
 
@@ -500,6 +525,105 @@ export default function Order() {
             console.error("Some error occured while sending revision request:", error);
         }
     }
+
+    const [orderCancelText, setOrderCancelText] = useState(false);
+    const [showTextBox, setShowTextBox] = useState(false);
+    const [textAreaCancelNote, setTextAreaCancelNote] = useState('');
+
+    const handleCancelNote = (e) => {
+        setTextAreaCancelNote(e.target.value);
+    };
+
+    const [msg, setMsg] = useState(null);
+
+    const cancelOrderRequestHandler = async () => {
+        if (textAreaCancelNote.length === 0) {
+            alert("Reason is empty!");
+            return;
+        }
+        else if (textAreaCancelNote < 10) {
+            alert("Reason should be more than 10 words!")
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancellation-request`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ cancellationReason: textAreaCancelNote })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (confirm(data.message || "Order cancellation request sent")) {
+                    setShowTextBox(false);
+                    setOrderCancelText(true);
+                }
+            }
+            else {
+                console.error("Failed to send order cancellation request due to:\n", res.status);
+            }
+        } catch (error) {
+            console.error("Some error occured while sending order cancellation request:\n", error);
+        }
+    }
+
+    const acceptOrderCancelHandler = async () => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancel-accept`, {
+                method: 'PATCH',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log(data || "Order cancellation request accepted");
+                if (user.role === 'buyer' && order?.cancellationRequestedBy === 'buyer') {
+                    setMsg("Seller has accepted the order cancellation request. Order was cancelled successfully.");
+                }
+                else if (user.role === 'seller' && order?.cancellationRequestedBy === 'seller') {
+                    setMsg("Buyer has accepted the order cancellation request. Order was cancelled successfully.")
+                }
+                else {
+                    setMsg("You have accepted the order cancellation request. Order was cancelled successfully.")
+                }
+            }
+            else {
+                console.error("Failed to perform order cancellation:\n", res.status);
+            }
+        } catch (error) {
+            console.error("Catch error occured:", error);
+        }
+    }
+
+    const rejectOrderCancelHandler = async () => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancel-reject`, {
+                method: 'PATCH',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log(data || "Order cancellation request rejected");
+            }
+            else {
+                console.error("Failed to perform order cancellation:\n", res.status);
+            }
+        } catch (error) {
+            console.error("Catch error occured:", error);
+        }
+    }
+
 
     return (
         <div className='order-container'>
@@ -573,6 +697,18 @@ export default function Order() {
                                         )
                                     }
                                 </tr>
+                                {
+                                    user.role === 'buyer' ?
+                                        <tr>
+                                            <td><span className='order-attr'>Revisions used:</span></td>
+                                            <td><span>{order?.revisionCount}</span></td>
+                                        </tr>
+                                        :
+                                        <tr>
+                                            <td><span className='order-attr'>Revisions done:</span></td>
+                                            <td><span>{order?.revisionCount}</span></td>
+                                        </tr>
+                                }
                             </tbody>
                         </table>
 
@@ -700,7 +836,7 @@ export default function Order() {
                                                     <td>
                                                         <div className="order-action-buttons">
                                                             <button className='order-accept-button' onClick={acceptOrderHandler}>Accept Order</button>
-                                                            <button className={`order-revise-button ${order?.revisionCount === 0 && 'order-revise-button-disable'}`} onClick={requestRevisionHandler}>Revise Order</button>
+                                                            <button className={`order-revise-button ${order?.revisionCount === order?.totalRevisions && 'order-revise-button-disable'}`} onClick={requestRevisionHandler} disabled={order?.revisionCount === order?.totalRevisions}>Revise Order</button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -803,28 +939,6 @@ export default function Order() {
                                                     <td>
                                                         <span>Files: </span>
                                                     </td>
-                                                    <td>
-                                                        <div className="delivered-files">
-                                                            {
-                                                                order?.deliveryFiles.map((file, index) => (
-                                                                    <div key={index} className='delivered-file'>
-                                                                        <FilePreview2 file={file} />
-                                                                        <div className='delivered-file-info'>
-                                                                            <div className='delivered-file-name'>
-                                                                                <span>{file.fileName}</span>
-                                                                            </div>
-                                                                            <div className='delivered-file-size'>
-                                                                                <span>{formatBytesToSize(file.fileSize)}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <button onClick={() => downloadFile(file)} className='deliver-file-button'>
-                                                                            <FontAwesomeIcon icon="fa-regular fa-circle-down" />
-                                                                        </button>
-                                                                    </div>
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </td>
                                                 </tr>
 
                                                 <tr>
@@ -910,6 +1024,115 @@ export default function Order() {
                                     )
                                 }
 
+                                {
+                                    order?.status === 'request-cancellation' &&
+                                    <div className="order-complete">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span>Delivered On: </span></td>
+                                                    <td><span>{new Date(order?.deliveredAt).toLocaleDateString("en-US", options)}</span></td>
+                                                </tr>
+
+                                                {
+                                                    user.role === 'buyer' &&
+                                                    <>
+                                                        <tr>
+                                                            <td><span>Seller Note:</span></td>
+                                                            <td><span>{order?.sellerNote !== '' ? order?.sellerNote : 'Note is empty'}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div>
+                                                                    <p>{orderCancelText}</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+
+                                                                <div className='request-cancel-box'>
+                                                                    {
+                                                                        order?.cancellationRequestedBy === 'buyer' &&
+                                                                        <span>Order cancellation request has been sent. Waiting for seller's response...</span>
+                                                                    }
+                                                                    {
+                                                                        order?.cancellationRequestedBy === 'seller' &&
+                                                                        <>
+                                                                            <span>Seller has requested to cancel this order</span>
+                                                                            <button onClick={acceptOrderCancelHandler}>Accept</button>
+                                                                            <button onClick={rejectOrderCancelHandler}>Decline</button>
+                                                                        </>
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </>
+                                                }
+                                                {
+                                                    user.role === 'seller' &&
+                                                    <>
+                                                        <tr>
+                                                            <td><span>Buyer Note:</span></td>
+                                                            <td><span>{order?.sellerNote !== '' ? order?.sellerNote : 'Note is empty'}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div>
+                                                                    <p>{orderCancelText}</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+
+                                                                <div className='request-cancel-box'>
+                                                                    {
+                                                                        order?.cancellationRequestedBy === 'seller' &&
+                                                                        <span>Order cancellation request has been sent. Waiting for buyer's response...</span>
+                                                                    }
+                                                                    {
+                                                                        order?.cancellationRequestedBy === 'buyer' &&
+                                                                        <>
+                                                                            <span>Buyer has requested to cancel this order</span>
+                                                                            <button onClick={acceptOrderCancelHandler}>Accept</button>
+                                                                            <button onClick={rejectOrderCancelHandler}>Decline</button>
+                                                                        </>
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </>
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+
+                                {
+                                    order?.status === 'cancelled' && user.role === 'buyer' && order?.cancellationRequestedBy === 'buyer' &&
+                                    <p>Seller has accepted the order cancellation request. Order was cancelled successfully.</p>
+                                }
+
+                                {
+                                    order?.status === 'cancelled' && user.role === 'seller' && order?.cancellationRequestedBy === 'seller' &&
+                                    <p>Buyer have accepted the order cancellation request. Order was cancelled successfully.</p>
+                                }
+                                {
+                                    order?.status === 'cancelled' && user.role === 'seller' && order?.cancellationRequestedBy === 'buyer' &&
+                                    <p>You have accepted the order cancellation request. Order was cancelled successfully.</p>
+                                }
+                                {
+                                    order?.status === 'cancelled' && user.role === 'buyer' && order?.cancellationRequestedBy === 'seller' &&
+                                    <p>You have accepted the order cancellation request. Order was cancelled successfully.</p>
+                                }
+
+
+
+
+
+
                                 {/* Seller && status = active */}
 
                                 {/* Buyer && status = active */}
@@ -918,6 +1141,25 @@ export default function Order() {
 
                                 <div>
                                     <button className='order-open-chat-button' onClick={redirectToChat}>Open Chat <FontAwesomeIcon icon="fa-solid fa-comment" /></button>
+                                </div>
+
+                                <div>
+                                    {
+                                        order?.status !== 'cancelled' && order?.status !== 'completed' &&
+                                        <button onClick={() => setShowTextBox(true)}>Cancel Order</button>
+                                    }
+                                    {
+                                        showTextBox &&
+                                        <div>
+                                            <p>Why do you want to cancel this order ?</p>
+                                            <textarea name="" id="" onChange={handleCancelNote} value={textAreaCancelNote} placeholder='Explain in detail...'></textarea>
+                                            <br />
+                                            <button onClick={() => setShowTextBox(false)}>Hide</button>
+                                            <br />
+                                            <button onClick={cancelOrderRequestHandler}>Request Cancellation</button>
+                                        </div>
+                                    }
+
                                 </div>
                             </div>
                         </div>

@@ -2,6 +2,7 @@
     width: 100%;
     flex: 1;
     display: flex;
+    background-color: rgb(244, 244, 244);
 
     .orders {
         max-width: 1300px;
@@ -12,9 +13,10 @@
         flex: 1;
 
         .orders-page-title {
-            // font-weight: 700;
+            font-weight: 700;
             font-size: 40px;
             padding: 20px 0px;
+            color: #005461;
         }
 
         .orders-empty-text{

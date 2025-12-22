@@ -1,35 +1,42 @@
 .order-card {
     margin: 20px 20px;
     width: 100%;
-    max-width: 750px;
-    background-color: lightcyan;
-    height: auto;
+    height: 170px;
+    max-width: 1100px;
+    background-color: white;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 18px;
     border-radius: 8px;
+    display: flex;
 
-    .order-card-title {
+
+    .order-card-img {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        // background-color: yellow;
+
+        img {
+            width: 180px;
+            height: 110px;
+            border-radius: 8px;
+        }
+    }
+
+
+    .order-card-info {
         width: 100%;
         display: flex;
-        height: 30%;
-        padding-bottom: 10px;
-
-        .order-card-title-preview {
-            width: 100px;
-            height: 80px;
-
-            img {
-                width: 100%;
-                height: 100%;
-                border-radius: 8px;
-            }
-        }
+        justify-content: space-between;
+        padding: 15px 0px;
 
         .order-card-title-info-container {
             min-height: 80px;
             padding-left: 20px;
             font-weight: 600;
-            width: calc(100% - 100px);
 
             .order-card-title-info {
                 height: 100%;
@@ -38,31 +45,143 @@
                 flex-direction: column;
                 justify-content: center;
                 gap: 10px;
-                // align-items: center;
             }
 
             .order-card-title-info-gig-name {
-                // height: 50%;
                 font-size: 22px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 94%;
+                max-width: 450px;
+                width: 100%;
             }
 
             .username {
                 font-size: 18px;
                 color: rgb(83, 83, 83);
             }
+
+            .order-start-date{
+                color: #005461;
+            }
         }
-    }
 
-    .order-card-info {
-        width: 100%;
-        padding: 15px 0px;
-    }
+        .order-price-and-status {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
 
-    .action-bar {
-        width: 100%;
+            .price {
+                color: #005461;
+                font-size: 20px;
+                font-weight: 800;
+            }
+
+            .order-status {
+                background-color: lightgray;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 3px 13px;
+                border-radius: 20px;
+                color: rgb(77, 76, 76);
+            }
+
+            .completed{
+                font-weight: 500;
+                background-color: #E6F4F1;
+                color: #018790;
+                border-color: #018790;
+            }
+
+            .requested{
+                font-weight: 500;
+                background-color: #FFF4E5;
+                color: #B7791F;
+                border-color: #B7791F;
+            }
+
+            .cancelled{
+                font-weight: 500;
+                background-color: #FEEBC8;
+                color: #C05621;
+                border-color: #C05621;
+            }
+
+            .active{
+                font-weight: 500;
+                background-color: #DCFCE7;
+                color: #15803d;
+                border-color: #15803d;
+            }
+
+            .declined{
+                font-weight: 500;
+                background-color: #F4F4F4;
+                color: #5F6368;
+                border-color: #5F6368;
+            }
+        }
+
+        .order-due{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            .due{
+                color: #018790;
+                font-size: 23px;
+            }
+            .due-label{
+                color: #005461;
+                font-size: 17px;
+            }
+            
+            &.overdue {
+                .due, .due-label{
+                    color: #C53030;
+                }
+            }
+            
+            &.warning {
+                .due, .due-label{
+                    color: #B7791F;
+                }
+            }
+        }
+
+        .action-bar {
+            height: 100%;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            // background-color: burlywood;
+            align-items: center;
+
+            button {
+                background-color: white;
+                color: #005461;
+                border-radius: 20px;
+                border: 2px solid #005461;
+                font-size: 15px;
+                cursor: pointer;
+                padding: 8px 15px;
+                font-weight: 600;
+            }
+
+            button:hover {
+                background-color: #005461;
+                /* Darkest brand color */
+                color: #FFFFFF;
+                transition: all 0.3s ease;
+                /* Smooth transition */
+            }            
+        }
     }
 }

@@ -80,10 +80,11 @@ export default function NavBar() {
             </Link>
           </div>
           <div className="titles">
-            {!isAuthPage &&
+            {!isAuthPage && user &&
               <>
                 <Link to='/orders' className='link'>Orders</Link>
                 <Link to='/messages' className='link'>Messages</Link>
+                <div className='cat-btn' onClick={handleCategoryClick}>Categories</div>
                 {
                   user?.role === 'seller' && (
                     <>
@@ -92,8 +93,6 @@ export default function NavBar() {
                     </>
                   )
                 }
-                <div className='cat-btn' onClick={handleCategoryClick}>Categories</div>
-                {/* <button onClick={handleCategoryClick}>Categories</button> */}
               </>
             }
           </div>

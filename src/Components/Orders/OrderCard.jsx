@@ -19,7 +19,7 @@ export default function OrderCard(prop) {
     else {
         userId = prop.order?.sellerId;
     }
-    
+
     const dateObject = new Date(prop.order?.createdAt);
     const options = {
         year: "numeric",
@@ -28,29 +28,43 @@ export default function OrderCard(prop) {
         timeZone: "UTC"
     };
     const orderCreationDate = dateObject.toLocaleDateString('en-US', options);
-    
-    const initialDays = () => {
-        if (prop.order?.status !== "requested") {
-            const currentDate = new Date();
-            const deadline = new Date(prop.order?.dueDate);
-            return Math.ceil((deadline - currentDate) / (24 * 60 * 60 * 1000));
-        }
-    };
 
-    const [remainingDays, setRemainingDays] = useState(initialDays);
+    // const initialDays = () => {
+    //     if (prop.order?.status !== "requested") {
+    //         const currentDate = new Date();
+    //         const deadline = new Date(prop.order?.dueDate);
+    //         return Math.ceil((deadline - currentDate) / (24 * 60 * 60 * 1000));
+    //     }
+    // };
 
+    const [remainingDays, setRemainingDays] = useState(-999999);
+    const [urgencyLevel, setUrgencyLevel] = useState('normal');
     // Start calculation of due date after order is active
     useEffect(() => {
-        if (prop.order?.status === 'requested') return;
+        if (!prop.order?.dueDate || prop.order?.status === 'requested')
+            return;
 
-        const interval = setInterval(() => {
-            const currentDate = new Date();
-            const remainingDaysInMs = new Date(prop.order?.dueDate) - currentDate;
-            setRemainingDays(Math.ceil(remainingDaysInMs / (24 * 60 * 60 * 1000)));
-        }, 1000 * 60);
+        const calculateTime = () => {
+            const now = new Date();
+            const due = new Date(prop.order?.dueDate);
 
+            now.setHours(0, 0, 0, 0);
+            due.setHours(0, 0, 0, 0);
+
+            const diffInMs = due - now;
+            const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+            setRemainingDays(diffInDays);
+
+            if (diffInDays <= 0) setUrgencyLevel('overdue');
+            else if (diffInDays <= 2) setUrgencyLevel('warning');
+            else setUrgencyLevel('normal');
+        };
+
+        calculateTime();
+
+        const interval = setInterval(calculateTime, 1000 * 60 * 60);
         return () => clearInterval(interval);
-    }, [prop.order?.dueDate]);
+    }, [prop.order?.dueDate, prop.order?.status]);
 
     const token = localStorage.getItem("token");
 
@@ -58,7 +72,7 @@ export default function OrderCard(prop) {
 
     // Fetch gig details
     useEffect(() => {
-        if(!gigId) return;
+        if (!gigId) return;
         const fetchGigTitle = async () => {
             try {
                 const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
@@ -84,7 +98,7 @@ export default function OrderCard(prop) {
 
     // Fetch username
     useEffect(() => {
-        if(!userId) return;
+        if (!userId) return;
 
         const fetchUserName = async () => {
             try {
@@ -109,51 +123,69 @@ export default function OrderCard(prop) {
 
     return (
         <div className='order-card'>
-            <div className="order-card-title">
-                <div className="order-card-title-preview">
-                    <img src={coverImage} alt="" />
-                </div>
+            <div className="order-card-img">
+                <img src={coverImage} alt="" />
+            </div>
+            <div className="order-card-info">
+
                 <div className="order-card-title-info-container">
                     <div className='order-card-title-info'>
                         <div className='order-card-title-info-gig-name'>Gig Title: {gigTitle}</div>
                         <div className='username'>
                             {
                                 user.role === 'seller' ?
-                                `Buyer: ${userDetails.username}`
-                                :
-                                `Seller: ${userDetails.username}`
+                                    `Buyer: ${userDetails.username}`
+                                    :
+                                    `Seller: ${userDetails.username}`
                             }
+                        </div>
+                        <div className='order-start-date'>
+                            Ordered: {orderCreationDate}
                         </div>
                     </div>
                 </div>
-            </div>
-            <hr />
-            <div className="order-card-info">
-                <div>
-                    <span>Order ID: {prop.order?._id}</span>
-                    <br />
-                    <span>Ordered On: {orderCreationDate}</span>
-                    <br />
-                    <span>Price: ₹{prop.order?.price}</span>
-                    <br />
-                    <span>Status: {prop.order?.status}</span>
-                    <br />
+
+                <div className="order-price-and-status">
+                    <span className='price'>
+                        ₹{prop.order?.price}
+                    </span>
+
+                    <span className={`order-status ${prop.order?.status === 'completed' && 'completed'}
+                    ${prop.order?.status === 'requested' && 'requested'}
+                    ${prop.order?.status === 'cancelled' && 'cancelled'}
+                    ${prop.order?.status === 'declined' && 'declined'}
+                    ${prop.order?.status === 'active' && 'active'}`}>
+                        {prop.order?.status}
+                    </span>
+                </div>
+
+                <div className={`order-due ${(prop.order?.status !== 'completed' && prop.order?.status !== 'cancelled') && urgencyLevel}`}>
                     {
-                        (prop.order?.status !== 'requested' && prop.order?.status !== 'Declined' && prop.order?.status !== 'completed' && prop.order?.status !== 'cancelled') &&
-                        (
-                            remainingDays > 1 ?
-                                <span>Due: {remainingDays} Days left</span>
-                                :
-                                remainingDays === 0 ?
-                                    <span>Due Today</span>
-                                    :
-                                    <span>Due: {Math.abs(remainingDays)} Days late</span>
-                        )
+                        remainingDays === -999999 || prop.order?.status === 'completed' || prop.order?.status === 'cancelled' ?
+                        <>
+                        <span className='due'>N/A</span>
+                        <span className='due-label'>Due</span>
+                        </>
+                        :
+                        remainingDays < 0 ?
+                        <>
+                        <span className='due'>{Math.abs(remainingDays)}</span>
+                        <span className='due-label'>Days Overdue</span>
+                        </>
+                            :
+                            remainingDays === 0 ?
+                            <span className='due'>Due Today!</span>
+                            :
+                            <>
+                            <span className='due'>{remainingDays}</span>
+                            <span className='due-label'>Days Left</span>
+                            </>
                     }
                 </div>
-            </div>
-            <div className="action-bar">
-                <button onClick={() => navigate(`/orders/${prop.order?._id}`)}>View Details</button>
+
+                <div className="action-bar">
+                    <button onClick={() => navigate(`/orders/${prop.order?._id}`)}>View Details</button>
+                </div>
             </div>
         </div>
     )

@@ -59,7 +59,7 @@ export default function Footer() {
             <span>
               <Link to='/' className='link'>WizardHelp</Link>
             </span>
-            <span className='text'>© 2025 website, Inc.</span>
+            <span className='text'>© 2025 WizardHelp, Inc.</span>
           </div>
           <div className="right">
             <span>Connect With Us:</span>

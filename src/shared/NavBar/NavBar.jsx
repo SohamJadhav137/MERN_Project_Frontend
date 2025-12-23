@@ -29,8 +29,6 @@ export default function NavBar() {
   const isHomePage = location.pathname === '/';
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
-  // const navBarForms = `navbar ${isHomePage ? 'navbar-sticky' : 'navbar-default'}`;
-
   const navigate = useNavigate();
 
   // Navbar active when scrolled
@@ -70,7 +68,9 @@ export default function NavBar() {
         <div className="container">
           <div className="website-name">
             <Link to='/' className='link'>
-              <span className='text'>Wi<FontAwesomeIcon icon="fa-solid fa-bolt" className='icon' />ardHelp</span>
+              {/* <span className='text'>Wi<FontAwesomeIcon icon="fa-solid fa-bolt" className='icon' />ardHelp</span> */}
+              <span className='text'>Wi<FontAwesomeIcon icon="fa-solid fa-bolt" className='icon' />ard<span className='text-half'>Help</span></span>
+              {/* <span className='text'>Wizard<span className='text-half'>Help</span></span> */}
               {/* {
               active ?
               :

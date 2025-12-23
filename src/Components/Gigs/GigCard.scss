@@ -35,7 +35,6 @@
 
     .details {
 
-        // padding: 5px;
         a {
             text-decoration: none;
             color: inherit;
@@ -44,7 +43,8 @@
         .seller-name {
             padding: 0.453rem 0rem;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 500;
+            transition: 0.5s all ease;
 
             .profile-icon {
                 width: 30px;
@@ -66,6 +66,9 @@
             .default-icon {
                 font-size: 26px;
             }
+        }
+        .seller-name:hover{
+            color: gray;
         }
 
         .gig-desc {

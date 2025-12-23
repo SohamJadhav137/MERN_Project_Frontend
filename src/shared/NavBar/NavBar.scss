@@ -13,6 +13,7 @@
     // border-radius: 40px;
 
     color: rgb(0, 84, 97);
+    // font-weight: 700;
     background: rgba(255, 255, 255, 0.17);
     // background: rgba(0, 0, 0, 0.17);
     border-radius: 0px 0px 16px 16px;
@@ -34,12 +35,17 @@
     &.active {
         color: rgb(0, 183, 181);
 
+        .website-name .text-half{
+            color: rgb(244, 244, 244) !important;
+            transition: all 0.5s ease;
+        }
+
         .titles .link {
             color: gray;
         }
 
         .username {
-            color: white;
+            color: rgb(244, 244, 244);
         }
 
         .cat-btn {
@@ -68,6 +74,12 @@
             .text {
                 font-weight: 600;
                 font-size: 1.875rem;
+            }
+
+            .text-half{
+                font-weight: 600;
+                font-size: 1.875rem;
+                color: rgb(0, 183, 181);
             }
         }
 

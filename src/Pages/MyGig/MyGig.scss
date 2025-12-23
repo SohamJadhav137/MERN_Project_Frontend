@@ -1,21 +1,23 @@
-.header{
+.header {
     width: 100%;
 
-    .header-container{
+    .header-container {
         width: 100%;
         max-width: 1300px;
         margin: 0 auto;
         padding: 30px 0px;
-        
+
         display: flex;
         justify-content: space-between;
         align-items: center;
-        
-        .my-gigs-title{
+
+        .my-gigs-title {
             font-size: 40px;
+            font-weight: 500;
+            color: #005461;
         }
-        
-        .add-gig-button{
+
+        .add-gig-button {
             background-color: rgb(1, 135, 144);
             color: white;
             border: none;
@@ -24,17 +26,18 @@
             border-radius: 10px;
             cursor: pointer;
         }
-        .add-gig-button:hover{
+
+        .add-gig-button:hover {
             background-color: rgb(0, 183, 181);
         }
     }
 
 }
 
-.gigs-table{
+.gigs-table {
     width: 100%;
 
-    .gigs-table-container{
+    .gigs-table-container {
         width: 100%;
         max-width: 1300px;
         margin: 0 auto;
@@ -43,12 +46,13 @@
         padding: 20px 0px;
         padding-bottom: 100px;
 
-        table{
+        table {
             width: 83%;
             text-align: center;
             border-collapse: collapse;
 
-            th,td{
+            th,
+            td {
                 border: 1px solid;
                 // padding: 10px 0px;
                 text-align: center;
@@ -58,70 +62,76 @@
 
             }
 
-            th{
+            th {
                 padding: 10px 0px;
                 color: gray;
             }
 
-            th:nth-child(1){
+            th:nth-child(1) {
                 width: 42%;
             }
 
-            td{
+            td {
                 padding: 20px 0px;
             }
 
-            td:nth-child(1){
+            td:nth-child(1) {
                 text-align: start;
             }
-            
-            td:nth-child(4){
-                .p{
+
+            td:nth-child(4) {
+                .p {
                     color: green;
                 }
-                .np{
+
+                .np {
                     color: red;
                 }
             }
 
-            td:nth-child(5){
+            td:nth-child(5) {
                 width: 8%;
                 cursor: pointer;
             }
 
-            td:nth-child(6){
+            td:nth-child(6) {
                 vertical-align: middle;
                 width: 20%;
 
-                button{
+                button {
                     padding: 10px 15px;
                     border: none;
                     border-radius: 8px;
                     cursor: pointer;
                 }
 
-                .gig-state-button{
+                .gig-state-button {
                     color: white;
                     margin-right: 15px;
                 }
-                .draft{
+
+                .draft {
                     background-color: darkgreen;
                 }
-                .draft:hover{
+
+                .draft:hover {
                     background-color: rgb(1, 143, 1);
                 }
-                .published{
+
+                .published {
                     background-color: grey;
                 }
-                .published:hover{
+
+                .published:hover {
                     background-color: rgb(177, 175, 175);
                 }
 
-                .delete-button{
+                .delete-button {
                     background-color: red;
                     color: white;
                 }
-                .delete-button:hover{
+
+                .delete-button:hover {
                     background-color: rgb(250, 102, 102);
                 }
             }

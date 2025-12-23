@@ -8,6 +8,18 @@ export const gigCat = [
         image: "/video_editing_05.jpeg"
     },
     {
+        name: "Data Analytics",
+        image: "/da.jpeg"
+    },
+    {
+        name: "Music & Audio",
+        image: "/music_audio.jpeg"
+    },
+    {
+        name: "Digital Marketing",
+        image: "/m.webp"
+    },
+    {
         name: "Writing & Translation",
         image: "/wt.jpeg"
     },
@@ -15,16 +27,4 @@ export const gigCat = [
         name: "Finance",
         image: "/fin.jpeg"
     },
-    {
-        name: "Digital Marketing",
-        image: "/m.webp"
-    },
-    {
-        name: "Data Analytics",
-        image: "/da.jpeg"
-    },
-    {
-        name: "Music & Audio",
-        image: "/music_audio.jpeg"
-    }
 ]

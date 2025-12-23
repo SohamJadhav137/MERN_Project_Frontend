@@ -8,21 +8,27 @@ export const getSocket = () => {
     const userDetails = getCurrentUser();
     const userId = userDetails?.id;
 
+    // No socket connection for unauthenticated user
     if (!userId) {
         console.log("No user token. Skipping socket io setup...")
         return null;
     }
 
+    // If socket connection doesn't exists then create one.
+    // This ensures same socket instance is used subsequently
+    // instead of creating new each time.
+
     if (!socket) {
         socket = io("http://localhost:5000", {
-            transports: ["websocket"],
+            transports: ["websocket"], // FORCING websocket protocol (NO POLLING)
             withCredentials: true,
-            auth: {
+            auth: { // Attach user identity during handshake
                 userId: userId,
                 username: user?.username
             }
         });
         
+        // Inspect socket in console
         window.socket = socket
 
         socket.on("connect", () => {
@@ -43,6 +49,5 @@ export const getSocket = () => {
     }
     return socket;
 }
-
 
 export default socket;

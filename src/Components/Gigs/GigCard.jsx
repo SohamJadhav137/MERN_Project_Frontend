@@ -41,7 +41,13 @@ export default function GigCard({ gig }) {
     }, [gig, gig._id]);
 
     const currentUser = getCurrentUser();
-    const profileLink = currentUser.id === gig?.userId ? '/my-profile' : `/user/${gig.userId}`;
+    let profileLink;
+    if(!currentUser){
+        profileLink = `/user/${gig.userId}`
+    }
+    else{
+        profileLink = currentUser.id === gig?.userId ? '/my-profile' : `/user/${gig.userId}`;
+    }
 
     // useEffect(() => {
     //     const sendFavGigs = async () => {

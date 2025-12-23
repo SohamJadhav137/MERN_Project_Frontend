@@ -34,10 +34,17 @@ export default function Profile() {
     const navigate = useNavigate();
 
     const userDetails = getCurrentUser();
-    const currentUserId = userDetails.id;
+    let targetUserId = null;
+    let currentUserId;
     const token = localStorage.getItem("token");
 
-    let targetUserId = null;
+    if(!userDetails){
+        targetUserId = id;
+    }
+    else{
+        currentUserId = userDetails.id;
+    }
+
     if (id)
         targetUserId = id;
     else

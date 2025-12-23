@@ -137,7 +137,11 @@ export default function Gig() {
 
     const orderCheckout = () => {
         if (!token) {
-            alert("You are not logged in!");
+            Swal.fire({
+                title: "Not Authenticated!",
+                text: "Please login to use such feature.",
+                icon: "info"
+            });
             return navigate('/login');
         }
 

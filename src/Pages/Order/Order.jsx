@@ -197,7 +197,6 @@ export default function Order() {
     const [orderDeclineRequestNote, setOrderDeclineRequestNote] = useState('');
 
     const orderDeclineHandler = async (responseState) => {
-        console.log('Clicked!')
         const { value: declineReason } = await Swal.fire({
             title: 'Decline Order Request',
             input: 'textarea',
@@ -249,15 +248,6 @@ export default function Order() {
     const OrderRequestHandler = async (responseState) => {
         if (!id) return;
 
-        const initiateOrderDate = new Date();
-        const options = {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            timeZone: "UTC"
-        };
-        const initiateOrderDateDisplay = initiateOrderDate.toLocaleDateString('en-US', options);
-
         try {
             const res = await fetch(`http://localhost:5000/api/orders/${id}/order-request`, {
                 method: 'POST',
@@ -265,7 +255,7 @@ export default function Order() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ sellerResponse: responseState, orderRejectNote: declineReason, orderStartDate: initiateOrderDateDisplay })
+                body: JSON.stringify({ sellerResponse: responseState })
             });
 
             if (res.ok) {
@@ -647,14 +637,31 @@ export default function Order() {
     const [msg, setMsg] = useState(null);
 
     const cancelOrderRequestHandler = async () => {
-        if (textAreaCancelNote.length === 0) {
-            alert("Reason is empty!");
-            return;
-        }
-        else if (textAreaCancelNote < 10) {
-            alert("Reason should be more than 10 words!")
-            return;
-        }
+        const { value: textAreaCancelNote } = await Swal.fire({
+            title: 'Cancel Order Request',
+            input: 'textarea',
+            inputLabel: 'Why do you want to cancel this order:',
+            inputPlaceholder: 'Explain why you are cancelling this order...',
+            inputAttributes: {
+                'arial-label': 'cancel reason'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Cancel Order',
+            cancelButtonText: 'Cancel',
+            cancelButtonColor: '#d33',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'Cancel reason is required!';
+                }
+                else if(value.length < 10){
+                    return 'Atleast 10 characters are required!'
+                }
+            }
+        });
+
+        if(!textAreaCancelNote) return;
+
+        if (!id) return;
 
         try {
             const res = await fetch(`http://localhost:5000/api/orders/${id}/cancellation-request`, {
@@ -947,6 +954,87 @@ export default function Order() {
                                 </div>
                             </>
                         }
+
+                        {/* ORDER DECLINED STATE */}
+                        {
+                            order?.status === 'Declined' &&
+                            <div className="decline-box">
+                                <div className="title">
+
+                                    <FontAwesomeIcon icon="fa-solid fa-exclamation" />
+                                    {currentUser.role === 'seller' ?
+                                        'You Declined this order'
+                                        :
+                                        'Seller Declined this order'}
+                                </div>
+                                <div className="reason-box">
+                                    <div className="reason-box-title">
+                                        Reason:
+                                    </div>
+                                    <div className="reason-box-content">
+                                        {order?.sellerNote}
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        {/* ORDER ACTIVE STATE */}
+                        {
+                            order?.status === 'active' &&
+                                currentUser.role === 'seller' ?
+                                <>
+                                    <div className="delivery-note">
+                                        <div className="title">
+                                            <label htmlFor="deliveryNote">Delivery Note:</label>
+                                        </div>
+                                        <textarea name="" id="deliveryNote" value={textareaNote} onChange={handleChange} placeholder='Add a short note about the delivery (optional)'></textarea>
+                                    </div>
+
+                                    <div className="upload-file-box">
+                                        <input type="file" id='order-upload-file' onChange={uploadFilesHandler} className='order-upload-file-input' multiple accept='image/*, video/*, audio/*, .pdf, .doc, .docx, .zip' disabled={isUploading} />
+
+                                        <label htmlFor='order-upload-file' className='order-upload-file-button'>
+                                            <FontAwesomeIcon icon="fa-solid fa-plus" /> Add Files
+                                        </label>
+
+                                        <div className="order-file-preview-container">
+
+
+                                            <div className={`order-file-preview ${orderFiles.length > 0 && 'contains'}`}>
+                                                {
+                                                    orderFiles.length === 0 ?
+                                                        (
+                                                            <div className='files-empty-text'>No files uploaded yet !</div>
+                                                        )
+                                                        :
+                                                        (
+                                                            orderFiles.map(file => (
+                                                                <div key={file.id} className='order-file'>
+                                                                    <div className="file-preview">
+                                                                        <FilePreview file={file} />
+                                                                    </div>
+                                                                    <div className='file-info'>
+                                                                        <span title={file.name}>{file.name}</span>
+                                                                        <br />
+                                                                        <span>{formatBytesToSize(file.size)}</span>
+                                                                    </div>
+
+                                                                    <button onClick={() => deleteFileHandler(file.id)} className='delete-img-button'>
+                                                                        <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                                    </button>
+                                                                </div>
+                                                            ))
+                                                        )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </>
+                                :
+                                <div></div>
+                        }
                     </div>
 
                     {/* ORDER SUMMARY CARD */}
@@ -966,11 +1054,14 @@ export default function Order() {
                                             <td>Ordered On:</td>
                                             <td>{new Date(order?.createdAt).toLocaleDateString("en-US", options)}</td>
                                         </tr>
-                                        <tr>
-                                            <td>Initiated On:</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
+                                        {
+                                            order?.status !== 'requested' && order?.status !== 'Declined' &&
+                                            <tr>
+                                                <td>Initiated On:</td>
+                                                <td>{new Date(order?.startDate).toLocaleDateString('en-us', options)}</td>
+                                            </tr>
+                                        }
+                                        <tr className='price-field'>
                                             <td>Price:</td>
                                             <td>₹{order?.price}</td>
                                         </tr>
@@ -978,12 +1069,23 @@ export default function Order() {
                                 </table>
                             </div>
 
-                            {/* ORDER REQUESTED STATE */}
+                            {/* ORDER SUMMARY REQUESTED STATE */}
                             {
                                 order?.status === 'requested' && currentUser.role === 'seller' &&
                                 <div className="order-actions">
                                     <button className='accept-order' onClick={() => OrderRequestHandler(true)}>Accept Order</button>
                                     <button className='decline-order' onClick={() => orderDeclineHandler(false)}>Decline Order</button>
+                                </div>
+                            }
+                            {/* ORDER SUMMARY ACTIVE STATE */}
+                            {
+                                order?.status === 'active' &&
+                                <div className="order-actions">
+                                    {
+                                        currentUser.role === 'seller'&&
+                                        <button className='deliver-order' onClick={deliverOrder}>Deliver Work</button>
+                                    }
+                                    <button className='cancel-order' onClick={cancelOrderRequestHandler}>Cancel Order</button>
                                 </div>
                             }
                         </div>
@@ -993,82 +1095,8 @@ export default function Order() {
                 <div className="order-desc">
                     <div className="order-desc-attr">
                         <div className="order-status">
-                            <span className='order-status-title'>Order Status:</span>
+                            {/* <span className='order-status-title'>Order Status:</span> */}
                             <div className="order-action">
-                                {
-                                    order?.status === 'Declined' &&
-                                    (
-                                        user?.role === 'buyer' ?
-                                            <div className='order-declined-window'>
-                                                Order was declined by seller due to:
-                                                <br />
-                                                <textarea name="" id="" readOnly value={order.sellerNote}>
-                                                </textarea>
-                                            </div>
-                                            :
-                                            <div className='order-declined-window'>
-                                                Buyer order was declined due to:
-                                                <br />
-                                                <textarea name="" id="" readOnly value={order.sellerNote}>
-                                                </textarea>
-                                            </div>
-                                    )
-                                }
-                                {
-                                    order?.status === 'active' && user.role === 'seller' &&
-                                    (
-                                        <>
-                                            <input type="file" id='order-upload-file' onChange={uploadFilesHandler} className='order-upload-file-input' multiple accept='image/*, video/*, audio/*, .pdf, .doc, .docx, .zip' disabled={isUploading} />
-
-                                            <label htmlFor='order-upload-file' className='order-upload-file-button'>
-                                                Upload Files
-                                            </label>
-
-                                            <br />
-
-
-                                            <div className='order-file-preview-container'>
-                                                {
-                                                    isUploading && (
-                                                        <span>Loading File Preview</span>
-                                                    )
-                                                }
-
-                                                <div className={`order-file-preview ${orderFiles.length > 0 && 'contains'}`}>
-                                                    {
-                                                        orderFiles.length === 0 ?
-                                                            (
-                                                                <span>No files uploaded yet</span>
-                                                            )
-                                                            :
-                                                            (
-                                                                orderFiles.map(file => (
-                                                                    <div key={file.id} className='order-file'>
-                                                                        <FilePreview file={file} />
-                                                                        <div>
-                                                                            <span title={file.name}>{file.name}</span>
-                                                                            <br />
-                                                                            <span>{formatBytesToSize(file.size)}</span>
-                                                                        </div>
-
-                                                                        <button onClick={() => deleteFileHandler(file.id)} className='delete-img-button'>
-                                                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
-                                                                        </button>
-                                                                    </div>
-                                                                ))
-                                                            )
-                                                    }
-                                                </div>
-                                            </div>
-
-                                            <label htmlFor="seller-delivery-msg-box">Delivery note:</label>
-                                            <textarea name="delivery-msg" id="seller-delivery-msg-box" value={textareaNote} onChange={handleChange} ></textarea>
-                                            <br />
-
-                                            <button onClick={deliverOrder}>Deliver Work</button>
-                                        </>
-                                    )
-                                }
                                 {
                                     order?.status === 'active' && user.role === 'buyer' &&
                                     <div className='order-active-buyer'>
@@ -1426,7 +1454,7 @@ export default function Order() {
 
                                 {/* CANCEL BUTTON */}
 
-                                <div className='order-cancel'>
+                                {/* <div className='order-cancel'>
                                     {
                                         order?.status !== 'cancelled' && order?.status !== 'completed' && order?.status !== 'requested' && order?.status !== 'Declined' && order?.status !== 'request-cancellation' &&
                                         !showTextBox &&
@@ -1446,7 +1474,7 @@ export default function Order() {
                                         </div>
                                     }
 
-                                </div>
+                                </div> */}
 
                                 {/* Review Space */}
                                 {

@@ -64,7 +64,7 @@
             right: 44px;
             bottom: 44px;
             z-index: 999;
-            
+
             button {
                 border-radius: 15px;
                 padding: 20px 10px;
@@ -85,16 +85,16 @@
             .order-content {
                 flex: 5;
                 padding-right: 20px;
-                
+
                 ////////////// ORDER REQUEST STATE ///////////////
-                .warning-box{
+                .warning-box {
                     padding: 20px;
                     background-color: orange;
                     font-size: 20px;
                     border-radius: 20px;
                     margin-bottom: 20px;
                 }
-                
+
                 .buyer-req-box {
                     background-color: rgb(228, 228, 228);
                     border-radius: 20px;
@@ -112,6 +112,186 @@
                         font-size: 18px;
                     }
                 }
+
+                ////////////////////////// ORDER DECLINED STATE//////////////////
+                .decline-box {
+                    background-color: rgb(245, 150, 150);
+                    padding: 20px;
+                    border-radius: 20px;
+
+                    .title {
+                        font-size: 25px;
+                        font-weight: 700;
+                    }
+
+                    .reason-box {
+                        font-size: 20px;
+                        padding: 20px;
+
+                        .reason-box-title {
+                            font-size: 22px;
+                            font-weight: 500;
+                        }
+
+                        .reason-box-content {
+                            padding: 10px;
+                            // background-color: yellowgreen;
+                        }
+                    }
+                }
+
+                //////////////////// ORDER ACTIVE STATE ////////////////
+                .delivery-note {
+                    padding-bottom: 10px;
+
+                    .title {
+                        padding-bottom: 13px;
+                        font-size: 25px;
+                        // font-weight: 500;
+                    }
+
+                    textarea {
+                        width: 100%;
+                        resize: vertical;
+                        font-size: 18px;
+                        border-radius: 10px;
+                        padding: 12px;
+                    }
+
+                    textarea:focus {
+                        outline: none;
+                    }
+                }
+
+                .upload-file-box {
+                    // background-color: #018790;
+                    background-color: #F4F4F4;
+                    padding: 20px 10px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    align-items: flex-start;
+                    border-radius: 20px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+                    .order-upload-file-input {
+                        display: none;
+                    }
+
+                    .order-upload-file-button {
+                        padding: 8px 13px;
+                        background-color: #005461;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: initial;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        color: white;
+                    }
+
+                    .order-file-preview-container {
+                        background-color: #F4F4F4;
+                        // height: 100%;
+                        width: 100%;
+
+                        .order-file-preview {
+                            width: 100%;
+                            // min-height: 100%;
+                            display: flex;
+                            flex-wrap: wrap;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 20px;
+                            padding-bottom: 10px;
+
+                            .files-empty-text {
+                                font-size: 30px;
+                                padding-bottom: 40px;
+                            }
+
+                            .order-file {
+                                // background-color: rgb(196, 196, 196);
+                                width: 130px;
+                                height: 210px;
+                                background-color: #018790;
+                                color: white;
+                                display: flex;
+                                flex-direction: column;
+                                // padding: 10px;
+                                justify-content: space-between;
+                                align-items: center;
+                                border-radius: 12px;
+                            }
+
+                            .file-preview {
+                                width: 100%;
+                                height: 90px;
+
+                                img {
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    border-radius: 12px 12px 0 0;
+                                }
+
+                                .video_icon {
+                                    width: 100%;
+                                    height: 100%;
+                                    font-size: 25px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+
+                                .audio_icon {
+                                    width: 100%;
+                                    height: 100%;
+                                    font-size: 25px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+
+                                .file_icon {
+                                    width: 100%;
+                                    height: 100%;
+                                    font-size: 25px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+                            }
+
+                            .file-info {
+                                padding: 5px 5px;
+                                text-align: center;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                max-width: 80px;
+                                min-width: 0;
+                                color: white;
+                                font-weight: 500;
+                            }
+
+                            .delete-img-button {
+                                padding: 15px;
+                                color: white;
+                                background: none;
+                                font-size: 17px;
+                                border: none;
+                                cursor: pointer;
+                            }
+                        }
+
+                        .contains {
+                            align-items: initial;
+                            justify-content: flex-start;
+                        }
+                    }
+                }
             }
 
             .order-summary {
@@ -119,472 +299,498 @@
                 display: flex;
                 justify-content: center;
                 align-items: flex-start;
-            }
 
-            .order-summary-card {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                padding-top: 10px;
-                border: 1px solid gray;
-                border-radius: 15px;
-
-                .title {
-                    font-size: 28px;
-                    font-weight: 700;
-                    padding: 0px 20px;
-                }
-
-                .order-summary-table {
+                .order-summary-card {
                     width: 100%;
-                    padding: 13px 20px;
-
-                    table {
-                        width: 100%;
-
-                        td:nth-child(1) {
-                            font-weight: 500;
-                        }
-
-                        tr:nth-child(1) td:nth-child(2) {
-                            cursor: default;
-
-                            button {
-                                background-color: none;
-                                border: none;
-                                cursor: pointer;
-                            }
-                        }
-
-                        tr:nth-child(4) {
-                            font-size: 24px;
-                            font-weight: 500;
-
-                            td {
-                                padding: 5px 0px;
-                            }
-                        }
-                    }
-                }
-
-                .order-actions {
                     display: flex;
                     flex-direction: column;
-                    gap: 10px;
-                    background-color: rgb(244, 244, 244);
-                    padding: 20px 20px;
-                    border-radius: 0px 0px 15px 15px;
+                    justify-content: center;
+                    padding-top: 10px;
+                    border: 1px solid gray;
+                    border-radius: 15px;
 
-                    button {
-                        padding: 8px 0px;
-                        font-size: 18px;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        transition: all 0.2s ease-in-out;
+                    .title {
+                        font-size: 28px;
+                        font-weight: 700;
+                        padding: 0px 20px;
                     }
 
-                    .accept-order {
-                        background-color: green;
-                        border: 1px solid green;
-                        color: white;
-                    }
+                    .order-summary-table {
+                        width: 100%;
+                        padding: 13px 20px;
 
-                    .decline-order {
-                        background-color: none;
-                        color: red;
-                        border: 1px solid red;
-                    }
-                }
-            }
-        }
+                        table {
+                            width: 100%;
 
-        .order-desc {
-            width: 100%;
-            padding-top: 40px;
+                            td:nth-child(1) {
+                                font-weight: 500;
+                            }
 
-            .order-desc-attr {
+                            tr:nth-child(1) td:nth-child(2) {
+                                cursor: default;
 
-                table {
-                    font-size: 20px;
+                                button {
+                                    background-color: none;
+                                    border: none;
+                                    cursor: pointer;
+                                }
+                            }
 
-                    td {
-                        padding-bottom: 15px;
-                    }
+                            .price-field {
+                                font-size: 24px;
+                                font-weight: 500;
 
-                    tr {
-                        td:nth-child(2) {
-                            padding-left: 30px;
+                                td {
+                                    padding: 5px 0px;
+                                }
+                            }
                         }
                     }
-                }
 
-                .order-attr {
-                    font-weight: 600;
-                }
-            }
-        }
-
-        .order-status {
-            width: 100%;
-            padding-top: 20px;
-            position: relative;
-
-            .order-status-title {
-                font-weight: 500;
-                font-size: 30px;
-            }
-
-            .order-status-items {
-                padding: 20px;
-                font-size: 20px;
-                font-weight: 500;
-                // text-align: center;
-            }
-
-            .order-action {
-                width: 50%;
-
-                .buyer-requested {
-                    width: 100%;
-                    padding: 10px 0px;
-
-                    .req-note {
-                        font-size: 27px;
-                        padding: 20px 0px;
-                    }
-
-                    .sent-requirements {
+                    .order-actions {
                         display: flex;
                         flex-direction: column;
                         gap: 10px;
+                        background-color: rgb(244, 244, 244);
+                        padding: 20px 20px;
+                        border-radius: 0px 0px 15px 15px;
 
-                        .title {
-                            font-size: 20px;
+                        button {
+                            padding: 8px 0px;
+                            font-size: 18px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            transition: all 0.2s ease-in-out;
+                        }
+
+                        .accept-order {
+                            background-color: green;
+                            border: 1px solid green;
+                            color: white;
+                        }
+
+                        .decline-order {
+                            background-color: none;
+                            color: red;
+                            border: 1px solid red;
+                        }
+
+                        // ORDER SUMMARY ACTIVE STATE
+
+                        .deliver-order {
+                            background-color: #22C55E;
+                            color: #FFFFFF;
+                            border: none;
+                            transition: background 0.2 ease;
+
+                            &:hover {
+                                background-color: #16A34A;
+                            }
+                        }
+
+                        .cancel-order {
+                            background-color: transparent;
+                            border: 1px solid #9CA3AF;
+                            color: #4B5563;
+                            transition: all 0.2s ease;
+
+                            &:hover {
+                                background-color: #F9FAFB;
+                                border-color: #EF4444;
+                                color: #EF4444;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .order-desc {
+                width: 100%;
+                padding-top: 40px;
+
+                .order-desc-attr {
+
+                    table {
+                        font-size: 20px;
+
+                        td {
+                            padding-bottom: 15px;
+                        }
+
+                        tr {
+                            td:nth-child(2) {
+                                padding-left: 30px;
+                            }
+                        }
+                    }
+
+                    .order-attr {
+                        font-weight: 600;
+                    }
+                }
+            }
+
+            .order-status {
+                width: 100%;
+                padding-top: 20px;
+                position: relative;
+
+                .order-status-title {
+                    font-weight: 500;
+                    font-size: 30px;
+                }
+
+                .order-status-items {
+                    padding: 20px;
+                    font-size: 20px;
+                    font-weight: 500;
+                    // text-align: center;
+                }
+
+                .order-action {
+                    width: 50%;
+
+                    .buyer-requested {
+                        width: 100%;
+                        padding: 10px 0px;
+
+                        .req-note {
+                            font-size: 27px;
+                            padding: 20px 0px;
+                        }
+
+                        .sent-requirements {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 10px;
+
+                            .title {
+                                font-size: 20px;
+                            }
+
+                            textarea {
+                                padding: 10px;
+                            }
+                        }
+                    }
+
+                    .order-request-actions {
+
+                        .buyer-req {
+                            width: 100%;
+                            padding: 10px 0px;
+                            // background-color: aqua;
+
+                            .buyer-req-title {
+                                font-size: 23px;
+                                padding: 10px 0px;
+                            }
+                        }
+
+                        .order-request-action-btns {
+                            display: flex;
+                            gap: 10px;
+                            justify-content: center;
+
+                            .order-accept-btn {
+                                padding: 10px 20px;
+                                color: white;
+                                border: none;
+                                background-color: green;
+                                border-radius: 10px;
+                                cursor: pointer;
+                            }
+
+                            .order-reject-btn {
+                                padding: 10px 20px;
+                                color: white;
+                                border: none;
+                                background-color: red;
+                                border-radius: 10px;
+                                cursor: pointer;
+                            }
+
+                            .order-reject-cancel-btn {
+                                padding: 10px 20px;
+                                color: white;
+                                border: none;
+                                background-color: rgb(1, 135, 144);
+                                border-radius: 10px;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+
+                    // ORDER = ACTIVE && ROLE = BUYER
+                    .order-active-buyer {
+                        flex: 1;
+                        width: 100%;
+                    }
+
+                    .order-upload-file-input {
+                        display: none;
+                    }
+
+                    .order-upload-file-button {
+                        padding: 5px 10px;
+                        background-color: gainsboro;
+                        border: 1px solid gray;
+                        border-radius: 5px;
+                        font-size: initial;
+                        cursor: pointer;
+                    }
+
+                    .order-file-preview-container {
+
+                        .order-file-preview {
+                            margin-top: 10px;
+                            max-width: 400px;
+                            width: 100%;
+                            min-height: 100px;
+                            width: 100%;
+                            height: 100%;
+
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+
+                            gap: 10px;
+                            padding: 8px;
+
+                            .order-file {
+                                background-color: rgb(196, 196, 196);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                border-radius: 10px;
+                            }
+
+                            .delete-img-button {
+                                padding: 20px;
+                                background: none;
+                                border: none;
+                                cursor: pointer;
+                            }
+
+                            img {
+                                width: 70px;
+                                height: 70px;
+                                border-radius: 12% 0% 0% 12%;
+                            }
+
+                            .video_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+
+                            .audio_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+
+                            .file_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+                        }
+
+                        .contains {
+                            align-items: initial;
+                            justify-content: center;
                         }
 
                         textarea {
-                            padding: 10px;
-                        }
-                    }
-                }
-
-                .order-request-actions {
-
-                    .buyer-req {
-                        width: 100%;
-                        padding: 10px 0px;
-                        // background-color: aqua;
-
-                        .buyer-req-title {
-                            font-size: 23px;
-                            padding: 10px 0px;
+                            width: 100%;
                         }
                     }
 
-                    .order-request-action-btns {
-                        display: flex;
-                        gap: 10px;
-                        justify-content: center;
-
-                        .order-accept-btn {
-                            padding: 10px 20px;
-                            color: white;
-                            border: none;
-                            background-color: green;
-                            border-radius: 10px;
-                            cursor: pointer;
-                        }
-
-                        .order-reject-btn {
-                            padding: 10px 20px;
-                            color: white;
-                            border: none;
-                            background-color: red;
-                            border-radius: 10px;
-                            cursor: pointer;
-                        }
-
-                        .order-reject-cancel-btn {
-                            padding: 10px 20px;
-                            color: white;
-                            border: none;
-                            background-color: rgb(1, 135, 144);
-                            border-radius: 10px;
-                            cursor: pointer;
-                        }
-                    }
-                }
-
-                // ORDER = ACTIVE && ROLE = BUYER
-                .order-active-buyer {
-                    flex: 1;
-                    width: 100%;
-                }
-
-                .order-upload-file-input {
-                    display: none;
-                }
-
-                .order-upload-file-button {
-                    padding: 5px 10px;
-                    background-color: gainsboro;
-                    border: 1px solid gray;
-                    border-radius: 5px;
-                    font-size: initial;
-                    cursor: pointer;
-                }
-
-                .order-file-preview-container {
-
-                    .order-file-preview {
+                    .delivered-files {
                         margin-top: 10px;
                         max-width: 400px;
                         width: 100%;
                         min-height: 100px;
+                        background-color: rgb(50, 205, 233);
+                        // align-items: center;
                         width: 100%;
                         height: 100%;
 
                         display: flex;
                         justify-content: center;
-                        align-items: center;
                         flex-direction: column;
 
                         gap: 10px;
                         padding: 8px;
+                        border-radius: 10px;
 
-                        .order-file {
+                        .delivered-file {
                             background-color: rgb(196, 196, 196);
                             display: flex;
-                            justify-content: space-between;
                             align-items: center;
                             border-radius: 10px;
-                        }
 
-                        .delete-img-button {
-                            padding: 20px;
-                            background: none;
+                            .delivered-file-info {
+                                width: 100%;
+
+                                .delivered-file-name {
+                                    display: flex;
+                                    justify-content: center;
+                                    width: 100%;
+                                }
+
+                                .delivered-file-size {
+                                    display: flex;
+                                    justify-content: center;
+                                    width: 100%;
+                                }
+
+                            }
+
+                            img {
+                                width: 70px;
+                                height: 70px;
+                                border-radius: 12% 0% 0% 12%;
+                            }
+
+                            .video_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+
+                            .audio_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+
+                            .file_icon {
+                                width: 70px;
+                                height: 70px;
+                                margin-left: 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+
+                            .deliver-file-button {
+                                font-size: 20px;
+                                padding: 10px 15px;
+                                background: none;
+                                border: none;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+
+                    .order-action-buttons {
+                        display: flex;
+                        gap: 10px;
+                        padding: 5px 10px;
+                    }
+
+
+                    .order-open-chat-button-container {
+                        display: flex;
+
+                        .order-open-chat-button {
+                            padding: 10px 15px;
+                            font-size: 18px;
                             border: none;
+                            border-radius: 10px;
+                            background-color: rgb(1, 135, 144);
+                            color: white;
                             cursor: pointer;
                         }
-
-                        img {
-                            width: 70px;
-                            height: 70px;
-                            border-radius: 12% 0% 0% 12%;
-                        }
-
-                        .video_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
-
-                        .audio_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
-
-                        .file_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
                     }
+                }
 
-                    .contains {
-                        align-items: initial;
-                        justify-content: center;
-                    }
+                // Other sections
+
+                .order-request-actions {
+                    padding: 10px 0px;
 
                     textarea {
                         width: 100%;
+                        padding: 10px;
+                        resize: none;
+                        font-size: 15px;
                     }
                 }
 
-                .delivered-files {
-                    margin-top: 10px;
-                    max-width: 400px;
-                    width: 100%;
-                    min-height: 100px;
-                    background-color: rgb(50, 205, 233);
-                    // align-items: center;
-                    width: 100%;
-                    height: 100%;
-
+                .order-declined-window {
+                    padding: 10px 0px;
                     display: flex;
-                    justify-content: center;
                     flex-direction: column;
-
                     gap: 10px;
-                    padding: 8px;
-                    border-radius: 10px;
 
-                    .delivered-file {
-                        background-color: rgb(196, 196, 196);
-                        display: flex;
-                        align-items: center;
-                        border-radius: 10px;
-
-                        .delivered-file-info {
-                            width: 100%;
-
-                            .delivered-file-name {
-                                display: flex;
-                                justify-content: center;
-                                width: 100%;
-                            }
-
-                            .delivered-file-size {
-                                display: flex;
-                                justify-content: center;
-                                width: 100%;
-                            }
-
-                        }
-
-                        img {
-                            width: 70px;
-                            height: 70px;
-                            border-radius: 12% 0% 0% 12%;
-                        }
-
-                        .video_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
-
-                        .audio_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
-
-                        .file_icon {
-                            width: 70px;
-                            height: 70px;
-                            margin-left: 20px;
-                            display: flex;
-                            align-items: center;
-                        }
-
-                        .deliver-file-button {
-                            font-size: 20px;
-                            padding: 10px 15px;
-                            background: none;
-                            border: none;
-                            cursor: pointer;
-                        }
-                    }
-                }
-
-                .order-action-buttons {
-                    display: flex;
-                    gap: 10px;
-                    padding: 5px 10px;
-                }
-
-
-                .order-open-chat-button-container {
-                    display: flex;
-
-                    .order-open-chat-button {
-                        padding: 10px 15px;
-                        font-size: 18px;
-                        border: none;
-                        border-radius: 10px;
-                        background-color: rgb(1, 135, 144);
-                        color: white;
-                        cursor: pointer;
+                    textarea {
+                        width: 100%;
+                        padding: 10px;
+                        resize: none;
+                        font-size: 15px;
                     }
                 }
             }
 
-            // Other sections
+            .buyer-review-container {
+                padding: 15px 0px;
 
-            .order-request-actions {
-                padding: 10px 0px;
+                .review-title {
+                    font-size: 30px;
+                    padding: 15px 0px;
+                }
+
+                .review-rating-and-timestamp {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px 0px;
+                    font-size: 20px;
+
+                }
+
+                .review-rating {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+
+                }
 
                 textarea {
                     width: 100%;
+                    height: 150px;
+                    resize: vertical;
                     padding: 10px;
-                    resize: none;
-                    font-size: 15px;
+                    font-size: 20px;
                 }
-            }
 
-            .order-declined-window {
-                padding: 10px 0px;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-
-                textarea {
-                    width: 100%;
-                    padding: 10px;
-                    resize: none;
-                    font-size: 15px;
+                button {
+                    padding: 10px 20px;
+                    margin-top: 10px;
                 }
-            }
-        }
 
-        .buyer-review-container {
-            padding: 15px 0px;
+                .thanks-msg {
+                    font-size: 25px;
+                    font-weight: 600;
+                }
 
-            .review-title {
-                font-size: 30px;
-                padding: 15px 0px;
-            }
-
-            .review-rating-and-timestamp {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 10px 0px;
-                font-size: 20px;
-
-            }
-
-            .review-rating {
-                display: flex;
-                gap: 5px;
-                align-items: center;
-
-            }
-
-            textarea {
-                width: 100%;
-                height: 150px;
-                resize: vertical;
-                padding: 10px;
-                font-size: 20px;
-            }
-
-            button {
-                padding: 10px 20px;
-                margin-top: 10px;
-            }
-
-            .thanks-msg {
-                font-size: 25px;
-                font-weight: 600;
-            }
-
-            .review-subtitle {
-                padding: 15px 0px;
-                font-size: 30px;
+                .review-subtitle {
+                    padding: 15px 0px;
+                    font-size: 30px;
+                }
             }
         }
     }

@@ -267,7 +267,7 @@
 
             .gig-info{
                 width: 80%;
-                padding: 15px;
+                padding: 15px 25px;
                 border: 2px solid gray;
                 border-radius: 15px;
                 
@@ -275,7 +275,7 @@
                     width: 100%;
                     font-size: 30px;
                     font-weight: 600;
-                    padding: 5px 0px;
+                    padding-bottom: 5px;
                 }
 
                 .gig-desc{
@@ -314,7 +314,7 @@
                     justify-content: center;
                     padding: 10px 0px;
                     .buy-gig-btn{
-                        width: 90%;
+                        width: 100%;
                         min-width: 300px;
                         padding: 10px 0px;
                         background-color: black;
@@ -330,7 +330,7 @@
                     width: 100%;
                     display: flex;
                     justify-content: center;
-                    padding: 10px 10px;
+                    // padding: 10px 10px;
                     text-align: center;
                     font-style: italic;
                     cursor: default;

@@ -32,12 +32,20 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                padding-right: 5px;
+
 
                 canvas,
                 svg {
-                    width: 100px !important;
-                    height: 80px !important;
+                    width: 110px !important;
+                    height: 90px !important;
                     background: transparent !important;
+                }
+
+                .fontawesome-icon {
+                    width: 60px !important;
+                    height: 60px !important;
+                    padding: 30px;
                 }
             }
 
@@ -95,7 +103,7 @@
             }
 
             &.completed {
-                background-color: #059669;
+                background-color: #00B7B5;
                 color: #FFFFFF;
             }
         }
@@ -135,8 +143,42 @@
                 justify-content: center;
                 align-items: center;
                 text-transform: capitalize;
-                font-size: 40px;
                 border-left: 2px solid rgb(221, 221, 221);
+
+                .order-due {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+
+                    .due {
+                        color: #018790;
+                        font-size: 40px;
+                        text-align: center;
+                    }
+
+                    .due-label {
+                        color: #005461;
+                        font-size: 20px;
+                    }
+
+                    &.overdue {
+
+                        .due,
+                        .due-label {
+                            color: #C53030;
+                        }
+                    }
+
+                    &.warning {
+
+                        .due,
+                        .due-label {
+                            color: #B7791F;
+                        }
+                    }
+                }
             }
         }
 
@@ -147,19 +189,12 @@
 
             .order-content {
                 flex: 5;
-                padding-right: 20px;
+                padding-right: 7px;
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
 
                 ////////////// ORDER REQUEST STATE ///////////////
-                .warning-box {
-                    padding: 20px;
-                    background-color: orange;
-                    font-size: 20px;
-                    border-radius: 20px;
-                    margin-bottom: 20px;
-                }
 
                 .buyer-req-box {
                     background-color: rgb(228, 228, 228);
@@ -232,12 +267,11 @@
                 .upload-file-box {
                     // background-color: #018790;
                     background-color: #F4F4F4;
-                    padding: 20px 10px;
+                    padding: 20px;
                     padding-bottom: 17px;
                     display: flex;
                     flex-direction: column;
                     height: 100%;
-                    gap: 20px;
                     align-items: flex-start;
                     border-radius: 20px;
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -263,7 +297,6 @@
 
                     .order-upload-file-button {
                         padding: 8px 13px;
-                        margin-left: 10px;
                         background-color: #005461;
                         border: none;
                         border-radius: 8px;
@@ -380,8 +413,10 @@
                     display: flex;
                     flex-direction: column;
                     background-color: #e0e0e0;
-                    gap: 15px;
+                    gap: 7px;
                     line-height: 1.5;
+                    // border: 1px solid gray;
+                    // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
                     .title {
                         font-size: 25px;
@@ -397,12 +432,11 @@
 
                 .upload-file-box {
                     background-color: #F4F4F4;
-                    padding: 20px 10px;
+                    padding: 20px;
                     padding-bottom: 17px;
                     display: flex;
                     flex-direction: column;
                     height: 100%;
-                    gap: 20px;
                     align-items: flex-start;
                     border-radius: 20px;
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -419,12 +453,46 @@
                         align-items: center;
                     }
 
-                    .order-upload-file-input {
-                        display: none;
+                    .add-file-info {
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 10px;
+
+                        .order-upload-file-input {
+                            display: none;
+                        }
+
+                        .order-upload-file-button {
+                            width: 15%;
+                            padding: 10px 15px;
+                            background-color: #005461;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: initial;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            color: white;
+                        }
+
+                        .add-file-info-text{
+                            color: red;
+                            display: flex;
+                            width: 85%;
+
+                            .icon{
+                                width: 4%;
+                            }
+                            .text{
+                                width: 96%;
+                            }
+                        }
                     }
 
                     .files-empty-text {
                         font-size: 30px;
+                        padding: 15px 0px;
                         width: 100%;
                         flex: 1;
                         display: flex;
@@ -432,25 +500,14 @@
                         justify-content: center;
                     }
 
-                    .order-upload-file-button {
-                        padding: 8px 13px;
-                        margin-left: 10px;
-                        background-color: #005461;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: initial;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        color: white;
-                    }
+
 
                     .order-file-preview-container {
                         background-color: #F4F4F4;
                         width: 100%;
                         flex: 1;
                         display: flex;
+                        padding: 10px 0px;
 
                         .order-file-preview {
                             width: 100%;
@@ -459,6 +516,7 @@
                             align-items: center;
                             justify-content: center;
                             gap: 20px;
+                            padding-top: 7px;
 
                             // .files-empty-text IS ABOVE
 
@@ -544,6 +602,75 @@
                     }
                 }
 
+                //// ORDER COMPLETED STATE ///
+                .buyer-review-container {
+                    padding: 15px 10px;
+                    // background-color: #f8fafc;
+                    border: 1px solid #e5e7eb;
+                    border: 11px;
+                    max-width: 650px;
+
+                    .review-title {
+                        font-size: 30px;
+                        font-weight: 500;
+                        padding: 15px 0px;
+                    }
+
+                    .review-rating-and-timestamp {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 10px 0px;
+                        font-size: 20px;
+                    }
+
+                    .review-rating {
+                        display: flex;
+                        gap: 10px;
+                        align-items: center;
+                        font-size: 24px;
+                    }
+
+                    textarea {
+                        width: 100%;
+                        height: 150px;
+                        resize: vertical;
+                        padding: 15px;
+                        font-size: 20px;
+                        border-radius: 20px;
+                        margin-top: 10px;
+                    }
+
+                    button {
+                        padding: 10px 20px;
+                        margin-top: 10px;
+                        border-color: #018790;
+                        color: #018790;
+                        border-radius: 6px;
+                        background: transparent;
+                        cursor: pointer;
+                    }
+
+                    .thanks-msg {
+                        font-size: 25px;
+                        font-weight: 600;
+                    }
+
+                    .review-subtitle {
+                        padding: 15px 0px;
+                        font-size: 30px;
+                    }
+                }
+
+                ///// ORDER DECLINDE STATE /////
+                .no-action-text {
+                    flex: 1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 30px;
+                    color: gray;
+                }
 
             }
 
@@ -620,42 +747,69 @@
                             background-color: green;
                             border: 1px solid green;
                             color: white;
+
+                            &:hover {
+                                background-color: #0b692e;
+                                border-color: #15803d;
+                            }
                         }
 
                         .decline-order {
-                            background-color: none;
+                            background-color: transparent;
                             color: red;
                             border: 1px solid red;
+
+                            &:hover {
+                                background-color: #dc2626;
+                                color: white;
+                            }
                         }
 
                         .revise-order {
-                            background-color: transparent;
-                            color: #4B5563;
-                            border: 1px solid #D1D5DB;
+                            background-color: #F5F3FF;
+                            color: #5B21B6;
+                            border: 1px solid #DDD6FE;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 7px;
 
                             &:hover {
-                                background-color: #F9FAFB;
-                                color: #111827;
+                                background-color: #EDE9FE;
                             }
                         }
 
                         .chat-button {
-                            background-color: rgb(1, 135, 144);
-                            color: white;
+                            background-color: #ffffff;
+                            color: #374151;
                             border: none;
-                            border: 1px solid rgb(1, 135, 144);
+                            transition: all 0.2 ease;
+                            border: 1px solid #D1D5DB;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 5px;
+
+                            &:hover {
+                                background-color: #F9FAFB;
+                                border-color: #9ca3af;
+                                color: #111827;
+                            }
                         }
 
                         // ORDER SUMMARY ACTIVE STATE
 
                         .deliver-order {
-                            background-color: #22C55E;
+                            background-color: #018790;
                             color: #FFFFFF;
                             border: none;
-                            transition: background 0.2 ease;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            transition: all 0.2s ease;
 
                             &:hover {
-                                background-color: #16A34A;
+                                background-color: #006F76;
                             }
                         }
 
@@ -664,6 +818,7 @@
                             border: 1px solid #9CA3AF;
                             color: #4B5563;
                             transition: all 0.2s ease;
+                            margin-top: 10px;
 
                             &:hover {
                                 background-color: #F9FAFB;
@@ -675,15 +830,31 @@
                         .accept-work {
                             background-color: #018790; // Your Brand Teal
                             color: white;
-                            padding: 12px;
                             border-radius: 8px;
                             border: none;
                             cursor: pointer;
                             transition: background 0.2s;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 7px;
 
                             &:hover {
-                                background-color: #00737a;
+                                background-color: #006F76;
                             }
+                        }
+
+                        ///// ORDER CANCELLATION REQUEST //////
+                        .accept-order-cancel{
+                            background-color: #16a34a;
+                            border: none;
+                            color: white;
+                        }
+
+                        .reject-order-cancel{
+                            background-color: #dc2626;
+                            border: none;
+                            color: white;
                         }
                     }
                 }
@@ -1030,53 +1201,7 @@
                 }
             }
 
-            .buyer-review-container {
-                padding: 15px 0px;
 
-                .review-title {
-                    font-size: 30px;
-                    padding: 15px 0px;
-                }
-
-                .review-rating-and-timestamp {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 10px 0px;
-                    font-size: 20px;
-
-                }
-
-                .review-rating {
-                    display: flex;
-                    gap: 5px;
-                    align-items: center;
-
-                }
-
-                textarea {
-                    width: 100%;
-                    height: 150px;
-                    resize: vertical;
-                    padding: 10px;
-                    font-size: 20px;
-                }
-
-                button {
-                    padding: 10px 20px;
-                    margin-top: 10px;
-                }
-
-                .thanks-msg {
-                    font-size: 25px;
-                    font-weight: 600;
-                }
-
-                .review-subtitle {
-                    padding: 15px 0px;
-                    font-size: 30px;
-                }
-            }
         }
     }
 }

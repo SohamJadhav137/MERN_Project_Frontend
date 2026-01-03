@@ -143,6 +143,8 @@ export default function ChatWindow() {
 
   // Receive msg socket
   useEffect(() => {
+    if(!socket) return;
+    
     const receiveMessageHandler = (data) => {
       console.log("Received Message:\n", data);
       console.log(`From: ${data.senderId.username}\nMessage: ${data.text}`);

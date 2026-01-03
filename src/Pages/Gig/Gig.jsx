@@ -64,7 +64,7 @@ export default function Gig() {
     // Fetch gig seller info
     useEffect(() => {
         const fetchSellerInfo = async () => {
-            if(!gig) return;
+            if (!gig) return;
 
             try {
                 const res = await fetch(`http://localhost:5000/api/user/${gig.userId}`)
@@ -90,29 +90,41 @@ export default function Gig() {
             Swal.fire({
                 title: "Not Authenticated!",
                 text: "Please login to use such feature.",
-                icon: "info"
+                icon: "info",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
             });
             return navigate('/login');
         }
 
-        if(userId === gig?.userId){
+        if (userId === gig?.userId) {
             Swal.fire({
                 title: "Not Allowed!",
                 text: "You cannot chat with other yourself.",
-                icon: "info"
+                icon: "info",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
             });
             return;
         }
 
-        if(user.role === 'seller'){
+        if (user.role === 'seller') {
             Swal.fire({
                 title: "Not Allowed!",
                 text: "Seller cannot chat with other sellers.",
-                icon: "info"
+                icon: "info",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
             });
             return;
         }
-            
+
 
         try {
             const response = await fetch("http://localhost:5000/api/conversations", {
@@ -140,17 +152,25 @@ export default function Gig() {
             Swal.fire({
                 title: "Not Authenticated!",
                 text: "Please login to use such feature.",
-                icon: "info"
+                icon: "info",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
             });
             return navigate('/login');
         }
 
-        if(user.role === 'seller'){
+        if (user.role === 'seller') {
             Swal.fire({
                 title: "Action Not Allowed",
                 text: "Seller cannot place order",
                 icon: "info",
-                confirmButtonText: "Ok"
+                confirmButtonText: "Ok",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
             });
             return;
         }
@@ -206,7 +226,7 @@ export default function Gig() {
                         </div>
                         <div className="seller-info">
                             <span className='seller-name'>{gig?.sellerName}</span>
-                            <span>{gig?.starRating} <i class="fa-solid fa-star"></i> ({gig?.totalReviews})</span>
+                            <span>{gig?.starRating} <FontAwesomeIcon icon="fa-solid fa-star" /> ({gig?.totalReviews})</span>
                         </div>
                     </div>
 

@@ -69,6 +69,8 @@ export default function Orders() {
 
   // Receive new order socket event
   useEffect(() => {
+    if(!socket) return;
+    
     const receiveNewOrder = (payload) => {
       setOrders(prev => [payload.createdOrder, ...prev]);
     }

@@ -142,6 +142,10 @@ export default function CreateGig() {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
+    useEffect(() => {
+        console.log("Updated selectedImage:", selectedImage);
+    }, [selectedImage]);
+
     const [deletedImageURLs, setDeletedImageURLs] = useState([]);
 
     const deleteFromS3 = useCallback(async (url, token) => {
@@ -201,7 +205,6 @@ export default function CreateGig() {
             setSelectedImage(prev => [...prev, newFile]);
             setIsUploading(false);
         };
-        console.log(selectedImage)
 
         reader.readAsDataURL(file);
 
@@ -254,6 +257,7 @@ export default function CreateGig() {
     }
 
     const uploadToS3 = async (file, token) => {
+        console.log("FILE UPLOADED TO S3:\n", file);
         const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -304,6 +308,16 @@ export default function CreateGig() {
         e.preventDefault();
         if (!validateForm()) return;
 
+        Swal.fire({
+            title: "Creating Your Gig...",
+            text: "Please wait a while.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
         const token = localStorage.getItem("token");
 
         let uploadImageUrls = [];
@@ -327,7 +341,7 @@ export default function CreateGig() {
 
         if (selectedVideo) {
             try {
-                uploadVideoUrl = await uploadToS3(formData.videoURL, token);
+                uploadVideoUrl = await uploadToS3(selectedVideo.originalFile, token);
             } catch (error) {
                 Swal.fire({
                     title: "Upload Error",
@@ -338,22 +352,6 @@ export default function CreateGig() {
                 return;
             }
         }
-
-        Swal.fire({
-            title: "Creating Your Gig...",
-            text: "Please wait a while.",
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
-        });
-
-        // let uploadDocUrls = [];
-        // for (const doc of formData.docURLs) {
-        //     const url = await uploadToS3(doc, token);
-        //     uploadDocUrls.push(url);
-        // }
 
         const finalFormData = {
             ...formData,
@@ -381,8 +379,12 @@ export default function CreateGig() {
         if (response.ok) {
             Swal.fire({
                 title: "Gig Created!",
-                text: "Your gig was saved to My-Gigs",
+                text: "Your gig was saved to My Gigs",
                 icon: "success",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                },
             });
 
             navigate('/my-gigs');
@@ -393,7 +395,11 @@ export default function CreateGig() {
             Swal.fire({
                 title: "Gig Creation Error!",
                 text: "Failed to create your gig",
-                icon: "error"
+                icon: "error",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                },
             });
         }
     }
@@ -419,7 +425,11 @@ export default function CreateGig() {
                         Swal.fire({
                             title: "Upload Error",
                             text: "Failed to upload image!",
-                            icon: "error"
+                            icon: "error",
+                            customClass: {
+                                popup: 'swal-custom-popup',
+                                title: 'swal-custom-title'
+                            },
                         });
                         console.error(error);
                         return;
@@ -438,7 +448,11 @@ export default function CreateGig() {
                         Swal.fire({
                             title: "Upload Error",
                             text: "Failed to upload video!",
-                            icon: "error"
+                            icon: "error",
+                            customClass: {
+                                popup: 'swal-custom-popup',
+                                title: 'swal-custom-title'
+                            },
                         });
                         console.error(error);
                         return;
@@ -482,6 +496,10 @@ export default function CreateGig() {
                     title: "Gig Edited!",
                     text: "Gig updated with new values",
                     icon: "success",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    },
                 });
                 console.log("Updated gigd:", responseData);
                 setDeletedImageURLs([]);
@@ -492,6 +510,10 @@ export default function CreateGig() {
                     title: "Gig Edit Failed!",
                     text: "Some error occured while updating gig",
                     icon: "error",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    },
                 });
             }
         } catch (error) {
@@ -518,7 +540,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-title" className='label-item'>Title</label>
                                 </td>
                                 <td>
-                                    <input type="text" id="gig-title" name='title' onChange={changeHandler} value={formData.title} />
+                                    <input type="text" id="gig-title" name='title' onChange={changeHandler} value={formData.title} placeholder="I'll develop this as per your requirements..." />
                                 </td>
                             </tr>
                             <tr>
@@ -543,7 +565,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-desc" className='label-item'>Description</label>
                                 </td>
                                 <td>
-                                    <textarea name="description" id="gig-desc" className='desc' onChange={changeHandler} value={formData.description} placeholder='Upto 1,200 characters'></textarea>
+                                    <textarea name="description" id="gig-desc" className='desc' onChange={changeHandler} value={formData.description} placeholder='Explain your gig in detail...'></textarea>
                                 </td>
                             </tr>
                             <tr>
@@ -677,7 +699,7 @@ export default function CreateGig() {
                         <tbody>
                             <tr>
                                 <td>
-                                    <label htmlFor="gig-price" className='label-item'>Price</label>
+                                    <label htmlFor="gig-price" className='label-item'>Pricing & Scope</label>
                                 </td>
                                 <td>
                                     <input name='price' type="text" id="gig-price" onChange={changeHandler} value={formData.price} placeholder='Price will be set in Rupees(₹)' />
@@ -688,7 +710,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-delivery-days" className='label-item'>Delivery in</label>
                                 </td>
                                 <td>
-                                    <input name='deliveryDays' type="text" id="gig-delivery-days" onChange={changeHandler} value={formData.deliveryDays} />
+                                    <input name='deliveryDays' type="text" id="gig-delivery-days" onChange={changeHandler} value={formData.deliveryDays} placeholder='Specify in terms of day(s)' />
                                 </td>
                             </tr>
                             <tr>
@@ -696,7 +718,7 @@ export default function CreateGig() {
                                     <label htmlFor="gig-revisions" className='label-item'>Revisions</label>
                                 </td>
                                 <td>
-                                    <input name='revisions' type="text" id="gig-revisions" onChange={changeHandler} value={formData.revisions} />
+                                    <input name='revisions' type="text" id="gig-revisions" onChange={changeHandler} value={formData.revisions} placeholder='Number of modifications allowed' />
                                 </td>
                             </tr>
                         </tbody>

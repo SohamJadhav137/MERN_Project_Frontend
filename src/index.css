@@ -28,3 +28,54 @@ body, #root{
 .main-content{
   flex: 1;
 }
+
+.swal-custom-popup {
+    border-radius: 20px !important;
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff !important;
+}
+
+.swal-custom-title {
+    color: #374151 !important;
+    font-weight: 700 !important;
+    padding-top: 20px !important;
+}
+
+.revision-note {
+  background: #fff8e1;
+  border-left: 4px solid #ffb300;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #555;
+  display: flex;
+
+}
+.revision-popup-note{
+  width: 11%;
+  font-weight: 700;
+}
+.revision-popup-note-main{
+  width: 89%;
+}
+
+.swal2-textarea{
+  width: 82%;
+}
+
+.accept-popup{
+  padding-top: 15px;
+  padding: 0px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accept-popup-title{
+  font-size: 25px;
+}
+
+.accept-popup ul{
+  padding-left: 30px;
+  font-size: 21px;
+}

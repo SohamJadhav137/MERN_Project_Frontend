@@ -161,10 +161,10 @@ export default function OrderCard(prop) {
                     ${prop.order?.status === 'active' && 'active'}`}>
                         {
                             prop.order?.status === 'request-cancellation' ?
-                            <span title='order-cancellation request' style={{cursor:'default'}}>Cancel-Req !</span>
-                            // <span data-tooltip='Order cancellation request'>Cancel-req <FontAwesomeIcon icon="fa-solid fa-circle-info" /></span>
-                            :
-                            prop.order?.status
+                                <span title='order-cancellation request' style={{ cursor: 'default' }}>Cancel-Req !</span>
+                                // <span data-tooltip='Order cancellation request'>Cancel-req <FontAwesomeIcon icon="fa-solid fa-circle-info" /></span>
+                                :
+                                prop.order?.status
                         }
                     </span>
                 </div>
@@ -172,24 +172,40 @@ export default function OrderCard(prop) {
                 <div className={`order-due ${(prop.order?.status !== 'completed' && prop.order?.status !== 'cancelled') && urgencyLevel}`}>
                     {
                         remainingDays === -999999 || prop.order?.status === 'completed' || prop.order?.status === 'cancelled' ?
-                        <>
-                        <span className='due'>N/A</span>
-                        <span className='due-label'>Due</span>
-                        </>
-                        :
-                        remainingDays < 0 ?
-                        <>
-                        <span className='due'>{Math.abs(remainingDays)} days</span>
-                        <span className='due-label' style={{fontSize: '20px'}}>Overdue!</span>
-                        </>
-                            :
-                            remainingDays === 0 ?
-                            <span className='due'>Due <br/> Today!</span>
-                            :
                             <>
-                            <span className='due'>{remainingDays}</span>
-                            <span className='due-label'>Days Left</span>
+                                <span className='due'>N/A</span>
+                                <span className='due-label'>Due</span>
                             </>
+                            :
+                            remainingDays < 0 ?
+                                <>
+                                    {
+
+                                        remainingDays === -1 ?
+                                            <span className='due'>{Math.abs(remainingDays)} day</span>
+                                            :
+                                            <span className='due'>{Math.abs(remainingDays)} days</span>
+                                    }
+                                    <span className='due-label' style={{ fontSize: '20px' }}>Overdue!</span>
+                                </>
+                                :
+                                remainingDays === 0 ?
+                                    <span className='due'>Due <br/> Today!</span>
+                                    :
+                                    <>
+                                        {
+                                            remainingDays === 1 ?
+                                                <>
+                                                    <span className='due'>{remainingDays}</span>
+                                                    <span className='due-label'>Day Left</span>
+                                                </>
+                                                :
+                                                <>
+                                                    <span className='due'>{remainingDays}</span>
+                                                    <span className='due-label'>Days Left</span>
+                                                </>
+                                        }
+                                    </>
                     }
                 </div>
 

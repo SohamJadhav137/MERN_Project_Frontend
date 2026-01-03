@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 
 export default function ReviewBox(prop) {
@@ -5,14 +6,14 @@ export default function ReviewBox(prop) {
         <div className="r">
             <div className="header">
                 <div className="profile">
-                    <i class="fa-solid fa-circle-user"></i>
+                    <FontAwesomeIcon icon="fa-solid fa-circle-user" />
                 </div>
                 <div className="customer-info">
                     <div className="customer-name">
                         <span>{prop.review.buyerId.username} | From: {prop.review.buyerId.country}</span>
                     </div>
                     <div className="customer-rating">
-                        <span>5 <i class="fa-solid fa-star"></i></span>
+                        <span>5 <FontAwesomeIcon icon="fa-solid fa-star" /></span>
                     </div>
                 </div>
             </div>

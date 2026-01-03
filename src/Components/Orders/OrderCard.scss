@@ -231,13 +231,13 @@
                 cursor: pointer;
                 padding: 8px 15px;
                 font-weight: 600;
+                transition: all 0.3s ease;
             }
 
             button:hover {
                 background-color: #005461;
                 /* Darkest brand color */
                 color: #FFFFFF;
-                transition: all 0.3s ease;
                 /* Smooth transition */
             }
         }

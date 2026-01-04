@@ -495,7 +495,7 @@ export default function Order() {
         if (result.isConfirmed) {
 
             Swal.fire({
-                title: "Delivering your HARD WORD...",
+                title: "Delivering your work...",
                 text: "Please wait a while.",
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -710,12 +710,11 @@ export default function Order() {
             }
         });
 
-
         if (text) {
             try {
                 for (const file of order?.deliveryFiles) {
-                    await deleteFromS3(file.url, token);
-                    console.log("Deleting file:", file.url);
+                    await deleteFromS3(file.key, token);
+                    console.log("Deleting file:", file.key);
                 }
             } catch (error) {
                 console.error("Error occured while deleting files before REVISION: ", error);
@@ -761,10 +760,6 @@ export default function Order() {
             }
         }
     }
-
-    const [orderCancelText, setOrderCancelText] = useState(false);
-
-    const [msg, setMsg] = useState(null);
 
     const cancelOrderRequestHandler = async () => {
         const { value: textAreaCancelNote } = await Swal.fire({
@@ -862,6 +857,10 @@ export default function Order() {
             if (res.ok) {
                 const data = await res.json();
                 console.log(data || "Order cancellation request accepted");
+                for (const file of order?.deliveryFiles) {
+                    await deleteFromS3(file.key, token);
+                    console.log("Deleting file:", file.key);
+                }
                 Swal.fire({
                     title: "Order Cancelled",
                     text: "The order has been cancelled successfully.",
@@ -1143,6 +1142,7 @@ export default function Order() {
         const interval = setInterval(calculateTime, 1000 * 60 * 60);
         return () => clearInterval(interval);
     }, [order?.dueDate, order?.status]);
+
     return (
         <div className='order-container'>
             <div className="order">

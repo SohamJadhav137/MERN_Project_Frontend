@@ -26,18 +26,18 @@ export default function Login() {
   const submitHandler = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (!formData.email || !formData.password) {
       setError("All fields are required!");
       return;
     }
-    
+
     if (!formData.email.includes('@')) {
       setError("Invalid email format!");
       return;
     }
     setLoading(true);
-    
+
     try {
       const token = localStorage.getItem("token");
 
@@ -46,16 +46,16 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         setError(data.message || "Something went wrong!")
         return;
       }
 
       localStorage.setItem("token", data.token);
-      const user = { email: data.email, username: data.username, role: data.role, profilePic: data.profilePic}
+      const user = { email: data.email, username: data.username, role: data.role, profilePic: data.profilePic }
       localStorage.setItem("user", JSON.stringify(user));
       console.log(data);
       console.log(user);
@@ -70,18 +70,30 @@ export default function Login() {
       setLoading(false);
     }
   }
+
   return (
-    <form className="login" onSubmit={submitHandler}>
-      <h3>Login</h3>
-      {error && <p className='error'>{error}</p>}
-      <label>Email</label>
-      <input type="text" name='email' onChange={onChangeHandler} />
-      <label>Password</label>
-      <input type="password" name='password' onChange={onChangeHandler} />
-      <button type="submit" disabled={loading} className={`auth-button ${loading && 'loading-state'}`}>
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
-      <span className='desc'>New user ? <Link to='/signup' className='link'><span>Signup</span></Link> here</span>
-    </form>
+    <div className="base">
+      <div className="left">
+        <div className="img-container">
+          <img src="/auth_bg_final.png" alt="" />
+        </div>
+      </div>
+      <div className="right">
+
+        <form className="login" onSubmit={submitHandler}>
+          <h3>Welcome Back !</h3>
+          {error && <p className='error'>{error}</p>}
+          <label>Email</label>
+          <input type="text" name='email' onChange={onChangeHandler} />
+          <label>Password</label>
+          <input type="password" name='password' onChange={onChangeHandler} />
+          <button type="submit" disabled={loading} className={`auth-button ${loading && 'loading-state'}`}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+          <span className='desc'>New user ? <Link to='/signup' className='link'><span>Signup</span></Link> here</span>
+        </form>
+        
+      </div>
+    </div>
   )
 }

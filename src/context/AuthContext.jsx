@@ -1,6 +1,8 @@
 import { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { getCurrentUser } from "../utils/getCurrentUser";
+import { createSocket, disconnectSocket } from "../socket";
 
 export const AuthContext = createContext();
 
@@ -15,6 +17,11 @@ export const AuthProvider = ({ children }) => {
         setToken(token);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
+        const currentUser = getCurrentUser();
+        createSocket({
+            userId: currentUser.id,
+            username: userData.username
+        })
         navigate('/');
     }
 
@@ -40,6 +47,9 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Logout error!", error);
         }
+
+        disconnectSocket();
+
         setUser(null);
         setToken(null);
         localStorage.removeItem("user");

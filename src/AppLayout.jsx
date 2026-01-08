@@ -33,6 +33,8 @@ export default function AppLayout() {
     const mainContentForms = `main-content ${isAuth ? 'main-content-align' : ''}`
 
     const { user } = useContext(AuthContext);
+    // const auth = useContext(AuthContext);
+    // console.log("Authcontext value:\n", auth);
 
     return (
         <>

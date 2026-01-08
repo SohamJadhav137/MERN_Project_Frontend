@@ -18,9 +18,6 @@ export default function MainContainer() {
       setSelectedConvId(conv);
       navigate(`/messages/${conv}`);
     }
-    else{
-      navigate('/messages');
-    }
   }
 
   // Fetch conversations

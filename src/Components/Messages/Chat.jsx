@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import './Chat.scss'
 import profile_img from '../../assets/profile.png'
 import { getCurrentUser } from '../../utils/getCurrentUser'
-import { getSocket } from '../../socket';
 
 export default function Chat({ role, conv, onSelectConversation }) {
 
@@ -17,7 +16,6 @@ export default function Chat({ role, conv, onSelectConversation }) {
     minute: '2-digit',
     hour12: true
   });
-  const socket = getSocket();
 
   let recipientId;
   if(role === 'buyer'){
@@ -53,21 +51,21 @@ export default function Chat({ role, conv, onSelectConversation }) {
   }, [recipientId]);
 
   // Last msg socket display
-  useEffect(() => {
-    if(!socket) return;
+  // useEffect(() => {
+  //   if(!socket) return;
     
-    const handleSocketEvent = (payload) => {
-      console.log("Socket exec!")
-      setLastMsg(payload.lastMsg);
-    }
+  //   const handleSocketEvent = (payload) => {
+  //     console.log("Socket exec!")
+  //     setLastMsg(payload.lastMsg);
+  //   }
 
-    socket.on("lastMsgReceived", handleSocketEvent);
+  //   socket.on("lastMsgReceived", handleSocketEvent);
 
-    return () => {
-      socket.off("lastMsgReceived", handleSocketEvent);
-    }
+  //   return () => {
+  //     socket.off("lastMsgReceived", handleSocketEvent);
+  //   }
 
-  }, [socket]);
+  // }, [socket]);
 
   return (
     <div className="chat" onClick={() => onSelectConversation(conv._id)}>

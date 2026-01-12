@@ -2,7 +2,7 @@ import React from 'react'
 import './footer.scss'
 import { Link, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { gigCat } from '../../Data/GigCat';
+import gigCat from '../../Data/GigCat';
 
 export default function Footer() {
   

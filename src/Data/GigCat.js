@@ -1,4 +1,4 @@
-export const gigCat = [
+const gigCat = [
     {
         name: "Software Development",
         image: "/prgm.avif"
@@ -27,4 +27,6 @@ export const gigCat = [
         name: "Finance",
         image: "/fin.jpeg"
     },
-]
+];
+
+export default gigCat;

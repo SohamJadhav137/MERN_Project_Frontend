@@ -9,8 +9,9 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { extractFileNameFromURL } from '../../utils/extractFileName';
 import Swal from 'sweetalert2';
-import { Info, MoveRight } from 'lucide-react';
+import { ChevronDown, Globe, Info, MoveRight, Save } from 'lucide-react';
 import createGigLabels from '../../Data/CreateGigLabels';
+import gigCat from '../../Data/GigCat';
 
 const formatBytesToSize = (bytes) => {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -560,9 +561,10 @@ export default function CreateGig() {
     }
 
     const [step, setStep] = useState(1);
-    const nextStep = () => setStep(step + 1);
-    const prevStep = () => setStep(step - 1);
-    const [gigStepLabel, setGigStepLabel] = useState(createGigLabels[0]);
+    const nextStep = () => setStep(prev => prev + 1);
+    const prevStep = () => setStep(prev => prev - 1);
+    const currentStep = createGigLabels[step - 1];
+    const progressPercent = (step / createGigLabels.length) * 100;
 
     return (
         <div className='create-gig-container' onKeyDown={submitKeyHandler}>
@@ -571,288 +573,231 @@ export default function CreateGig() {
 
                 <div className="phase-wrapper">
                     <div className="phase-item">
-                        <div className='sub-heading'>Step {step} of {createGigLabels.length} - {gigStepLabel}</div>
-                        <div className={`error-msg ${errors.length === 0 ? 'hidden' : ''}`}>
-                            {
-                                errors.length !== 0 &&
-                                errors[0]
-                            }
+                        <div className="phase-item-header">
+
+                            <div className='sub-heading'>Step {step} of {createGigLabels.length} - {currentStep}</div>
+
+                            <div className="progress-container">
+                                <div className="progress-bar-bg">
+                                    <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+                                </div>
+                            </div>
+
+                            <div className={`error-msg ${errors.length > 0 ? 'show' : ''}`}>
+                                {errors[0]}
+                            </div>
                         </div>
                         {
                             step === 1 &&
-                            <div className="form-container">
-                                <label htmlFor="gig-title">Title</label>
-                                <div className="input-wrapper">
-                                    <input type="text" name='title' id='gig-title' value={formData.title} onChange={changeHandler} placeholder="I'll develop this as per your requirements..." />
+                            <>
+                                <div className="form-container">
+                                    <div className='input-field-wrapper'>
+                                        <label htmlFor="gig-title" className='label-item'>Title</label>
+                                        <input type="text" name='title' id='gig-title' value={formData.title} onChange={changeHandler} placeholder="I'll develop this as per your requirements..." />
+                                    </div>
+
+                                    <div className='input-field-wrapper'>
+                                        <label htmlFor="gig-category" className='label-item'>Category</label>
+                                        <select id="gig-category" name='category' onChange={changeHandler} value={formData.category}>
+                                            <option value="" disabled>Select category</option>
+                                            {
+                                                gigCat.map(c => (
+                                                    <option value={c.name} key={c.name}>{c.name}</option>
+                                                ))
+                                            }
+                                        </select>
+                                        <ChevronDown className='eye-icon' size={18} />
+                                    </div>
+
+                                    <div className='input-field-wrapper'>
+                                        <label htmlFor="gig-tags" className='label-item'>Tags</label>
+                                        <input type="text" id="gig-tags" className='label-title' onChange={(e) => setTagInput(e.target.value)} value={tagInput} onKeyDown={keyDownHandlers} placeholder='Type a tag and hit enter' />
+                                        <div className="gig-tags">
+                                            {formData.tags.map((tag, index) => (
+                                                <div key={index} className='tag-pill' onClick={() => deleteTagHandler(tag)}>
+                                                    {tag} &times;
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                 </div>
-                            </div>
-                            // <table>
-                            //     <tbody>
-                            //         <tr>
-                            //             <td>
-                            //                 <label htmlFor="gig-title" className='label-item'>Title</label>
-                            //             </td>
-                            //             <td>
-                            //                 <input type="text" id="gig-title" name='title' onChange={changeHandler} value={formData.title} placeholder="I'll develop this as per your requirements..." />
-                            //             </td>
-                            //         </tr>
-                            //         <tr>
-                            //             <td>
-                            //                 <label htmlFor="gig-category" className='label-item'>Category</label>
-                            //             </td>
-                            //             <td>
-                            //                 <select id="gig-category" name='category' onChange={changeHandler} value={formData.category}>
-                            //                     <option value="" disabled>Select a category</option>
-                            //                     <option value="Software Development">Software Development</option>
-                            //                     <option value="Video Editing">Video Editing</option>
-                            //                     <option value="Writing & Translation">Writing & Translation</option>
-                            //                     <option value="Finance">Finance</option>
-                            //                     <option value="Digital Marketing">Digital Marketing</option>
-                            //                     <option value="Data Analytics">Data Analytics</option>
-                            //                     <option value="Music & Audio">Music & Audio</option>
-                            //                 </select>
-                            //             </td>
-                            //         </tr>
-
-                            //         <tr>
-                            //             <td>
-                            //                 <label htmlFor="gig-tags" className='label-item'>Tags</label>
-                            //             </td>
-                            //             <td>
-                            //                 <div className="gig-tags">
-                            //                     {formData.tags.map((tag, index) => (
-                            //                         <div key={index} className='tag-pill' onClick={() => deleteTagHandler(tag)}>
-                            //                             {tag} &times;
-                            //                         </div>
-                            //                     ))}
-                            //                 </div>
-                            //                 <input type="text" id="gig-tags" className='label-title' onChange={(e) => setTagInput(e.target.value)} value={tagInput} onKeyDown={keyDownHandlers} placeholder='Type a tag and hit enter' />
-                            //             </td>
-                            //         </tr>
-
-                            //         <tr >
-                            //             <td colSpan={2} className='action-buttons'>
-                            //                 <button className='next-btn' type='button' onClick={nextStep}>Next</button>
-                            //             </td>
-                            //         </tr>
-                            //     </tbody>
-                            // </table>
+                                <div className="action-buttons" >
+                                    <button className='btn' type='button' onClick={nextStep}>Next</button>
+                                </div>
+                            </>
                         }
 
                         {
                             step === 2 &&
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-desc" className='label-item'>Description</label>
-                                        </td>
-                                        <td>
-                                            <div className="gig-description">
-                                                <div className="gig-desc-header">
-                                                    <div className="left">
-                                                        <div className="info"><FontAwesomeIcon icon="fa-solid fa-circle-info" /> Select text and click</div>
-                                                        <button type="button" onClick={makeBold} title='Bold' className='bold-text-button'>
-                                                            B
-                                                        </button>
-                                                    </div>
-                                                    <div className="right">
+                            <>
+                                <div className="form-container">
+                                    <div className="input-field-wrapper">
+                                        <div className="gig-description">
+                                            <div className="gig-desc-header">
+                                                <div>
+                                                    <label htmlFor="gig-desc" className='label-item'>Description</label>
+                                                </div>
+                                                <div className="left">
+                                                    <div className="info"><FontAwesomeIcon icon="fa-solid fa-circle-info" /> Select text and click</div>
+                                                    <button type="button" onClick={makeBold} title='Bold' className='bold-text-button'>
+                                                        B
+                                                    </button>
+                                                </div>
+                                                <div className="right">
 
-                                                        <div className="char-count">
-                                                            {formData.description.length}/{MAX_CHARS}
-                                                        </div>
+                                                    <div className="char-count">
+                                                        {formData.description.length}/{MAX_CHARS}
                                                     </div>
                                                 </div>
-                                                <textarea ref={textareaRef} maxLength={MAX_CHARS} name="description" id="gig-desc" className='desc' onChange={handleDescriptionChange} value={formData.description} placeholder='Explain your gig in detail...'></textarea>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    <tr >
-                                        <td colSpan={2} className='action-buttons'>
-                                            <button className='next-btn' type='button' onClick={prevStep}>Previous</button>
-                                            <button className='next-btn' type='button' onClick={nextStep}>Next</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            <textarea ref={textareaRef} maxLength={MAX_CHARS} name="description" id="gig-desc" className='desc' onChange={handleDescriptionChange} value={formData.description} placeholder='Explain your gig in detail...'></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="action-buttons">
+                                    <button className='btn prev' type='button' onClick={prevStep}>Previous</button>
+                                    <button className='btn next' type='button' onClick={nextStep}>Next</button>
+                                </div>
+                            </>
+
                         }
 
                         {
                             step === 3 &&
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-images" className='label-item'>Images</label>
-                                        </td>
-                                        <td>
-                                            <input type="file" id='gig-images' onChange={uploadImageHandler} accept='image/*' disabled={isUploading} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <div className='file-preview-container'>
+                            <>
+                                <div className="form-container">
+                                    <div className="input-field-wrapper">
+                                        <label htmlFor="gig-images" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Image</label>
+                                        <input type="file" id='gig-images' onChange={uploadImageHandler} className='img-inp-hide' accept='image/*' disabled={isUploading} />
+                                        <div className='file-preview-container'>
+                                            <div className={`file-preview ${selectedImage.length > 0 && 'contains'}`}>
                                                 {
-                                                    isUploading && (
-                                                        <span>Loading File Preview</span>
-                                                    )
-                                                }
-
-                                                <div className='file-preview'>
-                                                    {
-                                                        selectedImage.length === 0 ?
-                                                            (
-                                                                <span>No files uploaded yet</span>
-                                                            )
-                                                            :
-                                                            (
-                                                                selectedImage.map(file => (
-                                                                    <div key={file.id} className='file'>
-                                                                        <FilePreview file={file} />
-                                                                        <div>
-                                                                            <span title={file.name}>{file.name}</span>
-                                                                            <br />
-                                                                            <span>{formatBytesToSize(file.size)}</span>
-                                                                        </div>
-
-                                                                        <button onClick={() => imageDeleteHandler(file.id)}>
-                                                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
-                                                                        </button>
-                                                                    </div>
-                                                                ))
-                                                            )
-                                                    }
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-video" className='label-item'>Video</label>
-                                        </td>
-                                        <td>
-                                            <input type="file" id='gig-video' onChange={uploadVideoHandler} accept='video/*' ref={videoInputRef} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <div className='file-preview-container'>
-                                                {
-                                                    isUploading && (
-                                                        <span>Loading File Preview</span>
-                                                    )
-                                                }
-
-                                                <div className='file-preview'>
-                                                    {
-                                                        selectedVideo ?
-                                                            (
-                                                                <div key={selectedVideo.id} className='file'>
-                                                                    <FilePreview file={selectedVideo} />
-                                                                    <div>
-                                                                        <span title={selectedVideo.name}>{selectedVideo.name}</span>
+                                                    selectedImage.length === 0 ?
+                                                        (
+                                                            <span>No files uploaded yet</span>
+                                                        )
+                                                        :
+                                                        (
+                                                            selectedImage.map(file => (
+                                                                <div key={file.id} className='file'>
+                                                                    <FilePreview file={file} />
+                                                                    <div className='file-info'>
+                                                                        <span title={file.name}>{file.name}</span>
                                                                         <br />
-                                                                        <span>{formatBytesToSize(selectedVideo.size)}</span>
+                                                                        <span>{formatBytesToSize(file.size)}</span>
                                                                     </div>
 
-                                                                    <button onClick={() => videoDeleteHandler(selectedVideo.id)}>
+                                                                    <button onClick={() => imageDeleteHandler(file.id)}>
                                                                         <FontAwesomeIcon icon="fa-solid fa-trash" />
                                                                     </button>
                                                                 </div>
-                                                            )
-                                                            :
-                                                            (
-                                                                <span>No files uploaded yet</span>
-                                                            )
-                                                    }
-                                                </div>
+                                                            ))
+                                                        )
+                                                }
                                             </div>
-                                        </td>
-                                    </tr>
-                                    <tr >
-                                        <td colSpan={2} className='action-buttons'>
-                                            <button className='next-btn' type='button' onClick={prevStep}>Previous</button>
-                                            <button className='next-btn' type='button' onClick={nextStep}>Next</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="input-field-wrapper">
+                                        <label htmlFor="gig-video" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Video</label>
+                                        <input type="file" id='gig-video' onChange={uploadVideoHandler} className='img-inp-hide' accept='video/*' ref={videoInputRef} />
+                                        <div className='file-preview-container'>
+                                            <div className='file-preview'>
+                                                {
+                                                    selectedVideo ?
+                                                        (
+                                                            <div key={selectedVideo.id} className='file'>
+                                                                <FilePreview file={selectedVideo} />
+                                                                <div className='file-info'>
+                                                                    <span title={selectedVideo.name}>{selectedVideo.name}</span>
+                                                                    <br />
+                                                                    <span>{formatBytesToSize(selectedVideo.size)}</span>
+                                                                </div>
+
+                                                                <button onClick={() => videoDeleteHandler(selectedVideo.id)}>
+                                                                    <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                                </button>
+                                                            </div>
+                                                        )
+                                                        :
+                                                        (
+                                                            <span>No files uploaded yet</span>
+                                                        )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="action-buttons">
+                                    <button className='btn prev' type='button' onClick={prevStep}>Previous</button>
+                                    <button className='btn next' type='button' onClick={nextStep}>Next</button>
+                                </div>
+                            </>
                         }
 
                         {
                             step === 4 &&
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-price" className='label-item'>Pricing & Scope</label>
-                                        </td>
-                                        <td>
-                                            <input name='price' type="text" id="gig-price" onChange={changeHandler} value={formData.price} placeholder='Price will be set in Rupees(₹)' />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-delivery-days" className='label-item'>Delivery in</label>
-                                        </td>
-                                        <td>
-                                            <input name='deliveryDays' type="text" id="gig-delivery-days" onChange={changeHandler} value={formData.deliveryDays} placeholder='Specify in terms of day(s)' />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label htmlFor="gig-revisions" className='label-item'>Revisions</label>
-                                        </td>
-                                        <td>
-                                            <input name='revisions' type="text" id="gig-revisions" onChange={changeHandler} value={formData.revisions} placeholder='Number of modifications allowed' />
-                                        </td>
-                                    </tr>
-                                    <tr >
-                                        <td colSpan={2} className='action-buttons'>
-                                            <button className='next-btn' type='button' onClick={prevStep}>Previous</button>
-                                            <button className='next-btn' type='button' onClick={nextStep}>Next</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <>
+                                <div className="form-container">
+                                    <div className="input-field-wrapper">
+                                        <label htmlFor="gig-price" className='label-item'>Price</label>
+                                        <input name='price' type="text" id="gig-price" onChange={changeHandler} value={formData.price} placeholder='Price will be set in Rupees(₹)' />
+                                    </div>
+                                    <div className="input-field-wrapper">
+
+                                        <label htmlFor="gig-delivery-days" className='label-item'>Delivery days</label>
+                                        <input name='deliveryDays' type="text" id="gig-delivery-days" onChange={changeHandler} value={formData.deliveryDays} placeholder='Specify in terms of day(s)' />
+                                    </div>
+
+                                    <div className="input-field-wrapper">
+                                        <label htmlFor="gig-revisions" className='label-item'>Revisions</label>
+                                        <input name='revisions' type="text" id="gig-revisions" onChange={changeHandler} value={formData.revisions} placeholder='Number of modifications allowed' />
+                                    </div>
+                                </div>
+                                <div className="action-buttons">
+                                    <button className='btn prev' type='button' onClick={prevStep}>Previous</button>
+                                    <button className='btn next' type='button' onClick={nextStep}>Next</button>
+                                </div>
+                            </>
                         }
 
                         {
                             step === 5 &&
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <span className='label-item'>Final actions</span>
-                                        </td>
-                                        <td>
-                                            {
-                                                gigId ?
-                                                    <>
-                                                        <button className='gig-draft-btn' type="button" onClick={() => navigate('/my-gigs')} >Cancel</button>
-                                                        <button className='gig-publish-btn' type='submit'>Finish Edit</button>
-                                                    </>
-                                                    :
-                                                    <>
-                                                        <button className='gig-draft-btn' type='submit' onClick={() => gigStateSubmissionHandler(false)}>Create Gig (Draft)</button>
-                                                        <button className='gig-publish-btn' type='submit' onClick={() => gigStateSubmissionHandler(true)}>Create & Publish Gig</button>
-                                                    </>
-                                            }
-                                        </td>
-                                    </tr>
-                                    <tr >
-                                        <td colSpan={2} className='action-buttons'>
-                                            <button className='next-btn' type='button' onClick={prevStep}>Previous</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <>
+                                {
+                                    gigId ?
+                                        <>
+                                            < button className='gig-draft-btn' type="button" onClick={() => navigate('/my-gigs')} >Cancel</button>
+                                            <button className='gig-publish-btn' type='submit'>Finish Edit</button>
+                                        </>
+                                        :
+                                        <>
+                                            <div className="final-actions">
+                                                <button className='gig-draft-btn' type='submit' onClick={() => gigStateSubmissionHandler(false)}>
+                                                    <Save size={24} />
+                                                    <span>
+                                                        Create Gig (Draft)
+                                                    </span>
+                                                </button>
+                                                <button className='gig-publish-btn' type='submit' onClick={() => gigStateSubmissionHandler(true)}>
+                                                    <Globe />
+                                                    <span>
+                                                        Create & Publish Gig
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </>
+                                }
+
+                                <div className="action-buttons">
+                                    <button className='btn' type='button' onClick={prevStep}>Previous</button>
+                                </div>
+                            </>
                         }
                     </div>
-                </div>
-            </form>
-        </div>
+                </div >
+            </form >
+        </div >
     )
 }

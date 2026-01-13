@@ -4,11 +4,13 @@ import './Orders.scss';
 import OrderCard from '../../Components/Orders/OrderCard';
 import { getSocket } from '../../socket';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import OrderStatusFilter from '../../Components/Orders/OrderStatusFilter';
 
 export default function Orders() {
 
   const socket = getSocket();
   const [orders, setOrders] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
   // Fetching orders
   useEffect(() => {
@@ -69,8 +71,8 @@ export default function Orders() {
 
   // Receive new order socket event
   useEffect(() => {
-    if(!socket) return;
-    
+    if (!socket) return;
+
     const receiveNewOrder = (payload) => {
       setOrders(prev => [payload.createdOrder, ...prev]);
     }
@@ -82,6 +84,19 @@ export default function Orders() {
     };
   }, []);
 
+  // Order status resolved
+  useEffect(() => {
+  const exists =
+    selectedStatus === "all" ||
+    orders.some(o => o.status === selectedStatus);
+
+  if (!exists) setSelectedStatus("all");
+}, [orders, selectedStatus]);
+
+  const filteredOrders =
+    selectedStatus === "all"
+      ? orders
+      : orders.filter(order => order.status === selectedStatus);
   return (
     <div className='orders-container'>
       <div className="orders">
@@ -89,15 +104,24 @@ export default function Orders() {
         <div className="orders-page-title">
           My Orders
         </div>
-        {
+
+        {orders.length > 0 && (
+          <OrderStatusFilter
+            orders={orders}
+            selectedStatus={selectedStatus}
+            onChange={setSelectedStatus}
+          />
+        )}
+
+        {/* {
           orders.length === 0 ?
             <div className="orders-empty-text">
-              <div className="gif-container">
+              <div className="gig-container">
                 <DotLottieReact
                   src="https://lottie.host/4902329f-05ba-429e-882a-6c2b90c883fa/DWDDPVY1Mu.lottie"
                   loop
                   autoplay
-                  style={{ height: '350px'}}
+                  style={{ height: '350px' }}
                 />
               </div>
               You haven't placed any orders yet...
@@ -110,6 +134,30 @@ export default function Orders() {
                 ))
               }
             </div>
+        } */}
+
+        {
+          filteredOrders.length === 0 ? (
+            <div className="orders-empty-text">
+              <div className="gig-container">
+                <DotLottieReact
+                  src="https://lottie.host/4902329f-05ba-429e-882a-6c2b90c883fa/DWDDPVY1Mu.lottie"
+                  loop
+                  autoplay
+                  style={{ height: '350px' }}
+                />
+              </div>
+              You haven't placed any orders yet...
+            </div>
+          ) : (
+            <div className="order-list">
+              {
+                filteredOrders.map(order => (
+                  <OrderCard key={order?._id} order={order} />
+                ))
+              }
+            </div>
+          )
         }
 
       </div>

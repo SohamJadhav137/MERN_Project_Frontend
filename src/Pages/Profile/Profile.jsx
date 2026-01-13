@@ -368,7 +368,7 @@ export default function Profile() {
                                     <div className="pic-menu" >
                                         <input type="file" id="file" className="hidden" onChange={uploadProfilePhoto} accept='image/*' disabled={isUploading} />
                                         <label htmlFor="file" className='pic-menu-item'>Upload photo <FontAwesomeIcon icon="fa-solid fa-upload" /> </label>
-                                        <div className="pic-menu-item"><button onClick={removeProfilePhoto}>Remove photo <FontAwesomeIcon icon="fa-solid fa-trash" /></button></div>
+                                        <button className='pic-menu-item' onClick={removeProfilePhoto}>Remove photo <FontAwesomeIcon icon="fa-solid fa-trash" /></button>
                                     </div>
                                 }
                             </div>

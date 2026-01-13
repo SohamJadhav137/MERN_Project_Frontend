@@ -9,9 +9,10 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { extractFileNameFromURL } from '../../utils/extractFileName';
 import Swal from 'sweetalert2';
-import { ChevronDown, Globe, Info, MoveRight, Save } from 'lucide-react';
+import { Check, ChevronDown, Globe, Info, MoveRight, Save, X } from 'lucide-react';
 import createGigLabels from '../../Data/CreateGigLabels';
 import gigCat from '../../Data/GigCat';
+import { extractCleanFileName } from '../../utils/extractFileName2';
 
 const formatBytesToSize = (bytes) => {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -118,7 +119,7 @@ export default function CreateGig() {
 
                         const existingImages = (data.imageURLs || []).map(url => ({
                             id: url,
-                            name: extractFileNameFromURL(url),
+                            name: extractCleanFileName(url),
                             type: 'image/',
                             size: 0,
                             dataURL: url
@@ -128,7 +129,7 @@ export default function CreateGig() {
                         if (data.videoURL) {
                             setSelectedVideo({
                                 id: data.videoURL,
-                                name: extractFileNameFromURL(data.videoURL),
+                                name: extractCleanFileName(data.videoURL),
                                 type: 'video/',
                                 size: 0,
                                 dataURL: data.videoURL
@@ -181,9 +182,9 @@ export default function CreateGig() {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    useEffect(() => {
-        console.log("Updated selectedImage:", selectedImage);
-    }, [selectedImage]);
+    // useEffect(() => {
+    //     console.log("Updated selectedImage:", selectedImage);
+    // }, [selectedImage]);
 
     const [deletedImageURLs, setDeletedImageURLs] = useState([]);
 
@@ -318,26 +319,26 @@ export default function CreateGig() {
         return fileURL;
     }
 
-    let errors = ['Title is empty'];
+    const [errors, setErrors] = useState([]);
 
-    const validateForm = () => {
-        const { title, category, description, imageURLs, price, deliveryDays, revisions } = formData
+    // const validateForm = () => {
+    //     const { title, category, description, imageURLs, price, deliveryDays, revisions } = formData
 
-        if (!title.trim()) errors.push("Title field is empty!");
-        if (!category || category === '') errors.push("Category is required!")
-        if (!description.trim()) errors.push("Description is empty!");
-        if (selectedImage.length === 0) errors.push("Atleast one image is required!");
-        if (!price || isNaN(price) || price < 0) errors.push("Enter valid price!");
-        if (!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
-        if (!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
+    //     if (!title.trim()) errors.push("Title field is empty!");
+    //     if (!category || category === '') errors.push("Category is required!")
+    //     if (!description.trim()) errors.push("Description is empty!");
+    //     if (selectedImage.length === 0) errors.push("Atleast one image is required!");
+    //     if (!price || isNaN(price) || price < 0) errors.push("Enter valid price!");
+    //     if (!deliveryDays || isNaN(deliveryDays) || deliveryDays < 0) errors.push("Enter valid number for days!");
+    //     if (!revisions || isNaN(revisions) || revisions < 0) errors.push("Enter valid number for revisions!");
 
-        console.log("Form errors:", errors)
+    //     console.log("Form errors:", errors)
 
-        if (errors.length > 0)
-            return false;
+    //     if (errors.length > 0)
+    //         return false;
 
-        return true;
-    }
+    //     return true;
+    // }
 
     const gigStateSubmissionHandler = (shouldPublish) => {
         setGigPublishStatus(shouldPublish);
@@ -446,7 +447,17 @@ export default function CreateGig() {
     const formUpdateHandler = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        // if (!validateForm()) return;
+
+        Swal.fire({
+            title: "Applying changes...",
+            text: "Please wait a while.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
 
         const token = localStorage.getItem("token");
 
@@ -561,10 +572,76 @@ export default function CreateGig() {
     }
 
     const [step, setStep] = useState(1);
-    const nextStep = () => setStep(prev => prev + 1);
+
+    const progressPercent = (step / createGigLabels.length) * 100;
+
+    // Clear errors when moving to next step
+    useEffect(() => {
+        setErrors([]);
+    }, [step]);
+
+    const validateCreateGigForm = (currentStep) => {
+        const newErrors = [];
+
+        switch (currentStep) {
+            case 1:
+                if (!formData.title.trim()) {
+                    newErrors.push("Title is required!");
+                }
+
+                if (!formData.category) {
+                    newErrors.push("Category is required!");
+                }
+                break;
+
+            case 2:
+                if (!formData.description.trim()) {
+                    newErrors.push("Description is required!");
+                }
+
+                if (formData.description.length < 50) {
+                    newErrors.push("Description should be of at least 50 characters");
+                }
+                break;
+
+            case 3:
+                if (selectedImage.length === 0) {
+                    newErrors.push("At least one image is required");
+                }
+                break;
+
+            case 4:
+                if (!formData.price || isNaN(formData.price) || formData.price <= 0) {
+                    newErrors.push("Enter a valid price");
+                }
+
+                if (!formData.deliveryDays || isNaN(formData.deliveryDays) || formData.deliveryDays <= 0) {
+                    newErrors.push("Enter valid delivery days");
+                }
+
+                if (formData.revisions === '' || isNaN(formData.revisions) || Number(formData.revisions) < 0) {
+                    newErrors.push("Enter valid number of revisions")
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setErrors(newErrors);
+        return newErrors.length === 0;
+
+    }
+
+    const nextStep = () => {
+        const isValid = validateCreateGigForm(step);
+        if (!isValid) return;
+
+        setStep(prev => prev + 1);
+    }
+
     const prevStep = () => setStep(prev => prev - 1);
     const currentStep = createGigLabels[step - 1];
-    const progressPercent = (step / createGigLabels.length) * 100;
 
     return (
         <div className='create-gig-container' onKeyDown={submitKeyHandler}>
@@ -587,6 +664,8 @@ export default function CreateGig() {
                                 {errors[0]}
                             </div>
                         </div>
+
+                        {/* GIG OVERVIEW */}
                         {
                             step === 1 &&
                             <>
@@ -606,7 +685,7 @@ export default function CreateGig() {
                                                 ))
                                             }
                                         </select>
-                                        <ChevronDown className='eye-icon' size={18} />
+                                        <ChevronDown className='dropdown-icon' size={18} />
                                     </div>
 
                                     <div className='input-field-wrapper'>
@@ -628,6 +707,7 @@ export default function CreateGig() {
                             </>
                         }
 
+                        {/* GIG DESCRIPTION */}
                         {
                             step === 2 &&
                             <>
@@ -663,6 +743,7 @@ export default function CreateGig() {
 
                         }
 
+                        {/* GIG VISUALS */}
                         {
                             step === 3 &&
                             <>
@@ -703,7 +784,7 @@ export default function CreateGig() {
                                         <label htmlFor="gig-video" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Video</label>
                                         <input type="file" id='gig-video' onChange={uploadVideoHandler} className='img-inp-hide' accept='video/*' ref={videoInputRef} />
                                         <div className='file-preview-container'>
-                                            <div className='file-preview'>
+                                            <div className={`file-preview ${selectedVideo && 'contains'}`}>
                                                 {
                                                     selectedVideo ?
                                                         (
@@ -736,6 +817,7 @@ export default function CreateGig() {
                             </>
                         }
 
+                        {/* GIG PRICING & TIME */}
                         {
                             step === 4 &&
                             <>
@@ -762,14 +844,27 @@ export default function CreateGig() {
                             </>
                         }
 
+                        {/* FINAL ACTIONS */}
                         {
                             step === 5 &&
                             <>
                                 {
                                     gigId ?
                                         <>
-                                            < button className='gig-draft-btn' type="button" onClick={() => navigate('/my-gigs')} >Cancel</button>
-                                            <button className='gig-publish-btn' type='submit'>Finish Edit</button>
+                                            <div className="final-actions">
+                                                <button className='gig-draft-btn' type="button" onClick={() => navigate('/my-gigs')} >
+                                                    <X />
+                                                    <span>
+                                                        Cancel
+                                                    </span>
+                                                </button>
+                                                <button className='gig-publish-btn' type='submit'>
+                                                    <Check />
+                                                    <span>
+                                                        Finish Edit
+                                                    </span>
+                                                </button>
+                                            </div>
                                         </>
                                         :
                                         <>

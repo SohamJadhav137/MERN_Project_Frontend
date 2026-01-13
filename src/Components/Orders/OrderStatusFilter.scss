@@ -1,0 +1,81 @@
+.order-filter {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.filter-tab {
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    color: #018790;
+  }
+
+  &.active {
+    color: #018790;
+    font-weight: 600;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #018790;
+      border-radius: 2px;
+    }
+  }
+}
+
+.filter-more {
+  position: relative;
+
+  &:hover .more-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.more-menu {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  min-width: 180px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition: all 0.15s ease;
+  z-index: 20;
+}
+
+.more-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &.active {
+    background: #e6f7f8;
+    color: #018790;
+    font-weight: 500;
+  }
+}

@@ -5,6 +5,9 @@ import './EditProfile.scss';
 import languages from '../../Data/Languages';
 import { getCurrentUser } from '../../utils/getCurrentUser';
 import { useNavigate } from 'react-router-dom';
+import { Brush, ChevronDown, Languages, MapPin } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Swal from 'sweetalert2';
 
 export default function EditProfile() {
 
@@ -17,6 +20,7 @@ export default function EditProfile() {
 
     const [chipInput, setChipInput] = useState('');
     const [errorIndicator, setErrorIndicator] = useState(null);
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const changeCountry = (c) => {
@@ -58,7 +62,6 @@ export default function EditProfile() {
     const user = getCurrentUser();
     const userId = user.id;
     const token = localStorage.getItem("token");
-    let errors = [];
 
     // Fetching user details
     useEffect(() => {
@@ -80,8 +83,6 @@ export default function EditProfile() {
                         skills: user.skills
                     });
                     setCountry(user.country);
-
-                    console.log(formData);
                 }
                 else {
                     console.error("Failed to fetch user details:", res.status);
@@ -94,27 +95,25 @@ export default function EditProfile() {
         fetchUserDetails();
     }, [userId]);
 
-    const validateForm = () => {
-        const { country, languages, skills } = formData;
-
-        if (!country.trim()) errors.push("Please select a country!");
-        if (languages.length === 0) errors.push("Please select atleast one language!");
-        if (skills.length === 0) errors.push("Please enter atleast one skill");
-
-        if (errors.length !== 0)
-            return false;
-
-        return true;
-    }
-
     const formSubmitHandler = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) {
-            setErrorIndicator(errors[0]);
+        if (!formData.country) {
+            setError("Please select your country!");
             return;
         }
 
+        if (formData.languages.length === 0) {
+            setError("Please select atleast one language!");
+            return;
+        }
+
+        if (user.role === 'seller' && formData.skills.length === 0) {
+            setError("Please enter atleast one skill!");
+            return;
+        }
+
+        setError('');
         try {
             const res = await fetch(`http://localhost:5000/api/user/${userId}/edit-profile`, {
                 method: 'PATCH',
@@ -131,12 +130,32 @@ export default function EditProfile() {
             });
 
             if (res.ok) {
-                alert("Your profile was updated successfully");
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Profile updated',
+                    text: 'Your profile changes have been saved successfully.',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: '#018790',
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
+                });
                 navigate('/my-profile');
                 console.log("Updated profile:\n", responseData);
             }
             else {
-                alert("Failed to update your profile!");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update your profile!',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: '#018790',
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
+                });
             }
         } catch (error) {
             console.error("Some error occured:", error);
@@ -147,23 +166,96 @@ export default function EditProfile() {
         navigate('/my-profile');
     }
 
+    const onChangeHandler = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     return (
         <div className='edit-profile-container'>
             <div className="edit-profile">
                 <div className="edit-profile-title">
                     Edit Profile
                 </div>
-                <div className="edit-profile-contents">
+                <form className="signup" onSubmit={formSubmitHandler}>
+                    <div className="step-container animate-right">
+
+                        <button onClick={redirectToProfile} type='button' className='prev-step-btn'>
+                            <FontAwesomeIcon icon="fa-solid fa-arrow-left" /> Back to profile
+                        </button>
+
+                        <div className="error-slot">
+                            {error && <span className='error-text'>{error}</span>}
+                        </div>
+
+                        <label htmlFor="edit-country" className='label-item'>Country</label>
+                        <div className="input-wrapper">
+                            <MapPin className='input-icon' size={18} />
+                            <select name="country" id="edit-country" value={country || ''} onChange={onChangeHandler}>
+                                <option value="" disabled>Select country</option>
+                                {
+                                    countries.map(c => (
+                                        <option value={c} key={c}>{c}</option>
+                                    ))
+                                }
+                            </select>
+                            <ChevronDown className='eye-icon' size={18} />
+                        </div>
+
+                        <label htmlFor="edit-language" className='label-item'>Spoken Language(s)</label>
+                        <div className="input-wrapper">
+                            <Languages className='input-icon' size={18} />
+                            <select name="language" id="edit-language" defaultValue='' onChange={(e) => { addLang(e.target.value); e.target.value = ''; }}>
+                                <option value="" disabled>Select language</option>
+                                {
+                                    languages.map((l, i) => (
+                                        <option key={l} value={l}>{l}</option>
+                                    ))
+                                }
+                            </select>
+                            <ChevronDown className='eye-icon' size={18} />
+                        </div>
+                        <div className="chips-container">
+                            {
+                                formData.languages.map((l, i) => (
+                                    <div className="chip" key={i} onClick={() => deleteLang(l)}>{l} &times;</div>
+                                ))
+                            }
+                        </div>
+
+                        {
+                            user.role === 'seller' &&
+                            <>
+                                <label htmlFor="edit-skill" className='label-item'>Skill(s)</label>
+                                <div className="input-wrapper">
+                                    <Brush className='input-icon' size={18} />
+                                    <input type="text" onChange={(e) => setChipInput(e.target.value)} onKeyDown={addChip} value={chipInput} placeholder='Type a skill and press enter' />
+                                </div>
+                                <div className="chips-container">
+                                    {
+                                        formData.skills.map((s, i) => (
+                                            <div className="chip" key={i} onClick={() => deleteChip(s)}>{s} &times;</div>
+                                        ))
+                                    }
+                                </div>
+                            </>
+                        }
+
+                        <button type="submit" className='auth-button' onClick={formSubmitHandler}>
+                            Save changes
+                        </button>
+                    </div>
+                </form>
+                {/* <div className="edit-profile-contents">
                     {
                         errorIndicator &&
                         <div className="error-div">
                             {errorIndicator}
                         </div>
-                    }
-                    <table>
-                        <tbody>
-                            {/* ///////////////////////////// COUNTRY //////////////////////////////// */}
-                            <tr>
+                    } */}
+                {/* <table>
+                        <tbody> */}
+                {/* ///////////////////////////// COUNTRY //////////////////////////////// */}
+                {/* <tr>
                                 <td>
                                     <label htmlFor="edit-country" className='label-item'>Country</label>
                                 </td>
@@ -180,9 +272,9 @@ export default function EditProfile() {
                                         {country}
                                     </div>
                                 </td>
-                            </tr>
-                            {/* ///////////////////////////// LANGUAGES //////////////////////////////// */}
-                            <tr>
+                            </tr> */}
+                {/* ///////////////////////////// LANGUAGES //////////////////////////////// */}
+                {/* <tr>
                                 <td>
                                     <label htmlFor="edit-language" className='label-item'>Languages</label>
                                 </td>
@@ -203,9 +295,9 @@ export default function EditProfile() {
                                         }
                                     </select>
                                 </td>
-                            </tr>
-                            {/* ///////////////////////////// SKILLS //////////////////////////////// */}
-                            <tr>
+                            </tr> */}
+                {/* ///////////////////////////// SKILLS //////////////////////////////// */}
+                {/* <tr>
                                 <td>
                                     <label htmlFor="edit-skill" className='label-item'>Skills</label>
                                 </td>
@@ -229,8 +321,8 @@ export default function EditProfile() {
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
+                    </table> */}
+                {/* </div> */}
             </div>
         </div>
     )

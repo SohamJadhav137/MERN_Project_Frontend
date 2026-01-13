@@ -1,8 +1,10 @@
 .create-gig-container {
     width: 100%;
+    height: calc(100vh - 70px);
     display: flex;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
 
     .create-gig {
         flex: 1;
@@ -30,7 +32,8 @@
             // background-color: yellow;        
 
             .phase-item {
-                min-height: 65vh;
+                min-height: 70vh;
+                // height: clamp(560px, 65vh, 720px);
                 max-width: 880px;
                 width: 100%;
                 margin: 0 auto;
@@ -110,6 +113,7 @@
                         align-items: flex-start;
                         flex: 1;
                         min-height: 0;
+                        position: relative;
 
                         .label-item {
                             font-size: 18px;
@@ -128,6 +132,19 @@
 
                         input:focus {
                             border-color: #018790;
+                        }
+
+                        .dropdown-icon {
+                            position: absolute;
+                            top: 46px;
+                            right: 12px;
+                            background: none;
+                            border: none;
+                            color: #94a3b8;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            pointer-events: none;
                         }
 
                         select {
@@ -162,7 +179,6 @@
                         }
 
                         .gig-tags {
-                            // background-color: yellow;
                             padding: 10px;
                         }
 
@@ -254,103 +270,27 @@
                             cursor: pointer;
                         }
 
-                        // .file-preview {
-                        //     background-color: #005461;
-                        //     // max-width: 700px;
-                        //     // width: 100%;
-                        //     // min-height: 100px;
-                        //     // height: 100%;
-
-                        //     // display: flex;
-                        //     // justify-content: center;
-                        //     // align-items: center;
-
-                        //     display: grid;
-                        //     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                        //     gap: 12px;
-                        //     max-height: 240px;
-                        //     /* Limits growth */
-                        //     overflow-y: auto;
-                        //     /* Scroll inside if many images are added */
-                        //     padding: 10px 5px;
-                        //     margin-top: 15px;
-
-
-                        //     gap: 10px;
-                        //     padding: 8px;
-
-                        //     .file {
-                        //         background-color: rgb(196, 196, 196);
-                        //         display: flex;
-                        //         justify-content: space-between;
-                        //         align-items: center;
-                        //         border-radius: 10px;
-                        //     }
-
-                        //     .delete-img-button {
-                        //         padding: 20px;
-                        //         background: none;
-                        //         border: none;
-                        //         cursor: pointer;
-                        //     }
-
-                        //     img {
-                        //         width: 65px;
-                        //         height: 65px;
-                        //         border-radius: 12% 0% 0% 12%;
-                        //     }
-
-                        //     .video_icon {
-                        //         width: 70px;
-                        //         height: 70px;
-                        //         margin-left: 20px;
-                        //         display: flex;
-                        //         align-items: center;
-                        //     }
-
-                        //     .audio_icon {
-                        //         width: 70px;
-                        //         height: 70px;
-                        //         margin-left: 20px;
-                        //         display: flex;
-                        //         align-items: center;
-                        //     }
-
-                        //     .file_icon {
-                        //         width: 70px;
-                        //         height: 70px;
-                        //         margin-left: 20px;
-                        //         display: flex;
-                        //         align-items: center;
-                        //     }
-
-                        //     .file-info {
-                        //         padding: 5px;
-                        //         padding-left: 10px;
-                        //         text-align: center;
-                        //         white-space: nowrap;
-                        //         text-overflow: ellipsis;
-                        //         overflow: hidden;
-                        //         max-width: 80px;
-                        //         min-width: 0;
-                        //         font-weight: 500;
-                        //     }
-                        // }
-
                         .file-preview-container {
                             width: 100%;
                             margin-top: 8px;
+                            display: flex;
+                            flex-direction: column;
+                            flex: 1;
+                            min-height: 0;
 
                             .file-preview {
                                 width: 100%;
-                                min-height: 70px;
-                                max-height: 240px;
-                                overflow-y: auto;
+                                // min-height: 70px;
+                                flex: 1;
+                                min-height: 0;
+                                // overflow-y: auto;
+                                overflow: auto;
                                 align-items: center;
                                 justify-content: center;
+                                flex-direction: row;
 
                                 display: flex;
-                                flex-wrap: wrap;
+                                // flex-wrap: wrap;
                                 gap: 10px;
 
                                 padding: 10px;
@@ -457,6 +397,7 @@
                 .final-actions {
                     display: flex;
                     flex: 1;
+                    flex-shrink: 0;
                     width: 100%;
                     display: flex;
                     justify-content: center;
@@ -512,10 +453,6 @@
                     }
                 }
             }
-        }
-
-        .last {
-            padding-bottom: 80px;
         }
     }
 }

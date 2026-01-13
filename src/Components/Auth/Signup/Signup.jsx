@@ -443,60 +443,6 @@ export default function Signup() {
         </div>
       }
 
-
-      {/* <label htmlFor="country" className='label-item'>Country</label>
-      <select name="country" id="country" defaultValue='' onChange={onChangeHandler}>
-        <option value="" disabled>Select country</option>
-        {
-          countries.map(c => (
-            <option value={c} key={c}>{c}</option>
-          ))
-        }
-      </select>
-
-      <label htmlFor="edit-language" className='label-item'>Spoken Languages</label>
-      <select name="language" id="edit-language" defaultValue='' onChange={(e) => { addLang(e.target.value); e.target.value = ''; }}>
-        <option value="" disabled>Select a language</option>
-        {
-          languages.map((l, i) => (
-            <option key={l} value={l}>{l}</option>
-          ))
-        }
-      </select>
-      <div className="chips-container">
-        {
-          formData.languages.map((l, i) => (
-            <div className="chip" key={i} onClick={() => deleteLang(l)}>{l} &times;</div>
-          ))
-        }
-      </div>
-
-      <label htmlFor="edit-skill" className='label-item'>Skills</label>
-      <input type="text" onChange={(e) => setChipInput(e.target.value)} onKeyDown={addChip} value={chipInput} placeholder='Type a skill and press enter' />
-      <div className="chips-container">
-        {
-          formData.skills.map((s, i) => (
-            <div className="chip" key={i} onClick={() => deleteChip(s)}>{s} &times;</div>
-          ))
-        }
-      </div>
-
-      <div className="radio-buttons-container">
-        <label>Select Role:</label>
-        <div className="radio-buttons">
-          <div className="rb">
-            <label htmlFor="buyer-button"> Buyer</label>
-            <input type="radio" id='buyer-button' value="buyer" name='role' onChange={onChangeHandler} checked={formData.role === "buyer"} />
-          </div>
-          <div className="rb">
-            <label htmlFor="seller-button"> Seller</label>
-            <input type="radio" id='seller-button' value="seller" name='role' onChange={onChangeHandler} />
-          </div>
-        </div>
-      </div> */}
-
-
-
       <span className='desc'>Already a user ? <Link to='/auth/login' className='link'><span>Login</span></Link> here</span>
     </form>
   )

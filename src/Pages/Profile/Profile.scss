@@ -39,7 +39,7 @@
     .profile-contents-container {
         width: 100%;
         background: linear-gradient(90deg, rgb(0, 84, 97) 0%, rgb(0, 183, 181) 100%);
-        
+
         .profile-contents {
             // border-radius: 20px;
             max-width: 1300px;
@@ -81,11 +81,10 @@
                             padding-left: 35px;
                         }
 
-                        td:nth-child(1){
+                        td:nth-child(1) {
                             width: 170px;
                             display: flex;
                             flex-direction: row;
-                            // background-color: red;
                         }
                     }
                 }
@@ -186,28 +185,43 @@
                     }
 
                     .pic-menu-item {
-                        flex: 1;
+                        // flex: 1;
+                        // display: flex;
+                        // align-items: center;
+                        // padding: 10px 10px;
+                        // width: 100%;
+                        // font-size: 16px;
+                        // border-radius: 6px;
+                        // justify-content: space-between;
+                        // cursor: pointer;
+                        // font-weight: normal;
+
+                        all: unset;
+
                         display: flex;
                         align-items: center;
-                        padding: 10px 10px;
-                        width: 100%;
-                        font-size: 16px;
-                        border-radius: 6px;
                         justify-content: space-between;
+
+                        width: 100%;
+                        box-sizing: border-box;
+
+                        padding: 10px 12px;
+                        font-size: 14px;
+                        line-height: 1.4;
+
+                        border-radius: 8px;
                         cursor: pointer;
-                        font-weight: normal;
+                        color: #018790;
                     }
 
-                    
+
                     .pic-menu-item:hover {
-                        background-color: rgb(1, 135, 144);
-                        color: rgb(244, 244, 244);
+                        background-color: #f1f5f9;
+                        border-radius: 8px;
                     }
 
-                    button {
-                        font-weight: normal;
-                        background: none;
-                        color: inherit;
+                    button.pic-menu-item {
+                        appearance: none;
                     }
                 }
             }
@@ -232,6 +246,7 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: 1.563rem;
+                padding-bottom: 30px;
 
                 .empty-active-gigs {
                     display: flex;

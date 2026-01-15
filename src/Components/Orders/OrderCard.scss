@@ -45,11 +45,22 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                gap: 10px;
+                gap: 4px;
+            }
+
+            .order-id {
+                font-size: 14px;
+                color: lightslategray;
+
+                .copy-id-button {
+                    background-color: white;
+                    border: none;
+                    cursor: pointer;
+                }
             }
 
             .order-card-title-info-gig-name {
-                font-size: 22px;
+                font-size: 20px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -157,21 +168,21 @@
                 opacity: 0.8;
             }
 
-            .delivered{
+            .delivered {
                 font-weight: 500;
                 background-color: #E0F2FE;
                 color: #0369A1;
                 border-color: #0369A1;
             }
 
-            .req-cancel{
+            .req-cancel {
                 font-weight: 500;
                 background-color: #FEF2F2;
                 color: #DC2626;
                 border-color: #DC2626;
             }
 
-            .revision{
+            .revision {
                 font-weight: 500;
                 background-color: #F5F3FF;
                 color: #5B21B6;

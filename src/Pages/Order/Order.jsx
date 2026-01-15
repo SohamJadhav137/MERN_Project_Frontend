@@ -10,6 +10,7 @@ import { getCurrentUser } from '../../utils/getCurrentUser';
 import Swal from 'sweetalert2';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import ORDER_STATES from '../../Data/OrderStates';
+import { Toast } from '../../utils/copyTextToast';
 
 const socket = getSocket();
 
@@ -1143,6 +1144,15 @@ export default function Order() {
         return () => clearInterval(interval);
     }, [order?.dueDate, order?.status]);
 
+    const handleCopyText = (text) => {
+        navigator.clipboard.writeText(text);
+
+        Toast.fire({
+            icon: 'success',
+            title: 'Copied to clipboard'
+        });
+    }
+
     return (
         <div className='order-container'>
             <div className="order">
@@ -1675,7 +1685,7 @@ export default function Order() {
                                     <tbody>
                                         <tr>
                                             <td>Order ID:</td>
-                                            <td title={order?._id}>{truncateId(order?._id)} <button onClick={() => { navigator.clipboard.writeText(order?._id) }}><FontAwesomeIcon icon="fa-regular fa-copy" /></button></td>
+                                            <td title={order?._id}>{truncateId(order?._id)} <button onClick={() => handleCopyText(order?._id)}><FontAwesomeIcon icon="fa-regular fa-copy" /></button></td>
                                         </tr>
                                         <tr>
                                             <td>Ordered On:</td>

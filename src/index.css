@@ -63,6 +63,10 @@ body, #root{
   width: 82%;
 }
 
+.swal-toast-offset{
+  margin-top: 70px;
+}
+
 .accept-popup{
   padding-top: 15px;
   padding: 0px 20px;

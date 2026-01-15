@@ -5,6 +5,7 @@ import { gigs } from '../../Data/GigsData'
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export default function MyGig() {
 
@@ -12,8 +13,8 @@ export default function MyGig() {
 
     const token = localStorage.getItem("token");
 
+    // Fetch all user gigs
     useEffect(() => {
-
         const fetchUserGigs = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/gigs/my-gigs', {
@@ -33,7 +34,6 @@ export default function MyGig() {
         }
 
         fetchUserGigs();
-
     }, []);
 
     const deleteGigHandler = async (gigId) => {
@@ -43,11 +43,15 @@ export default function MyGig() {
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Delete",
-            cancelButtonText: "Cancel"
+            cancelButtonText: "Cancel",
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            }
         })
 
-        if(!result.isConfirmed) return;
-        
+        if (!result.isConfirmed) return;
+
         try {
             const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
                 method: 'DELETE',
@@ -61,10 +65,23 @@ export default function MyGig() {
                 Swal.fire({
                     title: "Gig Deleted",
                     text: "Your gig was deleted successfully!",
-                    icon: "success"
+                    icon: "success",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
             }
             else {
+                Swal.fire({
+                    title: "Error",
+                    text: "Failed to delete the gig!",
+                    icon: "error",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
+                });
                 throw new Error("Failed to delete the gig! error status:", response.status);
             }
 
@@ -92,7 +109,11 @@ export default function MyGig() {
                 Swal.fire({
                     title: "Gig Status Changed",
                     text: `Gig status was changed to ${newState ? 'published' : 'unpublished'}`,
-                    icon: "warning"
+                    icon: "warning",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
             }
             else {
@@ -100,6 +121,15 @@ export default function MyGig() {
             }
         } catch (error) {
             console.error("Some FRONTEND error occured while updating gig's state\nError:", error);
+            Swal.fire({
+                title: "Error",
+                text: 'Failed to switch gig status!',
+                icon: "error",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
         }
     }
 
@@ -110,52 +140,75 @@ export default function MyGig() {
                     <div className="my-gigs-title">
                         <span>My Gigs</span>
                     </div>
-                    <div>
-                        <button className="add-gig-button">
-                            <Link to='/create-gig' className='link'>Create New Gig</Link>
-                        </button>
-                    </div>
+                    {
+                        userGigs.length !== 0 &&
+                        <div>
+                            <button className="add-gig-button">
+                                <Link to='/create-gig' className='link'>Create New Gig</Link>
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
             <div className="gigs-table">
                 <div className="gigs-table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Gig</th>
-                                <th>Price</th>
-                                <th>Orders</th>
-                                <th>Status</th>
-                                <th>Edit</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userGigs.map((gig) => (
-                                <tr key={gig._id}>
-                                    <td>{gig.title}</td>
-                                    <td>{gig.price}</td>
-                                    <td>{gig.orders}</td>
-                                    <td>
-                                        <div className={gig.isPublished ? "p" : "np"}>
-                                            {gig.isPublished ? "Published" : "Unpublished"}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <Link to={`/create-gig/${gig._id}`} className='link'>
-                                            <FontAwesomeIcon icon="fa-solid fa-pen" />
-                                        </Link>
-                                    </td>
-                                    <td>
-                                        <button className={gig.isPublished ? "gig-state-button published" : "gig-state-button draft"} onClick={() => toggleGigPublishState(gig._id, gig.isPublished)}>
-                                            {gig.isPublished ? "Revoke" : "Publish"}
-                                        </button>
-                                        <button className='delete-button' onClick={() => deleteGigHandler(gig._id)}>Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {
+                        userGigs.length === 0 ?
+                            <div className="my-gigs-empty-text">
+                                <DotLottieReact
+                                    src="https://lottie.host/208a807b-5d86-4535-8187-233164c645d7/n2yqo67dnS.lottie"
+                                    loop
+                                    autoplay
+                                    style={{ height: "350px" }}
+                                />
+                                <h2>You haven't created any gigs yet</h2>
+                                <p>
+                                    Start by creating your first gig and begin selling your services.
+                                </p>
+
+                                <Link to="/create-gig" className="create-first-gig-btn">
+                                    Create your first gig
+                                </Link>
+                            </div>
+                            :
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Gig</th>
+                                        <th>Price</th>
+                                        <th>Orders</th>
+                                        <th>Status</th>
+                                        <th>Edit</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {userGigs.map((gig) => (
+                                        <tr key={gig._id}>
+                                            <td>{gig.title}</td>
+                                            <td>{gig.price}</td>
+                                            <td>{gig.orders}</td>
+                                            <td>
+                                                <div className={gig.isPublished ? "p" : "np"}>
+                                                    {gig.isPublished ? "Published" : "Unpublished"}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <Link to={`/create-gig/${gig._id}`} className='link'>
+                                                    <FontAwesomeIcon icon="fa-solid fa-pen" />
+                                                </Link>
+                                            </td>
+                                            <td>
+                                                <button className={gig.isPublished ? "gig-state-button published" : "gig-state-button draft"} onClick={() => toggleGigPublishState(gig._id, gig.isPublished)}>
+                                                    {gig.isPublished ? "Revoke" : "Publish"}
+                                                </button>
+                                                <button className='delete-button' onClick={() => deleteGigHandler(gig._id)}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                    }
                 </div>
             </div>
         </>

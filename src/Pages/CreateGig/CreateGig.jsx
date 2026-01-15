@@ -346,11 +346,14 @@ export default function CreateGig() {
 
     const formSubmitHandler = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
 
         Swal.fire({
             title: "Creating Your Gig...",
             text: "Please wait a while.",
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            },
             allowOutsideClick: false,
             allowEscapeKey: false,
             didOpen: () => {
@@ -370,7 +373,11 @@ export default function CreateGig() {
                 Swal.fire({
                     title: "Upload Error",
                     text: "Failed to upload image!",
-                    icon: "error"
+                    icon: "error",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
                 console.error(error)
                 return;
@@ -386,7 +393,11 @@ export default function CreateGig() {
                 Swal.fire({
                     title: "Upload Error",
                     text: "Failed to upload video!",
-                    icon: "error"
+                    icon: "error",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
                 console.error(error);
                 return;
@@ -447,11 +458,13 @@ export default function CreateGig() {
     const formUpdateHandler = async (e) => {
         e.preventDefault();
 
-        // if (!validateForm()) return;
-
         Swal.fire({
             title: "Applying changes...",
             text: "Please wait a while.",
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            },
             allowOutsideClick: false,
             allowEscapeKey: false,
             didOpen: () => {

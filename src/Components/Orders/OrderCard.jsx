@@ -4,24 +4,13 @@ import './OrderCard.scss';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Toast } from '../../utils/copyTextToast';
 
-export default function OrderCard(prop) {
+export default function OrderCard({ order, gigTitle, coverImage, userDetails }) {
 
     const { user } = useContext(AuthContext);
 
-    const [gigTitle, setGigTitle] = useState(null);
-    const [userDetails, setUserDetails] = useState([]);
-    const [coverImage, setCoverImage] = useState(null);
-    const gigId = prop.order?.gigId;
-    let userId = null;
-    if (user.role === 'seller') {
-        userId = prop.order?.buyerId;
-    }
-    else {
-        userId = prop.order?.sellerId;
-    }
-
-    const dateObject = new Date(prop.order?.createdAt);
+    const dateObject = new Date(order?.createdAt);
     const options = {
         year: "numeric",
         month: "short",
@@ -30,24 +19,17 @@ export default function OrderCard(prop) {
     };
     const orderCreationDate = dateObject.toLocaleDateString('en-US', options);
 
-    // const initialDays = () => {
-    //     if (prop.order?.status !== "requested") {
-    //         const currentDate = new Date();
-    //         const deadline = new Date(prop.order?.dueDate);
-    //         return Math.ceil((deadline - currentDate) / (24 * 60 * 60 * 1000));
-    //     }
-    // };
-
     const [remainingDays, setRemainingDays] = useState(-999999);
     const [urgencyLevel, setUrgencyLevel] = useState('normal');
+
     // Start calculation of due date after order is active
     useEffect(() => {
-        if (!prop.order?.dueDate || prop.order?.status === 'requested')
+        if (!order?.dueDate || order?.status === 'requested')
             return;
 
         const calculateTime = () => {
             const now = new Date();
-            const due = new Date(prop.order?.dueDate);
+            const due = new Date(order?.dueDate);
 
             now.setHours(0, 0, 0, 0);
             due.setHours(0, 0, 0, 0);
@@ -65,62 +47,18 @@ export default function OrderCard(prop) {
 
         const interval = setInterval(calculateTime, 1000 * 60 * 60);
         return () => clearInterval(interval);
-    }, [prop.order?.dueDate, prop.order?.status]);
-
-    const token = localStorage.getItem("token");
+    }, [order?.dueDate, order?.status]);
 
     const navigate = useNavigate();
 
-    // Fetch gig details
-    useEffect(() => {
-        if (!gigId) return;
-        const fetchGigTitle = async () => {
-            try {
-                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+    const handleCopyText = (text) => {
+        navigator.clipboard.writeText(text);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    // console.log(data);
-                    setGigTitle(data.gig?.title);
-                    setCoverImage(data.gig?.coverImageURL)
-                }
-                else {
-                    console.error("Failed to fetch gig title:\n", response.status);
-                }
-            } catch (error) {
-                console.error("Some error occured while fetching gig title:\n", error);
-            }
-        }
-
-        fetchGigTitle();
-    }, [gigId]);
-
-    // Fetch username
-    useEffect(() => {
-        if (!userId) return;
-
-        const fetchUserName = async () => {
-            try {
-                const response = await fetch(`http://localhost:5000/api/user/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserDetails(data.user);
-                }
-                else {
-                    console.error("Failed to fetch gig title:\n", response.status);
-                }
-            } catch (error) {
-                console.error("Some error occured while fetching gig title:\n", error);
-            }
-        }
-
-        fetchUserName();
-    }, [userId]);
+        Toast.fire({
+            icon: 'success',
+            title: 'Copied to clipboard'
+        });
+    }
 
     return (
         <div className='order-card'>
@@ -131,13 +69,16 @@ export default function OrderCard(prop) {
 
                 <div className="order-card-title-info-container">
                     <div className='order-card-title-info'>
+                        <div className="order-id">
+                            #{order?._id} <button onClick={() => handleCopyText(order?._id)} className='copy-id-button'><FontAwesomeIcon icon="fa-regular fa-copy" /></button>
+                        </div>
                         <div className='order-card-title-info-gig-name'>Gig Title: {gigTitle}</div>
                         <div className='username'>
                             {
                                 user.role === 'seller' ?
-                                    `Buyer: ${userDetails.username}`
+                                    `Buyer: ${userDetails?.username}`
                                     :
-                                    `Seller: ${userDetails.username}`
+                                    `Seller: ${userDetails?.username}`
                             }
                         </div>
                         <div className='order-start-date'>
@@ -148,30 +89,30 @@ export default function OrderCard(prop) {
 
                 <div className="order-price-and-status">
                     <span className='price'>
-                        ₹{prop.order?.price}
+                        ₹{order?.price}
                     </span>
 
-                    <span className={`order-status ${prop.order?.status === 'completed' && 'completed'}
-                    ${prop.order?.status === 'requested' && 'requested'}
-                    ${prop.order?.status === 'cancelled' && 'cancelled'}
-                    ${prop.order?.status === 'declined' && 'declined'}
-                    ${prop.order?.status === 'delivered' && 'delivered'}
-                    ${prop.order?.status === 'revision' && 'revision'}
-                    ${prop.order?.status === 'request-cancellation' && 'req-cancel'}
-                    ${prop.order?.status === 'active' && 'active'}`}>
+                    <span className={`order-status ${order?.status === 'completed' && 'completed'}
+                    ${order?.status === 'requested' && 'requested'}
+                    ${order?.status === 'cancelled' && 'cancelled'}
+                    ${order?.status === 'declined' && 'declined'}
+                    ${order?.status === 'delivered' && 'delivered'}
+                    ${order?.status === 'revision' && 'revision'}
+                    ${order?.status === 'request-cancellation' && 'req-cancel'}
+                    ${order?.status === 'active' && 'active'}`}>
                         {
-                            prop.order?.status === 'request-cancellation' ?
+                            order?.status === 'request-cancellation' ?
                                 <span title='order-cancellation request' style={{ cursor: 'default' }}>Cancel-Req !</span>
                                 // <span data-tooltip='Order cancellation request'>Cancel-req <FontAwesomeIcon icon="fa-solid fa-circle-info" /></span>
                                 :
-                                prop.order?.status
+                                order?.status
                         }
                     </span>
                 </div>
 
-                <div className={`order-due ${(prop.order?.status !== 'completed' && prop.order?.status !== 'cancelled') && urgencyLevel}`}>
+                <div className={`order-due ${(order?.status !== 'completed' && order?.status !== 'cancelled') && urgencyLevel}`}>
                     {
-                        remainingDays === -999999 || prop.order?.status === 'completed' || prop.order?.status === 'cancelled' ?
+                        remainingDays === -999999 || order?.status === 'completed' || order?.status === 'cancelled' ?
                             <>
                                 <span className='due'>N/A</span>
                                 <span className='due-label'>Due</span>
@@ -190,7 +131,7 @@ export default function OrderCard(prop) {
                                 </>
                                 :
                                 remainingDays === 0 ?
-                                    <span className='due'>Due <br/> Today!</span>
+                                    <span className='due'>Due <br /> Today!</span>
                                     :
                                     <>
                                         {
@@ -210,7 +151,7 @@ export default function OrderCard(prop) {
                 </div>
 
                 <div className="action-bar">
-                    <button onClick={() => navigate(`/orders/${prop.order?._id}`)}>View Details</button>
+                    <button onClick={() => navigate(`/orders/${order?._id}`)}>View Details</button>
                 </div>
             </div>
         </div>

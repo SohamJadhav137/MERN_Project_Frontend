@@ -1,4 +1,48 @@
+.orders-navbar {
+  display: flex;
+  justify-content: space-between;
+  // background-color: yellow;
+
+  .order-search-bar {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+
+    .input-wrapper {
+      width: 60%;
+      // background-color: red;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-bottom: 8px;
+
+      .input-icon {
+        position: absolute;
+        left: 12px;
+        color: #94a3b8;
+        pointer-events: none;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        font-size: 16px;
+        border-radius: 30px;
+        border: 1px solid lightgray;
+        transition: border-color 0.2s;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: #018790;
+      }
+    }
+  }
+}
+
 .order-filter {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -9,7 +53,7 @@
   background: none;
   border: none;
   padding: 6px 2px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
@@ -64,7 +108,7 @@
 
 .more-item {
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 16px;
   color: #374151;
   cursor: pointer;
   border-radius: 6px;

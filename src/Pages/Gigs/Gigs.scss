@@ -54,17 +54,17 @@
                 // border: 1px solid gray;
                 border: none;
                 border-radius: 15px;
-                background-color: lightblue;
+                background-color: #00B7B5;
                 transition-duration: 0.4s;
                 cursor: pointer;
             }
 
             button.active {
-                background-color: rgb(214, 235, 241);
+                background-color: #01e0dd;
             }
 
             button:hover {
-                background-color: rgb(214, 235, 241);
+                background-color: #01e0dd;
             }
 
         }

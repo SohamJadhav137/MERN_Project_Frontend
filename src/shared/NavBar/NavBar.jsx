@@ -46,6 +46,11 @@ export default function NavBar() {
 
   // Navbar active only when inside .dark section
   const checkNavbarPosition = () => {
+    if (!isHomePage) {
+      setActive(false);
+      return;
+    }
+
     const darkSection = document.querySelector('.dark');
     const navbar = document.querySelector('.navbar');
 
@@ -73,8 +78,7 @@ export default function NavBar() {
       window.removeEventListener('scroll', checkNavbarPosition);
       window.removeEventListener('resize', checkNavbarPosition);
     };
-  }, []);
-
+  }, [isHomePage]);
 
   // Scroll/Redirect to homepage and scroll to category slider
   const handleCategoryClick = (event) => {

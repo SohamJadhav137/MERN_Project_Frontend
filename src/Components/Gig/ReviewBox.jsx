@@ -28,7 +28,7 @@ export default function ReviewBox(prop) {
                     <span className='d2'>Price</span>
                 </div>
                 <div className="gd2">
-                    <span className='d1'>{prop.review.duration} days</span>
+                    <span className='d1'>{`${prop.review.duration === 0 && 'Same day' || prop.review.duration === 1 && '1 day' || prop.review.duration > 1 && `${prop.review.duration} days`}`}</span>
                     <br />
                     <span className='d2'>Duration</span>
                 </div>

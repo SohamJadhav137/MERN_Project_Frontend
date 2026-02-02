@@ -62,7 +62,15 @@ export default function Orders() {
   // Fetch gig and user details for all orders
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token || orders.length === 0) return;
+    if (!token){
+      setDetailsLoad(false);
+      return;
+    }
+
+    if(orders.length === 0){
+      setDetailsLoad(false);
+      return;
+    }
 
     const ordersNeedingDetails = orders.filter(
       order => !orderDetails[order._id]
@@ -222,7 +230,7 @@ export default function Orders() {
 
         {orders.length > 0 && (<div className="orders-filter"><OrderStatusFilter orders={orders} selectedStatus={selectedStatus} onChange={setSelectedStatus} searchQuery={searchQuery} onSearchChange={setSearchQuery} /></div>)}
 
-        {detailsLoad ? (
+        {ordersLoading ? (
           /* Orders loading */
           <div className="orders-empty-text">
             <div className="gig-container">
@@ -247,6 +255,19 @@ export default function Orders() {
               />
             </div>
             You haven't placed any orders yet...
+          </div>
+        ) : detailsLoad ? (
+          /* Orders loading */
+          <div className="orders-empty-text">
+            <div className="gig-container">
+              <DotLottieReact
+                src={loading_orders}
+                loop
+                autoplay
+                style={{ height: "150px" }}
+              />
+            </div>
+            Loading orders...
           </div>
         ) : searchedOrders.length === 0 ? (
           /* Filter/search empty */

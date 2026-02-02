@@ -978,11 +978,27 @@ export default function Order() {
 
     const submitReviewHandler = async () => {
         if (!rating) {
-            alert("Please give rating before submitting the review!");
+            Swal.fire({
+                icon: 'info',
+                title: 'Rating is empty!',
+                text: 'Please give rating before submitting the review',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
             return;
         }
         if (!comment) {
-            alert("Please write comment before submitting the review!");
+            Swal.fire({
+                icon: 'info',
+                title: 'Comment is empty!',
+                text: 'Please write comment before submitting the review',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
             return;
         }
 
@@ -1754,8 +1770,8 @@ export default function Order() {
                                                         </>
                                                         :
                                                         <>
-                                                        <td>Revisions Used:</td>
-                                                        <td>{order?.revisionCount}</td>
+                                                            <td>Revisions Used:</td>
+                                                            <td>{order?.revisionCount}</td>
                                                         </>
                                                 }
                                             </tr>
@@ -1834,7 +1850,7 @@ export default function Order() {
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     )

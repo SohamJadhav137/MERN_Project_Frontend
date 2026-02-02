@@ -22,6 +22,10 @@ const formatBytesToSize = (bytes) => {
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 };
 
+const MAX_IMAGE_COUNT = 5;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
+
 export default function CreateGig() {
 
     const { gigId } = useParams();
@@ -190,13 +194,13 @@ export default function CreateGig() {
 
     const deleteFromS3 = useCallback(async (url, token) => {
         try {
-            const response = await fetch("http://localhost:5000/api/s3/delete-file", {
+            const response = await fetch("http://localhost:5000/api/s3/delete-file-by-url", {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ fileUrl: url })
+                body: JSON.stringify({ fileURL: url })
             })
 
             if (!response.ok) {
@@ -228,7 +232,33 @@ export default function CreateGig() {
         const file = event.target.files[0];
         if (!file) return;
 
+        if (file.size > MAX_IMAGE_SIZE) {
+            Swal.fire({
+                icon: "error",
+                title: "Image too large",
+                text: "Each image must be under 2MB",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
+            return;
+        }
+
         setIsUploading(true);
+
+        if (selectedImage.length >= MAX_IMAGE_COUNT) {
+            Swal.fire({
+                icon: "warning",
+                title: "Image upload limit reached",
+                text: `You can upload only ${MAX_IMAGE_COUNT} images`,
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
+            return;
+        }
 
         const reader = new FileReader();
 
@@ -254,6 +284,19 @@ export default function CreateGig() {
     const uploadVideoHandler = (event) => {
         const file = event.target.files[0];
         if (!file) return;
+
+        if (file.size > MAX_VIDEO_SIZE) {
+            Swal.fire({
+                icon: "error",
+                title: "Video too large",
+                text: "Video must be under 10MB",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
+            return;
+        }
 
         setIsUploading(true);
 
@@ -298,12 +341,12 @@ export default function CreateGig() {
 
     const uploadToS3 = async (file, token) => {
         console.log("FILE UPLOADED TO S3:\n", file);
-        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
+        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}&fileSize=${file.size}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: "Presigne URL request failed!" }))
+            const errorData = await response.json().catch(() => ({ message: "Presigned URL request failed!" }));
             console.error("Presign URL fetch error:", errorData.message);
             throw new Error("Failed to get S3 upload link!");
         }
@@ -762,7 +805,15 @@ export default function CreateGig() {
                             <>
                                 <div className="form-container">
                                     <div className="input-field-wrapper">
-                                        <label htmlFor="gig-images" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Image</label>
+                                        <div className='gig-file-limit'>
+                                            <div className='left'>
+                                            <label htmlFor="gig-images" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Image</label>
+                                            <div>[Max files: 5 | Size limit: 2MB]</div>
+                                            </div>
+                                            <div className='right'>
+                                               <Info /> First image is considered as cover-image
+                                            </div>
+                                        </div>
                                         <input type="file" id='gig-images' onChange={uploadImageHandler} className='img-inp-hide' accept='image/*' disabled={isUploading} />
                                         <div className='file-preview-container'>
                                             <div className={`file-preview ${selectedImage.length > 0 && 'contains'}`}>
@@ -794,7 +845,10 @@ export default function CreateGig() {
                                     </div>
 
                                     <div className="input-field-wrapper">
-                                        <label htmlFor="gig-video" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Video</label>
+                                        <div className='gig-file-limit video'>
+                                            <label htmlFor="gig-video" className='upload-file-button'><FontAwesomeIcon icon="fa-solid fa-plus" /> Add Video</label>
+                                            <div>[Max file: 1 | Size limit: 10MB]</div>
+                                        </div>
                                         <input type="file" id='gig-video' onChange={uploadVideoHandler} className='img-inp-hide' accept='video/*' ref={videoInputRef} />
                                         <div className='file-preview-container'>
                                             <div className={`file-preview ${selectedVideo && 'contains'}`}>

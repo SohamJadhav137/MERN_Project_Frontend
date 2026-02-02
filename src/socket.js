@@ -12,7 +12,8 @@ export const createSocket = ({ userId, username }) => {
         auth: {
             userId,
             username
-        }
+        },
+        reconnectionAttempts: 5
     })
     console.log("user id:", userId)
 

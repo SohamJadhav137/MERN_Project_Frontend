@@ -270,6 +270,33 @@
                             cursor: pointer;
                         }
 
+                        .gig-file-limit{
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            font-weight: 500;
+                            
+                            .left{
+                                color: red;
+                                display: flex;
+                                gap: 20px;
+                            }
+
+                            .right{
+                                display: flex;
+                                align-items: center;
+                                gap: 5px;
+                                color: gray;
+                            }
+
+                            &.video{
+                                justify-content: initial;
+                                gap: 20px;
+                                color: red;
+                            }
+                        }
+
                         .file-preview-container {
                             width: 100%;
                             margin-top: 8px;
@@ -277,6 +304,8 @@
                             flex-direction: column;
                             flex: 1;
                             min-height: 0;
+                            font-size: 20px;
+                            color: gray;
 
                             .file-preview {
                                 width: 100%;
@@ -304,6 +333,7 @@
                                 align-items: center;
                                 gap: 10px;
                                 width: 180px;
+                                height: 80px;
                                 background-color: #018790;
                                 color: white;
                                 border-radius: 10px;
@@ -352,8 +382,10 @@
                             }
 
                             .contains {
-                                align-items: initial;
+                                // align-items: initial;
                                 justify-content: flex-start;
+                                font-size: initial;
+                                color: initial;
                             }
                         }
 
@@ -410,10 +442,10 @@
                     .gig-draft-btn {
                         padding: 20px 30px;
                         border-radius: 5px;
-                        background-color: gray;
+                        background-color: #6b6b6b;
+                        border-color: #6b6b6b;
                         color: white;
                         margin-right: 10px;
-                        border: 2px solid gray;
                         border-radius: 12px;
                         cursor: pointer;
                         font-size: 18px;
@@ -424,8 +456,8 @@
                         transition: all 0.2s;
 
                         &:hover {
-                            background-color: #6b6b6b;
-                            border-color: #6b6b6b;
+                            background-color: gray;
+                            border: 2px solid gray;
                             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
                         }
                     }
@@ -433,9 +465,9 @@
                     .gig-publish-btn {
                         padding: 20px 30px;
                         border-radius: 5px;
-                        background-color: #00B7B5;
+                        background-color: #018790;
+                        border-color: #016f78;
                         color: white;
-                        border: 2px solid #018790;
                         border-radius: 12px;
                         cursor: pointer;
                         font-size: 18px;
@@ -446,8 +478,8 @@
                         transition: all 0.2s;
 
                         &:hover {
-                            background-color: #018790;
-                            border-color: #016f78;
+                            background-color: #00B7B5;
+                            border: 2px solid #018790;
                             box-shadow: 0 8px 18px rgba(1, 135, 144, 0.35);
                         }
                     }

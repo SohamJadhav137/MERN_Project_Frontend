@@ -37,6 +37,7 @@ export default function Order() {
     const [coverImage, setCoverImage] = useState(null);
     const [username, setUsername] = useState(null);
     const [userId, setUserId] = useState(null);
+    const [userImage, setUserImage] = useState(null);
 
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
@@ -82,7 +83,7 @@ export default function Order() {
 
     // Handler socket events
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !socket.connected) return;
 
         const handlerOrderEvent = (payload) => {
             if (payload.updatedOrder._id === id) {
@@ -151,6 +152,7 @@ export default function Order() {
                     const data = await response.json();
                     // console.log(data);
                     setUsername(data.user.username);
+                    setUserImage(data.user.profilePic);
                 }
                 else {
                     console.error("Failed to fetch gig title:\n", response.status);
@@ -1175,6 +1177,14 @@ export default function Order() {
             icon: 'success',
             title: 'Copied to clipboard'
         });
+    };
+
+    let profileLink;
+    if (!currentUser) {
+        profileLink = `/user/${userId}`
+    }
+    else {
+        profileLink = currentUser.id === userId ? '/my-profile' : `/user/${userId}`;
     }
 
     return (
@@ -1182,13 +1192,11 @@ export default function Order() {
             <div className="order">
 
                 {/* "<- Orders" Button */}
-                <div className="order-back-button">
-                    <span>
-                        <Link to='/orders' className='link'>
-                            <FontAwesomeIcon icon="fa-solid fa-arrow-left" /> Orders
-                        </Link>
-                    </span>
-                </div>
+                <Link to='/orders' className='link'>
+                    <div className="order-back-button">
+                        <FontAwesomeIcon icon="fa-solid fa-arrow-left" /> Orders
+                    </div>
+                </Link>
 
                 <div className={`order-status-header ${orderState?.styleClass}`}>
                     <div className="status-icon">
@@ -1254,17 +1262,27 @@ export default function Order() {
                             <img src={coverImage} alt="" />
                         </div>
                         <div className="order-title-info">
-                            <div>
-                                <span className='order-title-info-gig-name'>{gigTitle}</span>
-                                <br />
-                                <span>
-                                    {
+                            <div className='order-title-info-gig-name'>{gigTitle}</div>
+                            <div className='order-title-user-info'>
+                                <div className="role-label">
+                                    {user.role === 'seller' ? `Buyer:` : `Seller:`}
+                                </div>
+                                <Link to={profileLink} className='link'>
+                                    <div className="user-info">
+                                        <div className="user-profile-picture">
+                                            <img src={userImage || '/user.png'} alt="" />
+                                        </div>
+                                        <div className="username">
+                                            {username}
+                                        </div>
+                                    </div>
+                                </Link>
+                                {/* {
                                         user.role === 'seller' ?
                                             `Buyer: ${username}`
                                             :
                                             `Seller: ${username}`
-                                    }
-                                </span>
+                                    } */}
                             </div>
                         </div>
                     </div>

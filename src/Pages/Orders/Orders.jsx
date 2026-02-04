@@ -85,8 +85,8 @@ export default function Orders() {
 
     const fetchDetailsForOrders = async () => {
 
-      const details = {};
-      for (const order of orders) {
+      const newDetails = {};
+      for (const order of ordersNeedingDetails) {
         try {
           const gigResponse = await fetch(`http://localhost:5000/api/gigs/${order.gigId}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -115,7 +115,7 @@ export default function Orders() {
             }
           }
 
-          details[order._id] = {
+          newDetails[order._id] = {
             gigTitle,
             coverImage,
             userDetails
@@ -124,17 +124,19 @@ export default function Orders() {
         } catch (error) {
           console.error(`Error fetching details for order ${order._id}:, error`);
 
-          details[order._id] = {
+          newDetails[order._id] = {
             gigTitle: null,
             coverImage: null,
             userDetails: null
           };
         }
       }
+      
+      setOrderDetails(prev => ({
+        ...prev, ...newDetails
+      }));
 
       setDetailsLoad(false);
-
-      setOrderDetails(details);
     };
 
     fetchDetailsForOrders();
@@ -183,7 +185,7 @@ export default function Orders() {
     return () => {
       socket.off("orderReceived", receiveNewOrder);
     };
-  }, []);
+  }, [socket]);
 
   // Order status resolved
   useEffect(() => {

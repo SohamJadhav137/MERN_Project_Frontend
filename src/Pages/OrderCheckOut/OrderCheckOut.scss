@@ -9,6 +9,12 @@
         .back-button-gig {
             font-size: 25px;
             margin: 20px 0px;
+            transition: color 0.2s;
+            display: inline-block;
+
+            &:hover {
+                color: rgb(1, 135, 144);
+            }
         }
 
         .title {

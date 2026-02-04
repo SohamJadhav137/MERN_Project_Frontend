@@ -30,18 +30,12 @@
         align-items: flex-start;
         gap: 5%;
 
-        .title{
-            font-size: 25px;
-            font-weight: 600;
-            padding: 10px 0px;
-        }
-
         .gig-left{
             width: 55%;
             // background-color: lightgreen;
 
             .gig-title{
-                margin: 20px 0px;
+                padding: 10px 0px;
             }
 
             .seller-details{
@@ -76,6 +70,10 @@
                         color: rgb(70, 69, 69);
                         font-size: 20px;
                         font-weight: 600;
+
+                        &:hover{
+                            text-decoration: underline;
+                        }
                     }
                 }
             }

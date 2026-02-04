@@ -98,37 +98,68 @@ export default function MyGig() {
     const toggleGigPublishState = async (gigId, gigPublishState) => {
         const newState = !gigPublishState;
         const token = localStorage.getItem("token");
+        
+        const confirmResult = await Swal.fire({
+            title: newState ? "Publish this gig?" : "Unpublish this gig?",
+            text: newState
+                ? "This gig will be visible globally."
+                : "This gig will no longer be visible to anyone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#018790",
+            confirmButtonText: newState ? "Publish" : "Revoke",
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            }
+        });
+
+        if (!confirmResult.isConfirmed) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/gigs/publish-state/${gigId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ isPublished: newState })
-            })
+            const response = await fetch(
+                `http://localhost:5000/api/gigs/publish-state/${gigId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ isPublished: newState })
+                }
+            );
 
-            if (response.ok) {
-                setUserGigs(prevGigs => prevGigs.map(gig => gig._id === gigId ? { ...gig, isPublished: newState } : gig));
-                Swal.fire({
-                    title: "Gig Status Changed",
-                    text: `Gig status was changed to ${newState ? 'published' : 'unpublished'}`,
-                    icon: "warning",
-                    customClass: {
-                        popup: 'swal-custom-popup',
-                        title: 'swal-custom-title'
-                    }
-                });
+            if (!response.ok) {
+                throw new Error(`Failed to update gig state: ${response.status}`);
             }
-            else {
-                throw new Error("Failed to update gig's state:", response.status);
-            }
+
+            setUserGigs(prevGigs =>
+                prevGigs.map(gig =>
+                    gig._id === gigId
+                        ? { ...gig, isPublished: newState }
+                        : gig
+                )
+            );
+
+            Swal.fire({
+                title: "Gig Status Updated!",
+                text: `Gig has been ${newState ? "published" : "revoked"} successfully.`,
+                icon: "success",
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title'
+                }
+            });
+
         } catch (error) {
-            console.error("Some FRONTEND error occured while updating gig's state\nError:", error);
+            console.error(
+                "Some FRONTEND error occurred while updating gig's state\nError:",
+                error
+            );
+
             Swal.fire({
                 title: "Error",
-                text: 'Failed to switch gig status!',
+                text: "Failed to switch gig status!",
                 icon: "error",
                 customClass: {
                     popup: 'swal-custom-popup',
@@ -136,7 +167,8 @@ export default function MyGig() {
                 }
             });
         }
-    }
+    };
+
 
     return (
         <>

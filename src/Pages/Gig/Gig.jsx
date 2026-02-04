@@ -202,6 +202,14 @@ export default function Gig() {
 
     const category = gig?.category;
 
+    let profileLink;
+    if (!currentUser) {
+        profileLink = `/user/${gig?.userId}`
+    }
+    else {
+        profileLink = currentUser.id === gig?.userId ? '/my-profile' : `/user/${gig?.userId}`;
+    }
+
     return (
         <div className='gig'>
             <div className="breadcrump">
@@ -226,7 +234,9 @@ export default function Gig() {
                             }
                         </div>
                         <div className="seller-info">
+                            <Link to={profileLink} className='link'>
                             <span className='seller-name'>{gig?.sellerName}</span>
+                            </Link>
                             <span>{gig?.starRating} <FontAwesomeIcon icon="fa-solid fa-star" /> ({gig?.totalReviews})</span>
                         </div>
                     </div>
@@ -296,13 +306,9 @@ export default function Gig() {
                             <span>Price: Rs {gig?.price}</span>
                         </div>
                         <hr />
-                        {/* <div className="gig-desc">
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Earum voluptate veritatis animi, corporis commodi molestiae.
-                        </div> */}
-                        {/* <hr /> */}
                         <div className="main-attr">
                             <div className="d">
-                                <span>Time: {gig?.deliveryDays} Days</span>
+                                <span>Time: {gig?.deliveryDays} {gig?.deliveryDays === 1 ? 'day' : 'days'}</span>
                             </div>
                             <div className="d">
                                 <span>Revisions: {gig?.revisions}</span>

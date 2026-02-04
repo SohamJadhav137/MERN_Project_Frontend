@@ -10,10 +10,11 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
     const [token, setToken] = useState(localStorage.getItem("token") || null);
     const navigate = useNavigate();
-    const currentUser = getCurrentUser();
-
+    
     useEffect(() => {
         if(user){
+            const currentUser = getCurrentUser();
+            if(!currentUser.id) return;
             createSocket({
                 userId: currentUser.id,
                 username: user.username
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Logout error!", error);
         }
 
-        // disconnectSocket();
+        disconnectSocket();
 
         setUser(null);
         setToken(null);

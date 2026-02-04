@@ -42,12 +42,12 @@ export default function OrderCheckOut() {
 
         if (!gigId) return;
 
-        if(!textareaInput){
+        if (!textareaInput) {
             setErrorMsg("Please enter your requirements!");
             return;
         }
 
-        if(textareaInput.length < 20){
+        if (textareaInput.length < 20) {
             setErrorMsg("Requirments should be of minimum 20 characters!");
             return;
         }
@@ -57,8 +57,13 @@ export default function OrderCheckOut() {
             text: "Do you want to place this order ?",
             icon: "warning",
             showCancelButton: true,
+            confirmButtonColor: "#018790",
             confirmButtonText: "Place Order",
-            cancelButtonText: "Cancel"
+            cancelButtonText: "Cancel",
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            }
         });
 
         if (!result.isConfirmed) return;
@@ -78,8 +83,12 @@ export default function OrderCheckOut() {
             if (response.ok) {
                 await Swal.fire({
                     title: "Order Placed!",
-                    text: "Seller has been notified",
-                    icon: "success"
+                    text: "Your order has been sent to the seller.",
+                    icon: "success",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
 
                 navigate('/orders');
@@ -88,7 +97,11 @@ export default function OrderCheckOut() {
                 Swal.fire({
                     title: response.status,
                     text: "Failed to create order!",
-                    icon: "error"
+                    icon: "error",
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title'
+                    }
                 });
 
                 console.error("Failed to create order!", response.status);
@@ -124,7 +137,7 @@ export default function OrderCheckOut() {
                                     <li className='gig-title'>{gig?.title}</li>
                                     <hr />
                                     <li><span className='gig-attr'>Seller:</span> {gig?.sellerName}</li>
-                                    <li><span className='gig-attr'>Delivery:</span> {gig?.deliveryDays} days</li>
+                                    <li><span className='gig-attr'>Delivery:</span> {gig?.deliveryDays} {gig?.deliveryDays === 1 ? 'day' : 'days'}</li>
                                     <li><span className='gig-attr'>Revisions:</span> {gig?.revisions}</li>
                                 </ul>
                             </div>
@@ -157,7 +170,7 @@ export default function OrderCheckOut() {
                                         </tr>
                                         <tr>
                                             <td><span className='gig-attr'>Delivery time</span></td>
-                                            <td>{gig?.deliveryDays} days</td>
+                                            <td>{gig?.deliveryDays} {gig?.deliveryDays === 1 ? 'day' : 'days'}</td>
                                         </tr>
                                         <tr>
                                             <td><span className='gig-attr'>Revisions</span></td>

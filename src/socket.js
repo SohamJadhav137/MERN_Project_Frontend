@@ -20,7 +20,7 @@ export const createSocket = ({ userId, username }) => {
     socket.on("connect", () => {
         console.log(`Frontend connected to server with ID: ${socket.id}`);
         if (userId) {
-            socket.emit("join-user-room", userId);
+            socket.emit("join-user-room");
             console.log(`${username} has joined USER room at its own id:`, userId);
         }
     });

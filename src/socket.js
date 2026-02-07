@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import API_BASE_URL from './utils/api';
 import { getCurrentUser } from "./utils/getCurrentUser";
 
 let socket = null;
@@ -6,7 +7,7 @@ let socket = null;
 export const createSocket = ({ userId, username }) => {
     if (socket) return socket;
 
-    socket = io('http://localhost:5000', {
+    socket = io(API_BASE_URL, {
         transports: ['websocket'],
         withCredentials: true,
         auth: {

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AuthContext } from '../../context/AuthContext'
 import { getCurrentUser } from '../../utils/getCurrentUser'
+import API_BASE_URL from '../../utils/api';
 
 export default function GigCard({ gig }) {
 
@@ -23,8 +24,8 @@ export default function GigCard({ gig }) {
         const fetchSellerInfo = async () => {
             if (!gig) return;
 
-            try {
-                const res = await fetch(`http://localhost:5000/api/user/${gig.userId}`)
+                try {
+                const res = await fetch(`${API_BASE_URL}/api/user/${gig.userId}`)
                 if (res.ok) {
                     const data = await res.json();
                     setSellerInfo(data.user);

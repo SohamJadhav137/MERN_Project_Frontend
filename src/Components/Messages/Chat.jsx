@@ -4,6 +4,7 @@ import './Chat.scss'
 import profile_img from '../../assets/profile.png'
 import { getCurrentUser } from '../../utils/getCurrentUser'
 import { formatChatTimestamp } from '../../utils/formatChatTimestamp';
+import API_BASE_URL from '../../utils/api';
 
 export default function Chat({ role, conv, onSelectConversation }) {
 
@@ -29,7 +30,7 @@ export default function Chat({ role, conv, onSelectConversation }) {
   useEffect(() => {
     const fetchRecipientDetails = async () => {
       try{
-        const res = await fetch(`http://localhost:5000/api/user/${recipientId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/${recipientId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

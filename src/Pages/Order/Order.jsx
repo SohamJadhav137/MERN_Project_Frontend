@@ -11,6 +11,7 @@ import Swal from 'sweetalert2';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import ORDER_STATES from '../../Data/OrderStates';
 import { Toast } from '../../utils/copyTextToast';
+import API_BASE_URL from '../../utils/api';
 
 
 const formatBytesToSize = (bytes) => {
@@ -62,7 +63,7 @@ export default function Order() {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
+                const response = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
 
@@ -117,7 +118,7 @@ export default function Order() {
             if (!gigId) return;
 
             try {
-                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -144,7 +145,7 @@ export default function Order() {
             if (!userId) return;
 
             try {
-                const response = await fetch(`http://localhost:5000/api/user/${userId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/user/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -205,7 +206,7 @@ export default function Order() {
         if (!declineReason) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/orders/${order?._id}/order-request`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${order?._id}/order-request`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -269,7 +270,7 @@ export default function Order() {
         if (!result.isConfirmed) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/orders/${id}/order-request`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${id}/order-request`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -297,7 +298,7 @@ export default function Order() {
 
     const redirectToChat = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/conversations", {
+            const response = await fetch(`${API_BASE_URL}/api/conversations`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -410,9 +411,9 @@ export default function Order() {
         const isVideo = file.fileType.startsWith('video/');
         const isAudio = file.fileType.startsWith('audio/');
 
-        if (isImage) {
+            if (isImage) {
             return (
-                <img src={`http://localhost:5000/api/preview/${order?._id}/file/${file._id}`} alt={file.fileName} />
+                <img src={`${API_BASE_URL}/api/preview/${order?._id}/file/${file._id}`} alt={file.fileName} />
             )
         }
         else if (isVideo) {
@@ -439,7 +440,7 @@ export default function Order() {
     }
 
     const uploadToS3 = async (file, token) => {
-        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
+        const response = await fetch(`${API_BASE_URL}/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -541,7 +542,7 @@ export default function Order() {
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/api/orders/${id}/deliver`, {
+                const response = await fetch(`${API_BASE_URL}/api/orders/${id}/deliver`, {
                     method: 'PATCH',
                     headers: {
                         "Content-Type": "application/json",
@@ -586,7 +587,7 @@ export default function Order() {
     }
 
     const downloadFile = async (fileId) => {
-        document.location.assign(`http://localhost:5000/api/download/${order?._id}/file/${fileId}`);
+        document.location.assign(`${API_BASE_URL}/api/download/${order?._id}/file/${fileId}`);
     };
 
     const acceptOrderHandler = async () => {
@@ -616,7 +617,7 @@ export default function Order() {
 
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`http://localhost:5000/api/orders/${id}/complete`, {
+                const response = await fetch(`${API_BASE_URL}/api/orders/${id}/complete`, {
                     method: 'PATCH',
                     headers: {
                         "Content-Type": "application/json",
@@ -658,7 +659,7 @@ export default function Order() {
 
     const deleteFromS3 = useCallback(async (s3Key, token) => {
         try {
-            const response = await fetch("http://localhost:5000/api/s3/delete-file", {
+            const response = await fetch(`${API_BASE_URL}/api/s3/delete-file`, {
                 method: 'DELETE',
                 headers: {
                     "Content-Type": "application/json",
@@ -737,7 +738,7 @@ export default function Order() {
             }
 
             try {
-                const res = await fetch(`http://localhost:5000/api/orders/${id}/revision`, {
+                const res = await fetch(`${API_BASE_URL}/api/orders/${id}/revision`, {
                     method: 'PATCH',
                     headers: {
                         "Content-Type": "application/json",
@@ -811,7 +812,7 @@ export default function Order() {
         if (!id) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancellation-request`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${id}/cancellation-request`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -863,7 +864,7 @@ export default function Order() {
         });
 
         try {
-            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancel-accept`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${id}/cancel-accept`, {
                 method: 'PATCH',
                 headers: {
                     "Content-Type": "application/json",
@@ -941,7 +942,7 @@ export default function Order() {
         });
 
         try {
-            const res = await fetch(`http://localhost:5000/api/orders/${id}/cancel-reject`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${id}/cancel-reject`, {
                 method: 'PATCH',
                 headers: {
                     "Content-Type": "application/json",
@@ -1020,7 +1021,7 @@ export default function Order() {
         const duration = Math.floor(new Date(rawDuration) / (24 * 60 * 60 * 1000));
 
         try {
-            const res = await fetch("http://localhost:5000/api/review/submit", {
+            const res = await fetch(`${API_BASE_URL}/api/review/submit`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -1051,7 +1052,7 @@ export default function Order() {
             if (user.role === 'buyer') return;
 
             try {
-                const res = await fetch(`http://localhost:5000/api/review/buyer-rating/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/api/review/buyer-rating/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -1081,7 +1082,7 @@ export default function Order() {
         setIsBuyerRated(true);
 
         try {
-            const res = await fetch("http://localhost:5000/api/review/buyer-rating", {
+                const res = await fetch(`${API_BASE_URL}/api/review/buyer-rating`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -1113,7 +1114,7 @@ export default function Order() {
             }
 
             try {
-                const res = await fetch(`http://localhost:5000/api/review/by-order/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/api/review/by-order/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

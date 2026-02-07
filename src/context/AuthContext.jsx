@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getCurrentUser } from "../utils/getCurrentUser";
 import { createSocket, disconnectSocket } from "../socket";
+import API_BASE_URL from "../utils/api";
 
 export const AuthContext = createContext();
 
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }) => {
             return;
 
         try {
-            await fetch('http://localhost:5000/api/auth/logout', { method: 'POST', credentials: 'include' });
+            await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' });
         } catch (error) {
             console.error("Logout error!", error);
         }

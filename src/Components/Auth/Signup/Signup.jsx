@@ -9,6 +9,7 @@ import { Briefcase, Brush, CheckCircle, ChevronDown, Eye, EyeOff, Info, Language
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import loadingIcon from '../../.././assets/loading_icon.svg';
 import Swal from 'sweetalert2';
+import API_BASE_URL from '../../../utils/api';
 
 export default function Signup() {
 
@@ -46,7 +47,7 @@ export default function Signup() {
       setUsernameStatus('checking');
 
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/check-availability?field=username&value=${encodeURIComponent(formData.username)}`);
+        const res = await fetch(`${API_BASE_URL}/api/auth/check-availability?field=username&value=${encodeURIComponent(formData.username)}`);
 
         if (!res.ok) {
           const errorBody = await res.text();
@@ -96,7 +97,7 @@ export default function Signup() {
       setEmailStatus('checking');
 
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/check-availability?field=email&value=${encodeURIComponent(formData.email)}`);
+        const res = await fetch(`${API_BASE_URL}/api/auth/check-availability?field=email&value=${encodeURIComponent(formData.email)}`);
 
         if (!res.ok) {
           const errorBody = await res.text();
@@ -237,7 +238,7 @@ export default function Signup() {
 
     try {
 
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

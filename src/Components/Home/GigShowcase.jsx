@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import './GigShowcase.scss'
 import { Rating } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../utils/api';
 // const gigs = [
 //     {
 //         id: 1,
@@ -64,7 +65,7 @@ export default function GigShowcase() {
     useEffect(() => {
         const fetchBestGigs = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/gigs/best-by-category');
+                const res = await fetch(`${API_BASE_URL}/api/gigs/best-by-category`);
 
                 if (res.ok) {
                     const data = await res.json();

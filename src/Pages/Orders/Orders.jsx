@@ -9,6 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getCurrentUser } from '../../utils/getCurrentUser';
 import loading_orders from '../../assets/loading_orders.lottie';
 import data_not_found from '../../assets/data-not-found.lottie';
+import API_BASE_URL from '../../utils/api';
 
 export default function Orders() {
 
@@ -39,7 +40,7 @@ export default function Orders() {
       try {
         setOrdersLoading(true);
 
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch(`${API_BASE_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -88,7 +89,7 @@ export default function Orders() {
       const newDetails = {};
       for (const order of ordersNeedingDetails) {
         try {
-          const gigResponse = await fetch(`http://localhost:5000/api/gigs/${order.gigId}`, {
+          const gigResponse = await fetch(`${API_BASE_URL}/api/gigs/${order.gigId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
 
@@ -105,7 +106,7 @@ export default function Orders() {
           if (user.role === 'seller') { userId = order.buyerId; } else { userId = order.sellerId; }
 
           if (userId) {
-            const res = await fetch(`http://localhost:5000/api/user/${userId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/user/${userId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
 

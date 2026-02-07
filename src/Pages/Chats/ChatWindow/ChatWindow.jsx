@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCurrentUser } from '../../../utils/getCurrentUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import API_BASE_URL from '../../../utils/api';
 
 
 export default function ChatWindow() {
@@ -35,7 +36,7 @@ export default function ChatWindow() {
 
     const fetchConversation = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/conversations/${conversationId}/conv`, {
+        const res = await fetch(`${API_BASE_URL}/api/conversations/${conversationId}/conv`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -71,7 +72,7 @@ export default function ChatWindow() {
 
     const fetchRecipientUserDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/user/${recpUserId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/${recpUserId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -105,7 +106,7 @@ export default function ChatWindow() {
     const fetchMessages = async (token) => {
       try {
 
-        const response = await fetch(`http://localhost:5000/api/messages/${conversationId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/messages/${conversationId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

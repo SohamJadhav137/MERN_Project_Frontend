@@ -5,6 +5,7 @@ import ChatsContainer from '../ChatsContainer/ChatsContainer'
 import ChatWindow from '../ChatWindow/ChatWindow'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getSocket } from '../../../socket'
+import API_BASE_URL from '../../../utils/api';
 
 export default function MainContainer() {
   
@@ -41,7 +42,7 @@ export default function MainContainer() {
   useEffect(() => {
     const fetchConverstaions = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/conversations`, {
+        const response = await fetch(`${API_BASE_URL}/api/conversations`, {
           headers: { Authorization: `Bearer ${token}` }
         })
 

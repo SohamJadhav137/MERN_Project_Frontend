@@ -8,6 +8,7 @@ import ReviewBox from '../../Components/Gig/ReviewBox'
 import Swal from 'sweetalert2'
 import { AuthContext } from '../../context/AuthContext'
 import ReactMarkdown from 'react-markdown';
+import API_BASE_URL from '../../utils/api';
 
 export default function Gig() {
 
@@ -35,7 +36,7 @@ export default function Gig() {
     useEffect(() => {
         const fetchSingleGig = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`);
+                const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`);
 
                 if (response.ok) {
                     const data = await response.json();
@@ -68,7 +69,7 @@ export default function Gig() {
             if (!gig) return;
 
             try {
-                const res = await fetch(`http://localhost:5000/api/user/${gig.userId}`)
+                const res = await fetch(`${API_BASE_URL}/api/user/${gig.userId}`)
                 if (res.ok) {
                     const data = await res.json();
                     setSellerInfo(data.user);
@@ -128,7 +129,7 @@ export default function Gig() {
 
 
         try {
-            const response = await fetch("http://localhost:5000/api/conversations", {
+            const response = await fetch(`${API_BASE_URL}/api/conversations`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -183,7 +184,7 @@ export default function Gig() {
     useEffect(() => {
         const fetchGigReviews = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/review/gig-reviews/${gigId}`);
+                const res = await fetch(`${API_BASE_URL}/api/review/gig-reviews/${gigId}`);
 
                 if (res.ok) {
                     const data = await res.json();

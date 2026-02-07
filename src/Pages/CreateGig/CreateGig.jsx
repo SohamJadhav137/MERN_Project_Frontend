@@ -13,6 +13,7 @@ import { Check, ChevronDown, Globe, Info, MoveRight, Save, X } from 'lucide-reac
 import createGigLabels from '../../Data/CreateGigLabels';
 import gigCat from '../../Data/GigCat';
 import { extractCleanFileName } from '../../utils/extractFileName2';
+import API_BASE_URL from '../../utils/api';
 
 const formatBytesToSize = (bytes) => {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -99,7 +100,7 @@ export default function CreateGig() {
             const fetchExisitingGig = async () => {
 
                 try {
-                    const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+                    const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
@@ -194,7 +195,7 @@ export default function CreateGig() {
 
     const deleteFromS3 = useCallback(async (url, token) => {
         try {
-            const response = await fetch("http://localhost:5000/api/s3/delete-file-by-url", {
+            const response = await fetch(`${API_BASE_URL}/api/s3/delete-file-by-url`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -343,7 +344,7 @@ export default function CreateGig() {
 
     const uploadToS3 = async (file, token) => {
         console.log("FILE UPLOADED TO S3:\n", file);
-        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}&fileSize=${file.size}`, {
+        const response = await fetch(`${API_BASE_URL}/api/upload/presign?fileName=${file.name}&fileType=${file.type}&fileSize=${file.size}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -460,7 +461,7 @@ export default function CreateGig() {
 
         // console.log("FINAL FORM DATA before sending:\n",finalFormData);
 
-        const response = await fetch('http://localhost:5000/api/gigs', {
+        const response = await fetch(`${API_BASE_URL}/api/gigs`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -588,7 +589,7 @@ export default function CreateGig() {
                 videoURL: uploadVideoUrl
             }
 
-            const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

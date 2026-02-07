@@ -7,6 +7,7 @@ import GigCard from '../../Components/Gigs/GigCard';
 import { gigs } from '../../Data/GigsData';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import API_BASE_URL from '../../utils/api';
 
 
 export default function Gigs() {
@@ -55,7 +56,7 @@ export default function Gigs() {
     const fetchCatGigs = async (category) => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/category/${category}`);
+        const response = await fetch(`${API_BASE_URL}/api/category/${category}`);
         const data = await response.json();
         setGigs([...data].sort((a, b) => b.orders - a.orders));
       } catch (error) {

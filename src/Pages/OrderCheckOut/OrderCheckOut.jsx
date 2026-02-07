@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import './OrderCheckOut.scss';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import API_BASE_URL from '../../utils/api';
 
 export default function OrderCheckOut() {
 
@@ -18,7 +19,7 @@ export default function OrderCheckOut() {
     useEffect(() => {
         const fetchSingleGig = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`);
+                const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`);
 
                 if (response.ok) {
                     const data = await response.json();
@@ -69,7 +70,7 @@ export default function OrderCheckOut() {
         if (!result.isConfirmed) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/orders/${gigId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/orders/${gigId}`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",

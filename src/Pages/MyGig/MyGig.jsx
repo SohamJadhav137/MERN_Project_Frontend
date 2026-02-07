@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import API_BASE_URL from '../../utils/api';
 
 export default function MyGig() {
 
@@ -20,7 +21,7 @@ export default function MyGig() {
             try {
                 setLoading(true);
 
-                const response = await fetch('http://localhost:5000/api/gigs/my-gigs', {
+                const response = await fetch(`${API_BASE_URL}/api/gigs/my-gigs`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -59,7 +60,7 @@ export default function MyGig() {
         if (!result.isConfirmed) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/gigs/${gigId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/gigs/${gigId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
                 body: { gigId: gigId }
@@ -121,7 +122,7 @@ export default function MyGig() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/gigs/publish-state/${gigId}`,
+                `${API_BASE_URL}/api/gigs/publish-state/${gigId}`,
                 {
                     method: "PATCH",
                     headers: {

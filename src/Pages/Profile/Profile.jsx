@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate, useParams } from 'react-router-dom';
 import useClickOutside from '../../customHooks/useClickOutside';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import API_BASE_URL from '../../utils/api';
 
 export default function Profile() {
 
@@ -54,7 +55,7 @@ export default function Profile() {
     useEffect(() => {
         const fetchUserRating = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/user/${targetUserId}`, {
+                const res = await fetch(`${API_BASE_URL}/api/user/${targetUserId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -80,7 +81,7 @@ export default function Profile() {
     useEffect(() => {
         const fetchActiveGigs = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/user/${targetUserId}/active-gigs`, {
+                const res = await fetch(`${API_BASE_URL}/api/user/${targetUserId}/active-gigs`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -103,7 +104,7 @@ export default function Profile() {
     }, [targetUserId, profilePhoto]);
 
     const uploadToS3 = async (file, token) => {
-        const response = await fetch(`http://localhost:5000/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
+        const response = await fetch(`${API_BASE_URL}/api/upload/presign?fileName=${file.name}&fileType=${file.type}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -131,7 +132,7 @@ export default function Profile() {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/s3/delete-file", {
+            const response = await fetch(`${API_BASE_URL}/api/s3/delete-file`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
@@ -165,7 +166,7 @@ export default function Profile() {
 
             await deleteFromS3(url, token);
 
-            const res = await fetch(`http://localhost:5000/api/user/${targetUserId}/remove-profile-photo`, {
+            const res = await fetch(`${API_BASE_URL}/api/user/${targetUserId}/remove-profile-photo`, {
                 method: 'PATCH',
                 headers: {
                     "Content-Type": "application/json",
@@ -236,7 +237,7 @@ export default function Profile() {
 
             const finalImageUrl = await uploadToS3(file, token);
 
-            const saveImage = await fetch(`http://localhost:5000/api/user/${targetUserId}/save-profile-photo`, {
+            const saveImage = await fetch(`${API_BASE_URL}/api/user/${targetUserId}/save-profile-photo`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",

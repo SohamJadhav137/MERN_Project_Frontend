@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Brush, ChevronDown, Languages, MapPin } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
+import API_BASE_URL from '../../utils/api';
 
 export default function EditProfile() {
 
@@ -68,7 +69,7 @@ export default function EditProfile() {
         const fetchUserDetails = async () => {
 
             try {
-                const res = await fetch(`http://localhost:5000/api/user/${userId}`, {
+                const res = await fetch(`${API_BASE_URL}/api/user/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -115,7 +116,7 @@ export default function EditProfile() {
 
         setError('');
         try {
-            const res = await fetch(`http://localhost:5000/api/user/${userId}/edit-profile`, {
+            const res = await fetch(`${API_BASE_URL}/api/user/${userId}/edit-profile`, {
                 method: 'PATCH',
                 headers: {
                     "Content-Type": "application/json",

@@ -9,12 +9,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useClickOutside from '../../customHooks/useClickOutside';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import API_BASE_URL from '../../utils/api';
+import Swal from 'sweetalert2';
 
 export default function Profile() {
 
     const { id } = useParams();
 
-    const { user, login } = useContext(AuthContext);
+    const { user, login, updateUser } = useContext(AuthContext);
     const [profilePhoto, setProfilePhoto] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
     const [activeGigs, setActiveGigs] = useState([]);
@@ -132,13 +133,13 @@ export default function Profile() {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/s3/delete-file`, {
+            const response = await fetch(`${API_BASE_URL}/api/s3/delete-file-by-url`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ fileUrl: url })
+                body: JSON.stringify({ fileURL: url })
             })
 
             if (!response.ok) {
@@ -176,12 +177,7 @@ export default function Profile() {
 
             if (res.ok) {
                 setProfilePhoto(null);
-                const updatedUserContext = {
-                    ...user,
-                    profilePic: null
-                };
-
-                login(updatedUserContext, token);
+                updateUser({ profilePic: null });
                 setUserInfo(prev => ({ ...prev, profilePic: null }));
             }
             else {
@@ -248,25 +244,27 @@ export default function Profile() {
 
             if (saveImage.ok) {
 
-                const updatedUserContext = {
-                    ...user,
-                    profilePic: finalImageUrl
-                };
-
-                login(updatedUserContext, token);
+                updateUser({ profilePic: finalImageUrl });
                 setProfilePhoto(prev => ({ ...(prev || {}), imageUrl: finalImageUrl }));
                 // setIsPicMenuOpen(false);
                 console.log("Profile photo after upload:\n", userInfo?.profilePic);
             }
             else {
                 console.error("Error in saving profile photo:", saveImage.status);
-                alert("Failed to upload profile photo");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to upload profile photo'
+                });
             }
         } catch (error) {
             console.error("Some error occured:", error);
-            alert("Image upload failed!");
+            Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Image upload failed!'
+                });
         } finally {
-
             setIsUploading(false);
             event.target.value = null;
         }

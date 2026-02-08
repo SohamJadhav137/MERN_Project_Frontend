@@ -11,17 +11,17 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
     const [token, setToken] = useState(localStorage.getItem("token") || null);
     const navigate = useNavigate();
-    
+
     useEffect(() => {
-        if(user){
+        if (user) {
             const currentUser = getCurrentUser();
-            if(!currentUser.id) return;
+            if (!currentUser.id) return;
             createSocket({
                 userId: currentUser.id,
                 username: user.username
             });
         }
-        else{
+        else {
             disconnectSocket();
         }
     }, [user]);
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
         setToken(token);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
-        
+
         // createSocket({
         //     userId: currentUser.id,
         //     username: userData.username
@@ -47,13 +47,13 @@ export const AuthProvider = ({ children }) => {
             confirmButtonColor: '#018790',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: 'Logout',
-            customClass:{
-            	popup: 'swal-custom-popup',
-            	title: 'swal-custom-title'
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
             }
         });
 
-        if(!result.isConfirmed)
+        if (!result.isConfirmed)
             return;
 
         try {
@@ -71,8 +71,16 @@ export const AuthProvider = ({ children }) => {
         navigate('/auth/login');
     }
 
+    const updateUser = (updatedFields) => {
+        setUser(prev => ({
+            ...prev,
+            ...updatedFields
+        }));
+    };
+
+
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, setUser, setToken }}>
+        <AuthContext.Provider value={{ user, token, login, logout, updateUser, setUser, setToken }}>
             {children}
         </AuthContext.Provider>
     );

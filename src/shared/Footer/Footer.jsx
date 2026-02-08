@@ -33,7 +33,6 @@ export default function Footer() {
           </div>
           <div className="c1">
             <h3>For Buyers</h3>
-            <span>How fiverr works</span>
             <span>Guides</span>
             <span>Answers</span>
           </div>

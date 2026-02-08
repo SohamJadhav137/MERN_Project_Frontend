@@ -345,7 +345,7 @@ export default function Signup() {
             <Lock className='input-icon' size={20} />
             <input type={showPassword ? 'text' : 'password'} name='password' id='password' value={formData.password} onChange={onChangeHandler} />
             <button type='button' className='eye-icon' onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 

@@ -7,6 +7,8 @@ import { cards } from '../../data'
 import analytics_img from '../../assets/analytics.png'
 import curate_img from '../../assets/content-curation.png'
 import mil_img from '../../assets/milestone.png'
+import chat_img from '../../assets/chat.png'
+import rating_review_img from '../../assets/rating.png'
 import secure_pic from '../../assets/secure_pic.png'
 import options_pic from '../../assets/options_pic.png'
 import personalization_pic from '../../assets/personalization_pic.png'
@@ -49,30 +51,30 @@ export default function Home() {
 
         <div className="features-title-container">
           <div className="features-title">
-            Key Features
+            Platform Highlights
           </div>
         </div>
 
         <div className="features">
           <div className="f1">
-            <img src={analytics_img} alt="image" />
-            <div className="title">AI Analytics</div>
-            <div className="desc">Gain smart insights to grow your gigs with real-time performance analytics</div>
+            <img src={chat_img} alt="image" />
+            <div className="title">Real-Time Messaging</div>
+            <div className="desc">Communicate seamlessly with buyers and sellers through live chat during active conversations.</div>
           </div>
           <div className="f2">
-            <img src={mil_img} alt="image" />
-            <div className="title">Milestone Based</div>
-            <div className="desc">Break projects into clear milestones for smoother collaboration and delivery</div>
+            <img src={rating_review_img} alt="image" />
+            <div className="title">Reviews & Ratings</div>
+            <div className="desc">Build confidence with transparent feedback from real project experiences.</div>
           </div>
           <div className="f3">
             <img src={curate_img} alt="image" />
-            <div className="title">Curated Sellers</div>
-            <div className="desc">Work with handpicked creators, ensuring top-quality results every time</div>
+            <div className="title">Pre-Order Discussion</div>
+            <div className="desc">Connect with sellers before placing an order to clarify requirements and expectations.</div>
           </div>
           <div className="f4">
-            <img src={secure_pic} alt="image" />
-            <div className="title">Safe & Transparent Payments</div>
-            <div className="desc">Enjoy secure transactions with clear, upfront pricing and no hidden fees</div>
+            <img src={mil_img} alt="image" />
+            <div className="title">Structured Order Flow</div>
+            <div className="desc">Track orders clearly through defined stages from initiation to delivery and completion.</div>
           </div>
         </div>
       </div>
@@ -82,7 +84,7 @@ export default function Home() {
       <div className="container3">
         <div className="features-title-container">
           <div className="features-title">
-            How it works ?
+            How It Works
           </div>
         </div>
         <div className="sub-container">
@@ -91,11 +93,11 @@ export default function Home() {
               <img src={options_pic} alt="image" />
               <span className='title'>Step-1: <br />Choose what you need</span>
               <br />
-              <span className='desc'>Pick a service category, style, and budget that fits your project.</span>
+              <span className='desc'>Start by selecting the right category for your project.</span>
             </div>
             <div className="step">
               <img src={personalization_pic} alt="image" />
-              <span className='title'>Step-2: <br />Browse Curated Wizards</span>
+              <span className='title'>Step-2: <br />Browse Wizards</span>
               <br />
               <span className='desc'>Find the right creators and place your order with confidence.</span>
             </div>

@@ -100,8 +100,10 @@
         .f2,
         .f3,
         .f4 {
-            box-shadow: 5px 10px 8px lightgray;
-            background-color: rgb(0, 183, 181);
+            // box-shadow: 5px 10px 8px lightgray;
+            background: linear-gradient(#F4F4F4, #00B7B5);
+            background: linear-gradient(#00B7B5, #F4F4F4);
+            // background-color: rgb(0, 183, 181);
             // border: 1px solid gray;
             padding: 1.25rem;
             border-radius: 10px;
@@ -125,11 +127,6 @@
                 width: 100px;
                 height: 100px;
             }
-        }
-
-        .f1,
-        .f2 {
-            box-shadow: none;
         }
     }
 }
@@ -182,7 +179,9 @@
             }
 
             .step {
-                background-color: lightblue;
+                // background-color: lightblue;
+                background-color: #F4F4F4;
+                background: linear-gradient(#F4F4F4, #00B7B5);
                 // border: 1px solid black;
                 border-radius: 10px;
                 width: 300px;

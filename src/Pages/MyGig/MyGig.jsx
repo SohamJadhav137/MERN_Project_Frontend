@@ -231,7 +231,7 @@ export default function MyGig() {
                                         <thead>
                                             <tr>
                                                 <th>Thumbnail</th>
-                                                <th>Gig</th>
+                                                <th>Title</th>
                                                 <th>Price</th>
                                                 <th>Orders</th>
                                                 <th>Status</th>
